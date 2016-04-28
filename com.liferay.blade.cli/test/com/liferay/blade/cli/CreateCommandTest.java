@@ -99,6 +99,25 @@ public class CreateCommandTest {
 	}
 
 	@Test
+	public void testCreateGradleControlmenuentryProject() throws Exception {
+		String[] args = {
+			"create", "-d", "generated/test", "-t", "controlmenuentry", "menu"
+		};
+
+		new bladenofail().run(args);
+
+		String projectPath = "generated/test/menu";
+
+		checkFileExists(projectPath);
+
+		checkFileExists(projectPath + "/bnd.bnd");
+
+		contains(
+			checkFileExists(projectPath + "/src/main/java/menu/Menu.java"),
+			".*^public class Menu.*extends BaseProductNavigationControlMenuEntry.*implements ProductNavigationControlMenuEntry.*$");
+	}
+
+	@Test
 	public void testCreateGradleMVCPortletProject() throws Exception {
 		String[] args = {
 			"create", "-d", "generated/test", "-t", "mvcportlet", "foo"
@@ -634,7 +653,7 @@ public class CreateCommandTest {
 
 		assertTrue(gradleTemplates.exists());
 
-		assertTrue(gradleTemplates.getName().contains("1.0.3"));
+		assertTrue(gradleTemplates.getName().contains("1.0.5"));
 	}
 
 	@Test
@@ -656,6 +675,7 @@ public class CreateCommandTest {
 
 		assertEquals(
 			"activator\n" +
+			"controlmenuentry\n" +
 			"fragment\n" +
 			"mvcportlet\n" +
 			"portlet\n" +
