@@ -102,11 +102,13 @@ public class AetherClient {
 		Artifact artifact = new DefaultArtifact(
 			groupIdArtifactId + ":" + version);
 		ArtifactRequest artifactRequest = new ArtifactRequest();
+
 		artifactRequest.setArtifact(artifact);
 		artifactRequest.setRepositories(repos);
 
 		ArtifactResult artifactResult = system.resolveArtifact(
 			session, artifactRequest);
+
 		artifact = artifactResult.getArtifact();
 
 		return artifact;
@@ -145,6 +147,7 @@ public class AetherClient {
 	private static RepositorySystem newRepositorySystem() {
 		DefaultServiceLocator locator =
 			MavenRepositorySystemUtils.newServiceLocator();
+
 		locator.addService(
 			RepositoryConnectorFactory.class,
 			BasicRepositoryConnectorFactory.class);

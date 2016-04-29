@@ -62,8 +62,8 @@ public class MigrateThemeCommandTest {
 		Assert.assertTrue(content.contains("compass-theme"));
 	}
 
-	@Test
 	@Ignore
+	@Test
 	public void testMigrateCompassTheme() throws Exception {
 		String[] args = {
 			"-b", "generated/test/workspace", "migrateTheme", "-a"

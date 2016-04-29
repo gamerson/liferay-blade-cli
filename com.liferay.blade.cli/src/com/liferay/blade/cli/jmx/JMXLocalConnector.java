@@ -66,6 +66,7 @@ public class JMXLocalConnector {
 					"com.sun.tools.attach.VirtualMachine");
 
 				Method listMethod = vmClass.getMethod("list");
+
 				List<Object> vmds = (List<Object>)listMethod.invoke(null);
 
 				for (Object vmd : vmds) {
@@ -90,6 +91,7 @@ public class JMXLocalConnector {
 				if (toolsClassloader != null) {
 					Field nl = ClassLoader.class.getDeclaredField(
 						"nativeLibraries");
+
 					nl.setAccessible(true);
 
 					Vector< ? > nativeLibs = (Vector< ? >)nl.get(
@@ -99,12 +101,14 @@ public class JMXLocalConnector {
 						Class<?> clazz = nativeLib.getClass();
 
 						Field nameField = clazz.getDeclaredField("name");
+
 						nameField.setAccessible(true);
 
 						String name = (String)nameField.get(nativeLib);
 
 						if (new File(name).getName().contains("attach")) {
 							Method f = clazz.getDeclaredMethod("finalize");
+
 							f.setAccessible(true);
 							f.invoke(nativeLib);
 						}
@@ -152,14 +156,17 @@ public class JMXLocalConnector {
 			Class< ? > vmdClass = toolsClassloader.loadClass(
 				"com.sun.tools.attach.VirtualMachineDescriptor");
 			Method idMethod = vmdClass.getMethod("id");
+
 			String id = (String)idMethod.invoke(vmd);
 
 			Method attachMethod = vmClass.getMethod("attach", String.class);
+
 			Object vm = attachMethod.invoke(null, id);
 
 			try {
 				Method getAgentProperties = vmClass.getMethod(
 					"getAgentProperties");
+
 				Properties agentProperties =
 					(Properties)getAgentProperties.invoke(vm);
 
@@ -172,6 +179,7 @@ public class JMXLocalConnector {
 					if (agentJar != null) {
 						Method loadAgent = vmClass.getMethod(
 							"loadAgent", String.class);
+
 						loadAgent.invoke(vm, agentJar.getCanonicalPath());
 
 						agentProperties = (Properties)getAgentProperties.invoke(
@@ -207,6 +215,7 @@ public class JMXLocalConnector {
 			}
 			finally {
 				Method detachMethod = vmClass.getMethod("detach");
+
 				detachMethod.invoke(vm);
 			}
 		}

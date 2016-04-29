@@ -164,15 +164,16 @@ public class InitCommand {
 
 		List<String> names = Arrays.asList(dir.list());
 
-		return names != null &&
-			names.contains("portlets") &&
-			names.contains("hooks") &&
-			names.contains("layouttpl") &&
-			names.contains("themes") &&
-			names.contains("build.properties") &&
-			names.contains("build.xml") &&
-			names.contains("build-common.xml") &&
-			names.contains("build-common-plugin.xml");
+		if (names != null && names.contains("portlets") &&
+			names.contains("hooks") && names.contains("layouttpl") &&
+			names.contains("themes") && names.contains("build.properties") &&
+			names.contains("build.xml") && names.contains("build-common.xml") &&
+			names.contains("build-common-plugin.xml")) {
+
+			return true;
+		}
+
+		return false;
 	}
 
 	private void moveContentsToDir(File src, File dest, final String sdkDirName)

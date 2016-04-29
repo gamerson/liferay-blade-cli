@@ -70,8 +70,8 @@ public class ShellCommand {
 	}
 
 	private void executeCommand(String cmd) throws Exception {
-		final GogoTelnetClient telnetClient =
-			new GogoTelnetClient(_host, _port);
+		final GogoTelnetClient telnetClient = new GogoTelnetClient(
+			_host, _port);
 
 		String response = telnetClient.send(cmd);
 

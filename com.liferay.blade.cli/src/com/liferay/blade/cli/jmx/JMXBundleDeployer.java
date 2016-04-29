@@ -95,9 +95,8 @@ public class JMXBundleDeployer extends JMXLocalConnector {
 		else {
 			Object[] params = new Object[] {bundleUrl, bundleUrl};
 
-			String[] signature = new String[] {
-				String.class.getName(), String.class.getName()
-			};
+			String[] signature =
+				new String[] {String.class.getName(), String.class.getName()};
 
 			Object installed = mBeanServerConnection.invoke(
 				framework, "installBundleFromURL", params, signature);
@@ -243,9 +242,8 @@ public class JMXBundleDeployer extends JMXLocalConnector {
 
 		ObjectName objectName = new ObjectName(name + ":type=bundleState,*");
 
-		return
-			mBeanServerConnection.queryNames(
-				objectName, null).iterator().next();
+		return mBeanServerConnection.queryNames(
+			objectName, null).iterator().next();
 	}
 
 	private static final String name = "osgi.core";

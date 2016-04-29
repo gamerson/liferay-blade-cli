@@ -21,6 +21,7 @@ import aQute.lib.getopt.Description;
 import aQute.lib.getopt.Options;
 
 import java.io.File;
+
 import java.util.Collections;
 import java.util.List;
 
@@ -32,7 +33,9 @@ public class InstallCommand {
 	public static final String DESCRIPTION =
 		"Installs a bundle into Liferay module framework.";
 
-	public InstallCommand(blade blade, InstallOptions options) throws Exception {
+	public InstallCommand(blade blade, InstallOptions options)
+		throws Exception {
+
 		_blade = blade;
 		_options = options;
 		_host = options.host() != null ? options.host() : "localhost";

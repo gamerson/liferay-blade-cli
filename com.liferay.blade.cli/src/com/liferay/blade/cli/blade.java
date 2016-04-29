@@ -18,6 +18,7 @@ package com.liferay.blade.cli;
 
 import aQute.bnd.annotation.component.Component;
 import aQute.bnd.annotation.component.Reference;
+
 import aQute.lib.consoleapp.AbstractConsoleApp;
 import aQute.lib.getopt.Description;
 import aQute.lib.getopt.Options;
@@ -39,7 +40,9 @@ import java.io.File;
 import java.io.IOException;
 import java.io.PrintStream;
 import java.io.UnsupportedEncodingException;
+
 import java.net.URL;
+
 import java.util.Enumeration;
 import java.util.Formatter;
 import java.util.Map;
@@ -142,12 +145,15 @@ public class blade extends AbstractConsoleApp implements Runnable {
 
 		while (e.hasMoreElements()) {
 			URL u = e.nextElement();
+
 			Manifest m = new Manifest(u.openStream());
+
 			String bsn =
 				m.getMainAttributes().getValue(Constants.BUNDLE_SYMBOLICNAME);
 
 			if ((bsn != null) && bsn.equals("com.liferay.blade.cli")) {
 				Attributes attrs = m.getMainAttributes();
+
 				out.printf("%s\n", attrs.getValue(Constants.BUNDLE_VERSION));
 				return;
 			}

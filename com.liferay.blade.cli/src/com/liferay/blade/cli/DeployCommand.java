@@ -18,6 +18,7 @@ package com.liferay.blade.cli;
 
 import aQute.bnd.header.Parameters;
 import aQute.bnd.osgi.Jar;
+
 import aQute.lib.getopt.Description;
 import aQute.lib.getopt.Options;
 
@@ -27,7 +28,9 @@ import com.liferay.blade.cli.gradle.GradleTooling;
 
 import java.io.File;
 import java.io.IOException;
+
 import java.nio.file.Path;
+
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -146,13 +149,66 @@ public class DeployCommand {
 
 	}
 
-
 	private void addError(String msg) {
 		_blade.addErrors("deploy", Collections.singleton(msg));
 	}
 
 	private void addError(String prefix, String msg) {
 		_blade.addErrors(prefix, Collections.singleton(msg));
+	}
+
+	private List<BundleDTO> getBundles(GogoTelnetClient client)
+		throws IOException {
+
+		List<BundleDTO> bundles = new ArrayList<>();
+
+		String output = client.send("lb -s -u");
+
+		String lines[] = output.split("\\r?\\n");
+
+		for (String line : lines) {
+			try {
+				String[] fields = line.split("\\|");
+
+				//ID|State|Level|Symbolic name
+				BundleDTO bundle = new BundleDTO();
+
+				bundle.id = Long.parseLong(fields[0].trim());
+				bundle.state = getState(fields[1].trim());
+				bundle.symbolicName = fields[3];
+
+				bundles.add(bundle);
+			}
+			catch (Exception e) {
+			}
+		}
+
+		return bundles;
+	}
+
+	private int getState(String state) {
+		String bundleState = state.toUpperCase();
+
+		if ("ACTIVE".equals(bundleState)) {
+			return Bundle.ACTIVE;
+		}
+		else if ("INSTALLED".equals(Bundle.INSTALLED)) {
+			return Bundle.INSTALLED;
+		}
+		else if ("RESOLVED".equals(Bundle.RESOLVED)) {
+			return Bundle.RESOLVED;
+		}
+		else if ("STARTING".equals(Bundle.STARTING)) {
+			return Bundle.STARTING;
+		}
+		else if ("STOPPING".equals(Bundle.STOPPING)) {
+			return Bundle.STOPPING;
+		}
+		else if ("UNINSTALLED".equals(Bundle.UNINSTALLED)) {
+			return Bundle.UNINSTALLED;
+		}
+
+		return 0;
 	}
 
 	private void installOrUpdate(File outputFile) throws Exception {
@@ -162,6 +218,7 @@ public class DeployCommand {
 
 		try(Jar bundle = new Jar(outputFile)) {
 			Manifest manifest = bundle.getManifest();
+
 			Attributes mainAttributes = manifest.getMainAttributes();
 
 			fragmentHost = mainAttributes.getValue("Fragment-Host");
@@ -243,60 +300,6 @@ public class DeployCommand {
 		}
 
 		client.close();
-	}
-
-	private List<BundleDTO> getBundles(GogoTelnetClient client)
-		throws IOException {
-
-		List<BundleDTO> bundles = new ArrayList<>();
-
-		String output = client.send("lb -s -u");
-
-		String lines[] = output.split("\\r?\\n");
-
-		for (String line : lines) {
-			try {
-				String[] fields = line.split("\\|");
-
-				//ID|State|Level|Symbolic name
-				BundleDTO bundle = new BundleDTO();
-
-				bundle.id = Long.parseLong(fields[0].trim());
-				bundle.state = getState(fields[1].trim());
-				bundle.symbolicName = fields[3];
-
-				bundles.add(bundle);
-			}
-			catch (Exception e) {
-			}
-		}
-
-		return bundles;
-	}
-
-	private int getState(String state) {
-		String bundleState = state.toUpperCase();
-
-		if ("ACTIVE".equals(bundleState)) {
-			return Bundle.ACTIVE;
-		}
-		else if ("INSTALLED".equals(Bundle.INSTALLED)) {
-			return Bundle.INSTALLED;
-		}
-		else if ("RESOLVED".equals(Bundle.RESOLVED)) {
-			return Bundle.RESOLVED;
-		}
-		else if ("STARTING".equals(Bundle.STARTING)) {
-			return Bundle.STARTING;
-		}
-		else if ("STOPPING".equals(Bundle.STOPPING)) {
-			return Bundle.STOPPING;
-		}
-		else if ("UNINSTALLED".equals(Bundle.UNINSTALLED)) {
-			return Bundle.UNINSTALLED;
-		}
-
-		return 0;
 	}
 
 	private final blade _blade;

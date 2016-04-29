@@ -225,10 +225,10 @@ public class SamplesCommand {
 	}
 
 	private static final String _BLADE_REPO_ARCHIVE_NAME =
-			"liferay-blade-samples-master.zip";
+		"liferay-blade-samples-master.zip";
 
 	private static final String _BLADE_REPO_NAME =
-			"liferay-blade-samples-master";
+		"liferay-blade-samples-master";
 
 	private static final String _BLADE_REPO_URL =
 		"https://github.com/liferay/liferay-blade-samples/archive/master.zip";

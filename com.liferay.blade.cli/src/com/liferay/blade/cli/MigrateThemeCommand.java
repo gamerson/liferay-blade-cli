@@ -188,8 +188,8 @@ public class MigrateThemeCommand {
 	}
 
 	private blade _blade;
-	private final Pattern
-		_compassImport = Pattern.compile("@import\\s*['\"]compass['\"];");
+	private final Pattern _compassImport = Pattern.compile(
+		"@import\\s*['\"]compass['\"];");
 	private MigrateThemeOptions _options;
 	private File _pluginsSDKThemesDir;
 	private File _themesDir;
