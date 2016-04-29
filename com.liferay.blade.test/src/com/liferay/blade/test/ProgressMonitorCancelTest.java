@@ -53,18 +53,15 @@ public class ProgressMonitorCancelTest {
 			}
 		};
 
-		t.start();
-
-		Thread.sleep(5000);
-
 		cancelable.canceled = true;
 
+		t.start();
 		t.join();
 
-		final int expectedSize = 284;
+		final int expectedSize = 1;
 		final int size = result.size();
 
-		assertTrue(size < expectedSize);
+		assertTrue(size + "", size < expectedSize);
 	}
 
 	private final BundleContext context = FrameworkUtil.getBundle(
