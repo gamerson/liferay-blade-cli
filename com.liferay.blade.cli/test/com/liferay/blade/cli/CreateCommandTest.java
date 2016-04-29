@@ -30,7 +30,9 @@ import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
 import java.io.PrintStream;
+
 import java.nio.file.Files;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Pattern;
@@ -74,6 +76,75 @@ public class CreateCommandTest {
 	}
 
 	@Test
+	public void testCreateGradleControlmenuentryProject() throws Exception {
+		String[] args = {
+			"create", "-d", "generated/test", "-t", "controlmenuentry", "menu"
+		};
+
+		new bladenofail().run(args);
+
+		String projectPath = "generated/test/menu";
+
+		checkFileExists(projectPath);
+
+		checkFileExists(projectPath + "/bnd.bnd");
+
+		contains(
+			checkFileExists(projectPath + "/src/main/java/menu/control/menu/MenuProductNavigationControlMenuEntry.java"),
+			".*^public class MenuProductNavigationControlMenuEntry.*extends BaseProductNavigationControlMenuEntry.*implements ProductNavigationControlMenuEntry.*$");
+
+		contains(
+			checkFileExists(projectPath + "/src/main/java/menu/control/menu/MenuProductNavigationControlMenuEntry.java"),
+			".*^package menu.control.menu;.*$");
+	}
+
+	@Test
+	public void testCreateGradleControlmenuentryProjectDashes() throws Exception {
+		String[] args = {
+			"create", "-d", "generated/test", "-t", "controlmenuentry", "menu-test"
+		};
+
+		new bladenofail().run(args);
+
+		String projectPath = "generated/test/menu-test";
+
+		checkFileExists(projectPath);
+
+		checkFileExists(projectPath + "/bnd.bnd");
+
+		contains(
+			checkFileExists(projectPath + "/src/main/java/menu/test/control/menu/MenuTestProductNavigationControlMenuEntry.java"),
+			".*^public class MenuTestProductNavigationControlMenuEntry.*extends BaseProductNavigationControlMenuEntry.*implements ProductNavigationControlMenuEntry.*$");
+
+		contains(
+			checkFileExists(projectPath + "/src/main/java/menu/test/control/menu/MenuTestProductNavigationControlMenuEntry.java"),
+			".*^package menu.test.control.menu;.*$");
+	}
+
+	@Test
+	public void testCreateGradleControlmenuentryProjectDots() throws Exception {
+		String[] args = {
+			"create", "-d", "generated/test", "-t", "controlmenuentry", "menu.test"
+		};
+
+		new bladenofail().run(args);
+
+		String projectPath = "generated/test/menu.test";
+
+		checkFileExists(projectPath);
+
+		checkFileExists(projectPath + "/bnd.bnd");
+
+		contains(
+			checkFileExists(projectPath + "/src/main/java/menu/test/control/menu/MenuTestProductNavigationControlMenuEntry.java"),
+			".*^public class MenuTest.*extends BaseProductNavigationControlMenuEntry.*implements ProductNavigationControlMenuEntry.*$");
+
+		contains(
+			checkFileExists(projectPath + "/src/main/java/menu/test/control/menu/MenuTestProductNavigationControlMenuEntry.java"),
+			".*^package menu.test.control.menu;.*$");
+	}
+
+	@Test
 	public void testCreateGradleFragment() throws Exception {
 		String[] args = {
 			"create", "-d", "generated/test", "-t", "fragment", "-h",
@@ -99,25 +170,6 @@ public class CreateCommandTest {
 	}
 
 	@Test
-	public void testCreateGradleControlmenuentryProject() throws Exception {
-		String[] args = {
-			"create", "-d", "generated/test", "-t", "controlmenuentry", "menu"
-		};
-
-		new bladenofail().run(args);
-
-		String projectPath = "generated/test/menu";
-
-		checkFileExists(projectPath);
-
-		checkFileExists(projectPath + "/bnd.bnd");
-
-		contains(
-			checkFileExists(projectPath + "/src/main/java/menu/Menu.java"),
-			".*^public class Menu.*extends BaseProductNavigationControlMenuEntry.*implements ProductNavigationControlMenuEntry.*$");
-	}
-
-	@Test
 	public void testCreateGradleMVCPortletProject() throws Exception {
 		String[] args = {
 			"create", "-d", "generated/test", "-t", "mvcportlet", "foo"
@@ -132,7 +184,7 @@ public class CreateCommandTest {
 		checkFileExists(projectPath + "/bnd.bnd");
 
 		contains(
-			checkFileExists(projectPath + "/src/main/java/foo/FooPortlet.java"),
+			checkFileExists(projectPath + "/src/main/java/foo/portlet/FooPortlet.java"),
 			".*^public class FooPortlet extends MVCPortlet.*$");
 
 		contains(
@@ -165,7 +217,7 @@ public class CreateCommandTest {
 
 		contains(
 			checkFileExists(
-				projectPath + "/src/main/java/com/liferay/test/FooPortlet.java"),
+				projectPath + "/src/main/java/com/liferay/test/portlet/FooPortlet.java"),
 			".*^public class FooPortlet extends MVCPortlet.*$");
 
 		contains(
@@ -177,6 +229,98 @@ public class CreateCommandTest {
 
 		checkFileExists(
 			projectPath + "/src/main/resources/META-INF/resources/init.jsp");
+	}
+
+	@Test
+	public void testCreateGradleMVCPortletProjectWithPackageWithPortletClassname()
+		throws Exception {
+
+		String[] args = {
+			"create", "-d", "generated/test", "-t", "mvcportlet", "-p",
+			"com.liferay.test.portlet", "-c", "Portlet", "foo"
+		};
+
+		new bladenofail().run(args);
+
+		String projectPath = "generated/test/foo";
+
+		checkFileExists(projectPath);
+
+		checkFileExists(projectPath + "/bnd.bnd");
+
+		contains(
+			checkFileExists(
+				projectPath + "/src/main/java/com/liferay/test/portlet/Portlet.java"),
+			".*^public class Portlet extends MVCPortlet.*$");
+
+		contains(
+			checkFileExists("generated/test/foo/build.gradle"),
+			".*^apply plugin: \"com.liferay.plugin\".*");
+
+		checkFileExists(
+			projectPath + "/src/main/resources/META-INF/resources/view.jsp");
+
+		checkFileExists(
+			projectPath + "/src/main/resources/META-INF/resources/init.jsp");
+	}
+
+	@Test
+	public void testCreateGradleMVCPortletProjectWithPackageWithPortletSuffix()
+		throws Exception {
+
+		String[] args = {
+			"create", "-d", "generated/test", "-t", "mvcportlet", "-p",
+			"com.liferay.test.portlet", "foo"
+		};
+
+		new bladenofail().run(args);
+
+		String projectPath = "generated/test/foo";
+
+		checkFileExists(projectPath);
+
+		checkFileExists(projectPath + "/bnd.bnd");
+
+		contains(
+			checkFileExists(
+				projectPath + "/src/main/java/com/liferay/test/portlet/FooPortlet.java"),
+			".*^public class FooPortlet extends MVCPortlet.*$");
+
+		contains(
+			checkFileExists("generated/test/foo/build.gradle"),
+			".*^apply plugin: \"com.liferay.plugin\".*");
+
+		checkFileExists(
+			projectPath + "/src/main/resources/META-INF/resources/view.jsp");
+
+		checkFileExists(
+			projectPath + "/src/main/resources/META-INF/resources/init.jsp");
+	}
+
+	@Test
+	public void testCreateGradleMVCPortletProjectWithProjectnamePortlet()
+		throws Exception {
+
+		String[] args = {
+			"create", "-d", "generated/test", "-t", "portlet", "portlet"
+		};
+
+		new bladenofail().run(args);
+
+		String projectPath = "generated/test/portlet";
+
+		checkFileExists(projectPath);
+
+		checkFileExists(projectPath + "/bnd.bnd");
+
+		contains(
+			checkFileExists(
+				projectPath + "/src/main/java/portlet/portlet/Portlet.java"),
+			".*^public class Portlet extends GenericPortlet.*$");
+
+		contains(
+			checkFileExists("generated/test/portlet/build.gradle"),
+			".*^apply plugin: \"com.liferay.plugin\".*");
 	}
 
 	@Test
@@ -196,9 +340,9 @@ public class CreateCommandTest {
 
 		contains(
 			checkFileExists(
-				projectPath + "/src/main/java/gradle/test/FooPortlet.java"),
+				projectPath + "/src/main/java/gradle/test/portlet/FooPortlet.java"),
 			new String[] {
-				"^package gradle.test;.*",
+				"^package gradle.test.portlet;.*",
 				".*javax.portlet.display-name=gradle.test.*",
 				".*^public class FooPortlet .*",
 				".*printWriter.print\\(\\\"gradle.test Portlet.*"
@@ -222,8 +366,7 @@ public class CreateCommandTest {
 			"\"backend-integration-service\"");
 
 		contains(
-			checkFileExists(
-				projectPath + "/backend-integration-api/bnd.bnd"),
+			checkFileExists(projectPath + "/backend-integration-api/bnd.bnd"),
 			new String[] {
 				".*Export-Package:\\\\.*",
 				".*com.liferay.backend.integration.exception,\\\\.*",
@@ -235,14 +378,12 @@ public class CreateCommandTest {
 		contains(
 			checkFileExists(
 				projectPath + "/backend-integration-service/bnd.bnd"),
-				".*Liferay-Service: true.*"
-		);
+				".*Liferay-Service: true.*");
 
 		contains(
 			checkFileExists(
 				projectPath + "/backend-integration-service/build.gradle"),
-				".*repositories \\{.*"
-		);
+				".*repositories \\{.*");
 	}
 
 	@Test
@@ -261,8 +402,7 @@ public class CreateCommandTest {
 			"include \"guestbook-api\", \"guestbook-service\"");
 
 		contains(
-			checkFileExists(
-				projectPath + "/guestbook-api/bnd.bnd"),
+			checkFileExists(projectPath + "/guestbook-api/bnd.bnd"),
 			new String[] {
 				".*Export-Package:\\\\.*",
 				".*com.liferay.docs.guestbook.exception,\\\\.*",
@@ -272,16 +412,12 @@ public class CreateCommandTest {
 			});
 
 		contains(
-			checkFileExists(
-				projectPath + "/guestbook-service/bnd.bnd"),
-				".*Liferay-Service: true.*"
-		);
+			checkFileExists(projectPath + "/guestbook-service/bnd.bnd"),
+				".*Liferay-Service: true.*");
 
 		contains(
-			checkFileExists(
-				projectPath + "/guestbook-service/build.gradle"),
-				".*compile project\\(\":guestbook-api\"\\).*"
-		);
+			checkFileExists(projectPath + "/guestbook-service/build.gradle"),
+				".*compile project\\(\":guestbook-api\"\\).*");
 	}
 
 	@Test
@@ -314,8 +450,7 @@ public class CreateCommandTest {
 		contains(
 			checkFileExists(
 				projectPath + "/com.liferay.docs.guestbook.svc/bnd.bnd"),
-				".*Liferay-Service: true.*"
-		);
+				".*Liferay-Service: true.*");
 	}
 
 	@Test
@@ -467,9 +602,9 @@ public class CreateCommandTest {
 
 		contains(
 			checkFileExists(
-				projectPath + "/gradle.test/src/main/java/gradle/test/FooPortlet.java"),
+				projectPath + "/gradle.test/src/main/java/gradle/test/portlet/FooPortlet.java"),
 			new String[] {
-				"^package gradle.test;.*",
+				"^package gradle.test.portlet;.*",
 				".*javax.portlet.display-name=gradle.test.*",
 				".*^public class FooPortlet .*",
 				".*printWriter.print\\(\\\"gradle.test Portlet.*"
@@ -481,8 +616,40 @@ public class CreateCommandTest {
 	}
 
 	@Test
+	public void testCreateWorkspaceGradleServiceBuilderProjectApiPath()
+		throws Exception {
+
+		String[] args = {
+			"create", "-d", "generated/test/workspace/modules/nested/path",
+			"-t", "servicebuilder", "-p", "com.liferay.sample", "sample"
+		};
+
+		makeWorkspace(new File("generated/test/workspace"));
+
+		assertTrue(
+			new File("generated/test/workspace/modules/nested/path").mkdirs());
+
+		new bladenofail().run(args);
+
+		String projectPath = "generated/test/workspace/modules/nested/path";
+
+		checkFileExists(projectPath + "/sample/build.gradle");
+
+		checkFileDoesNotExists(projectPath + "/sample/settings.gradle");
+
+		checkFileExists(projectPath + "/sample/sample-api/build.gradle");
+
+		checkFileExists(projectPath + "/sample/sample-service/build.gradle");
+
+		contains(
+			checkFileExists(
+				projectPath + "/sample/sample-service/build.gradle"),
+				".*compile project\\(\":modules:nested:path:sample:sample-api\"\\).*");
+	}
+
+	@Test
 	public void testCreateWorkspaceGradleServiceBuilderProjectDashes()
-			throws Exception {
+		throws Exception {
 
 		String[] args = {
 			"create", "-d", "generated/test/workspace/modules", "-t",
@@ -509,13 +676,12 @@ public class CreateCommandTest {
 		contains(
 			checkFileExists(
 				projectPath + "/workspace-sample/workspace-sample-service/build.gradle"),
-				".*repositories \\{.*"
-		);
+				".*repositories \\{.*");
 	}
 
 	@Test
 	public void testCreateWorkspaceGradleServiceBuilderProjectDefault()
-			throws Exception {
+		throws Exception {
 
 		String[] args = {
 			"create", "-d", "generated/test/workspace/modules", "-t",
@@ -530,61 +696,21 @@ public class CreateCommandTest {
 
 		checkFileExists(projectPath + "/sample/build.gradle");
 
-		checkFileDoesNotExists(
-			projectPath + "/sample/settings.gradle");
+		checkFileDoesNotExists(projectPath + "/sample/settings.gradle");
 
-		checkFileExists(
-			projectPath + "/sample/sample-api/build.gradle");
+		checkFileExists(projectPath + "/sample/sample-api/build.gradle");
 
-		checkFileExists(
-			projectPath + "/sample/sample-service/build.gradle");
+		checkFileExists(projectPath + "/sample/sample-service/build.gradle");
 
 		contains(
 			checkFileExists(
 				projectPath + "/sample/sample-service/build.gradle"),
-				".*compile project\\(\":modules:sample:sample-api\"\\).*"
-		);
-	}
-
-	@Test
-	public void testCreateWorkspaceGradleServiceBuilderProjectApiPath()
-			throws Exception {
-
-		String[] args = {
-			"create", "-d", "generated/test/workspace/modules/nested/path",
-			"-t", "servicebuilder", "-p", "com.liferay.sample", "sample"
-		};
-
-		makeWorkspace(new File("generated/test/workspace"));
-
-		assertTrue(
-			new File("generated/test/workspace/modules/nested/path").mkdirs());
-
-		new bladenofail().run(args);
-
-		String projectPath = "generated/test/workspace/modules/nested/path";
-
-		checkFileExists(projectPath + "/sample/build.gradle");
-
-		checkFileDoesNotExists(
-			projectPath + "/sample/settings.gradle");
-
-		checkFileExists(
-			projectPath + "/sample/sample-api/build.gradle");
-
-		checkFileExists(
-			projectPath + "/sample/sample-service/build.gradle");
-
-		contains(
-			checkFileExists(
-				projectPath + "/sample/sample-service/build.gradle"),
-				".*compile project\\(\":modules:nested:path:sample:sample-api\"\\).*"
-		);
+				".*compile project\\(\":modules:sample:sample-api\"\\).*");
 	}
 
 	@Test
 	public void testCreateWorkspaceGradleServiceBuilderProjectDots()
-			throws Exception {
+		throws Exception {
 
 		String[] args = {
 			"create", "-d", "generated/test/workspace/modules", "-t",
@@ -626,7 +752,7 @@ public class CreateCommandTest {
 		checkFileExists(projectPath + "/foo/bnd.bnd");
 
 		File portletFile = checkFileExists(
-			projectPath + "/foo/src/main/java/foo/FooPortlet.java");
+			projectPath + "/foo/src/main/java/foo/portlet/FooPortlet.java");
 
 		contains(
 			portletFile, ".*^public class FooPortlet extends MVCPortlet.*$");
@@ -642,30 +768,27 @@ public class CreateCommandTest {
 		List<String> args = new ArrayList<>();
 		args.add("foo");
 
-		CreateOptions options =
-			new CommandLine(null).getOptions(CreateOptions.class, args);
+		CreateOptions options = new CommandLine(
+			null).getOptions(CreateOptions.class, args);
 
-		File gradleTemplates =
-			new CreateCommand(
-				new bladenofail(), options).getGradleTemplatesZip();
+		File gradleTemplates = new CreateCommand(
+			new bladenofail(), options).getGradleTemplatesZip();
 
 		assertNotNull(gradleTemplates);
 
 		assertTrue(gradleTemplates.exists());
 
-		assertTrue(gradleTemplates.getName().contains("1.0.5"));
+		assertTrue(gradleTemplates.getName().contains("1.0.6"));
 	}
 
 	@Test
 	public void testListTemplates() throws Exception {
-		String[] args = {
-			"create", "-l"
-		};
+		String[] args = {"create", "-l"};
 
 		ByteArrayOutputStream output = new ByteArrayOutputStream();
 		PrintStream ps = new PrintStream(output);
 
-		blade blade =new bladenofail(ps);
+		blade blade = new bladenofail(ps);
 
 		blade.run(args);
 

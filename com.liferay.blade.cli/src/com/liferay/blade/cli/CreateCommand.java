@@ -19,6 +19,7 @@ package com.liferay.blade.cli;
 import aQute.bnd.osgi.Jar;
 import aQute.bnd.osgi.Processor;
 import aQute.bnd.osgi.Resource;
+
 import aQute.lib.getopt.Arguments;
 import aQute.lib.getopt.Description;
 import aQute.lib.getopt.Options;
@@ -29,8 +30,10 @@ import com.liferay.blade.cli.gradle.GradleTooling;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.InputStream;
+
 import java.nio.file.Path;
 import java.nio.file.Paths;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -53,7 +56,10 @@ public class CreateCommand {
 		"Creates a new Liferay module project from several available " +
 			"templates.";
 
-	public static final String TEMPLATES_VERSION = "1.0.5";
+	public static final String TEMPLATES_VERSION = "1.0.6";
+
+	private static final String _package_ = "_package_";
+	private static final String _package_path_ = "_package_path_";
 
 	public CreateCommand(blade blade, CreateOptions options) {
 		_blade = blade;
@@ -75,7 +81,8 @@ public class CreateCommand {
 		}
 
 		String name = args.remove(0);
-		final File dir = _options.dir() != null ? _options.dir() : getDefaultDir();
+		final File dir =
+			_options.dir() != null ? _options.dir() : getDefaultDir();
 		final File workDir = Processor.getFile(dir, name);
 		final boolean isWorkspace = Util.isWorkspace(dir);
 
@@ -90,23 +97,16 @@ public class CreateCommand {
 		subs.put("_name_", getPackageName(name));
 		subs.put("_NAME_", name);
 
-		final String packageName = _options.packagename();
-
-		if (isEmpty(packageName)) {
-			subs.put(
-				"_package_path_", getPackageName(name).replaceAll("\\.", "/"));
-			subs.put("_package_", getPackageName(name));
-		}
-		else {
-			subs.put("_package_path_", packageName.replaceAll("\\.", "/"));
-			subs.put("_package_", packageName);
-		}
+		String packageName = isEmpty(
+			_options.packagename()) ? getPackageName(name) : _options.packagename();
 
 		String classname = _options.classname();
 
 		if (isEmpty(classname)) {
 			classname = getClassName(name);
 		}
+
+		String classnameTemplateSuffix = null;
 
 		String service = _options.service();
 
@@ -171,18 +171,18 @@ public class CreateCommand {
 			}
 
 			if (isWorkspace) {
-				final Path workspacePath =
-					Util.getWorkspaceDir(dir).getAbsoluteFile().toPath();
+				final Path workspacePath = Util.getWorkspaceDir(
+					dir).getAbsoluteFile().toPath();
 
 				final Path dirPath = dir.getAbsoluteFile().toPath();
 
-				final String relativePath =
-					workspacePath.relativize(dirPath).toString();
+				final String relativePath = workspacePath.relativize(
+					dirPath).toString();
 
 				final String apiPath =
 					":" + relativePath.replaceAll("\\/", ":") + ":" + name;
 
-				subs.put("_api_path_",  apiPath);
+				subs.put("_api_path_", apiPath);
 			}
 			else {
 				subs.put("_api_path_", "");
@@ -193,7 +193,7 @@ public class CreateCommand {
 				"_portletpackage_",
 				packageName.replaceAll("\\.", "/") + "/portlet");
 
-			if (!classname.contains("Portlet")) {
+			if (!classname.endsWith("Portlet")) {
 				classname += "Portlet";
 			}
 		}
@@ -202,11 +202,15 @@ public class CreateCommand {
 				classname += "Activator";
 			}
 		}
-		else if ("portlet".equals(template) ||
-				 "mvcportlet".equals(template)) {
+		else if ("controlmenuentry".equals(template)) {
+			classnameTemplateSuffix = "ProductNavigationControlMenuEntry";
+		}
+		else if ("portlet".equals(template) || "mvcportlet".equals(template)) {
+			classnameTemplateSuffix = "Portlet";
 
-			if (!classname.contains("Portlet")) {
-				classname += "Portlet";
+			if (packageName.endsWith(".portlet")) {
+				packageName = packageName.substring(
+					0, packageName.indexOf(".portlet"));
 			}
 		}
 
@@ -227,6 +231,16 @@ public class CreateCommand {
 
 			subs.put("_HOST_BUNDLE_BSN_", hostbundlebsn);
 			subs.put("_HOST_BUNDLE_VERSION_", hostbundleversion);
+		}
+
+		subs.put(_package_path_, packageName.replaceAll("\\.", "/"));
+		subs.put(_package_, packageName);
+
+		if (classnameTemplateSuffix != null &&
+			classname.endsWith(classnameTemplateSuffix)) {
+
+			classname = classname.substring(
+				0, classname.indexOf(classnameTemplateSuffix));
 		}
 
 		subs.put("_CLASS_", classname);
@@ -252,9 +266,7 @@ public class CreateCommand {
 
 			in = new FileInputStream(moduleTemplatesZip);
 
-			copy(
-				"workspace", template, workDir, in, buildGlob, true,
-				subs);
+			copy("workspace", template, workDir, in, buildGlob, true, subs);
 
 			in.close();
 
@@ -322,8 +334,8 @@ public class CreateCommand {
 
 		File zipFile = GradleTooling.findLatestAvailableArtifact(
 			"group: 'com.liferay', " +
-				"name: 'com.liferay.gradle.templates', " +
-					"version: '" + TEMPLATES_VERSION + "', classifier: " +
+				"name: 'com.liferay.gradle.templates', " + "version: '" +
+					TEMPLATES_VERSION + "', classifier: " +
 						"'sources', ext: 'jar'");
 
 		trace("Found gradle templates " + zipFile);
@@ -446,7 +458,8 @@ public class CreateCommand {
 		File templatesZip = getGradleTemplatesZip();
 
 		try (Jar jar = new Jar(templatesZip)) {
-			Map<String, Map<String, Resource>> directories = jar.getDirectories();
+			Map<String, Map<String, Resource>> directories =
+				jar.getDirectories();
 
 			for (String key : directories.keySet()) {
 				Path path = Paths.get(key);
