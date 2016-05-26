@@ -17,6 +17,7 @@
 package com.liferay.blade.test;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.fail;
 
 import com.liferay.blade.api.Migration;
 import com.liferay.blade.api.Problem;
@@ -25,30 +26,37 @@ import com.liferay.blade.util.NullProgressMonitor;
 import java.io.File;
 import java.util.List;
 
-import org.junit.Ignore;
 import org.junit.Test;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.FrameworkUtil;
 import org.osgi.framework.ServiceReference;
 
-public class AllJSPTagProblemsTest {
+public class AUILayoutTagsTest {
 
 	@Test
-	@Ignore
-	public void allProblems() throws Exception {
+	public void findProblems() throws Exception {
 		ServiceReference<Migration> sr = context
-			.getServiceReference(Migration.class);
+				.getServiceReference(Migration.class);
+
 		Migration m = context.getService(sr);
-		List<Problem> problems = m.findProblems(new File("jsptests/"), new NullProgressMonitor());
 
-		final int expectedSize = 59;
-		final int size = problems.size();
+		List<Problem> problems = m.findProblems(new File("jsptests/aui-layout/"), new NullProgressMonitor());
 
-		if (size != expectedSize) {
-			System.err.println("All problems size is " + size + ", expected size is " + expectedSize);
+		assertEquals(1, problems.size());
+
+		boolean found = false;
+
+		for (Problem problem : problems) {
+			if (problem.file.getName().endsWith("AUILayoutTagTest.jsp")) {
+				if (problem.lineNumber == 1 && problem.startOffset == 0 && problem.endOffset == 222) {
+					found = true;
+				}
+			}
 		}
 
-		assertEquals(expectedSize, size);
+		if (!found) {
+			fail();
+		}
 	}
 
 	private final BundleContext context = FrameworkUtil.getBundle(
