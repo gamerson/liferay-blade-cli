@@ -67,7 +67,7 @@ public class GradleTooling {
 
 		try {
 			final GradleConnector connector =
-				GradleConnector.newConnector().forProjectDirectory(projectDir);
+				getGradleConnector().forProjectDirectory(projectDir);
 
 			connection = connector.connect();
 
@@ -78,6 +78,22 @@ public class GradleTooling {
 		}
 
 		return new File(projectDir, "build").listFiles()[0];
+	}
+
+	public static GradleConnector getGradleConnector() {
+		String localInstall = System.getenv("GRADLE_HOME");
+
+		GradleConnector connector = GradleConnector.newConnector();
+
+		if(localInstall != null && localInstall.trim().length() > 0){
+			File gradleInstall = new File(localInstall);
+
+			if(gradleInstall.exists()){
+				connector.useInstallation( new File(localInstall) );
+			}
+		}
+
+		return connector;
 	}
 
 	public static Set<File> getOutputFiles(File cacheDir, File buildDir)
@@ -139,8 +155,8 @@ public class GradleTooling {
 
 		T retval = null;
 
-		final GradleConnector connector = GradleConnector.newConnector();
-		connector.forProjectDirectory(projectDir);
+		final GradleConnector connector =
+				getGradleConnector().forProjectDirectory(projectDir);
 
 		ProjectConnection connection = null;
 
