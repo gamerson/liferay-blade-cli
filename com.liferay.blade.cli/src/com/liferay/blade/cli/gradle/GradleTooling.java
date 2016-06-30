@@ -71,7 +71,8 @@ public class GradleTooling {
 
 			connection = connector.connect();
 
-			connection.newBuild().forTasks("copyDep").run();
+			connection.newBuild().forTasks("copyDep").withArguments(
+					"--refresh-dependencies").run();
 		}
 		finally {
 			connection.close();
