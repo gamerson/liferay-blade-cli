@@ -51,6 +51,8 @@ public class InitCommand {
 	}
 
 	public void execute() throws IOException {
+		GradleTooling.setRefresh(_options.refresh());
+
 		final List<String> args = _options._arguments();
 
 		final String name = args.size() > 0 ? args.get(0) : null;
@@ -149,8 +151,12 @@ public class InitCommand {
 	@Description(DESCRIPTION)
 	public interface InitOptions extends Options {
 
+		@Description(
+				"create anyway if there are files located at target folder")
 		public boolean force();
 
+		@Description("force to refresh workspace template")
+		public boolean refresh();
 	}
 
 	private void addError(String msg) {
