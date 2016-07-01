@@ -29,6 +29,7 @@ import java.nio.file.Files;
 import java.util.Map.Entry;
 import java.util.Set;
 
+import org.gradle.tooling.BuildLauncher;
 import org.gradle.tooling.GradleConnector;
 import org.gradle.tooling.ModelBuilder;
 import org.gradle.tooling.ProjectConnection;
@@ -37,6 +38,8 @@ import org.gradle.tooling.ProjectConnection;
  * @author Gregory Amerson
  */
 public class GradleTooling {
+
+	private static boolean refresh = false;
 
 	public static File findLatestAvailableArtifact(String artifact)
 		throws Exception {
@@ -71,7 +74,14 @@ public class GradleTooling {
 
 			connection = connector.connect();
 
-			connection.newBuild().forTasks("copyDep").run();
+			BuildLauncher buildLauncher =
+					connection.newBuild().forTasks("copyDep");
+
+			if(isRefresh()) {
+				buildLauncher.withArguments("--refresh-dependencies");
+			}
+
+			buildLauncher.run();
 		}
 		finally {
 			connection.close();
@@ -105,6 +115,14 @@ public class GradleTooling {
 				CustomModel.class, cacheDir, buildDir);
 
 		return model.isLiferayModule();
+	}
+
+	public static boolean isRefresh() {
+		return refresh;
+	}
+
+	public static void setRefresh(boolean refresh) {
+		GradleTooling.refresh = refresh;
 	}
 
 	private static void copy(InputStream in, File outputDir) throws Exception {

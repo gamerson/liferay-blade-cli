@@ -55,12 +55,18 @@ public class CreateCommand {
 
 	public static final String TEMPLATES_VERSION = "1+";
 
+	private static List<String> templateNames;
+
+	private static File zipFile = null;
+
 	public CreateCommand(blade blade, CreateOptions options) {
 		_blade = blade;
 		_options = options;
 	}
 
 	public void execute() throws Exception {
+		GradleTooling.setRefresh(_options.refresh());
+
 		if (_options.listtemplates()) {
 			listTemplates();
 			return;
@@ -314,6 +320,9 @@ public class CreateCommand {
 		)
 		public String service();
 
+		@Description("force to refresh templates")
+		public boolean refresh();
+
 		@Description(
 			"The project template to use when creating the project. To " +
 				"see the list of templates available use blade create <-l | " +
@@ -323,11 +332,15 @@ public class CreateCommand {
 	}
 
 	File getGradleTemplatesZip() throws Exception {
+		if (zipFile != null) {
+			return zipFile;
+		}
+
 		trace(
 			"Connecting to repository to find version " + TEMPLATES_VERSION +
 				" gradle templates.");
 
-		File zipFile = GradleTooling.findLatestAvailableArtifact(
+		zipFile = GradleTooling.findLatestAvailableArtifact(
 			"group: 'com.liferay', " +
 				"name: 'com.liferay.gradle.templates', " + "version: '" +
 					TEMPLATES_VERSION + "', ext: 'jar'");
@@ -446,7 +459,13 @@ public class CreateCommand {
 	}
 
 	private List<String> getTemplates() throws Exception {
-		List<String> templateNames = new ArrayList<>();
+		if (templateNames != null && templateNames.size() > 0) {
+
+			return templateNames;
+		}
+
+		templateNames = new ArrayList<String>();
+
 		File templatesZip = getGradleTemplatesZip();
 
 		try (Jar jar = new Jar(templatesZip)) {
