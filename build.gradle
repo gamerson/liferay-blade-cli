@@ -37,3 +37,13 @@ subprojects {
     }
   }
 }
+
+allprojects {
+  tasks.withType(GroovyCompile) {
+    groovyOptions.fork = false
+  }
+  tasks.withType(Test) {
+    maxParallelForks = 2
+    minHeapSize = '128m'
+  }
+}
