@@ -1,11 +1,6 @@
 language: java
 jdk:
-  - oraclejdk7
-
-before_script:
-  - npm install -g yo generator-liferay-theme
+  - oraclejdk8
 
 install: ./gradlew --version
-# TO debug
-# script: ./gradlew build --debug
-script: ./gradlew clean build
+script: ./gradlew build

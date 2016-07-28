@@ -41,7 +41,7 @@ public class GradleTooling {
 
 		return findLatestAvailableArtifact(
 			artifact,
-			"http://cdn.repository.liferay.com/nexus/content/groups/public");
+			"https://cdn.lfrs.sl/repository.liferay.com/nexus/content/groups/public");
 	}
 
 	public static File findLatestAvailableArtifact(
