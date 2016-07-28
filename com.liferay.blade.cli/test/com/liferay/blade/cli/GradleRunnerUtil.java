@@ -38,6 +38,7 @@ public class GradleRunnerUtil {
 		File projectDir = new File(projectPath);
 
 		BuildResult buildResult = GradleRunner.create()
+									.withDebug(true)
 									.withProjectDir(projectDir)
 									.withArguments(taskPath)
 									.build();
