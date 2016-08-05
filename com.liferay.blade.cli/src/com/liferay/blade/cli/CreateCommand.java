@@ -55,6 +55,7 @@ public class CreateCommand {
 
 	public static final List<String> TEMPLATE_NAMES = Arrays.asList(
 		"activator",
+		"api",
 		"contenttargetingreport",
 		"contenttargetingrule",
 		"contenttargetingtrackingaction",
@@ -69,7 +70,7 @@ public class CreateCommand {
 		"servicewrapper"
 	);
 
-	public static final String TEMPLATES_VERSION = "1.0.13";
+	public static final String TEMPLATES_VERSION = "1.0.18";
 
 	private static File zipFile = null;
 
