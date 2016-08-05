@@ -25,18 +25,22 @@ import com.liferay.blade.cli.gradle.GradleTooling;
 
 import java.io.File;
 import java.io.FileFilter;
+import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.Properties;
 import java.util.zip.ZipFile;
 
 import org.apache.commons.io.FileUtils;
 
 /**
  * @author Gregory Amerson
+ * @author Terry Jia
  */
 public class InitCommand {
 
@@ -67,12 +71,17 @@ public class InitCommand {
 
 		if (destDir.exists()) {
 			if (isPluginsSDK(destDir)) {
-				trace(
-					"Found plugins-sdk, moving contents to new subdirectory " +
-						"and initing workspace.");
+				if (isPluginsSDK70(destDir)) {
+					trace(
+						"Found plugins-sdk, moving contents to new subdirectory " +
+							"and initing workspace.");
 
-				moveContentsToDir(
-					destDir, new File(destDir, "plugins-sdk"), "plugins-sdk");
+					moveContentsToDir(
+						destDir, new File(destDir, "plugins-sdk"), "plugins-sdk");
+				}
+				else {
+					addError("Unable to run blade init in plugins sdk 62");
+				}
 			}
 			else if (destDir.list().length > 0) {
 				if (_options.force()) {
@@ -177,6 +186,42 @@ public class InitCommand {
 			names.contains("build.xml") &&
 			names.contains("build-common.xml") &&
 			names.contains("build-common-plugin.xml");
+	}
+
+	private boolean isPluginsSDK70(File dir) {
+		if ((dir == null) || !dir.exists() || !dir.isDirectory()) {
+			return false;
+		}
+
+		File buildProperties = new File(dir, "build.properties");
+		Properties properties = new Properties();
+
+		InputStream in = null;
+
+		try {
+			in = new FileInputStream(buildProperties);
+
+			properties.load(in);
+
+			String sdkVersionValue = (String) properties.get("lp.version");
+
+			if (sdkVersionValue.equals("7.0.0")) {
+				return true;
+			}
+		}
+		catch (Exception e) {
+		}
+		finally {
+			if (in != null) {
+				try {
+					in.close();
+				}
+				catch (Exception e) {
+				}
+			}
+		}
+
+		return false;
 	}
 
 	private void moveContentsToDir(File src, File dest, final String sdkDirName)
