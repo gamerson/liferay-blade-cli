@@ -25,6 +25,8 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
@@ -87,7 +89,22 @@ public class MarkdownParser {
 
 			String href = a.attr("href");
 
-			retval.put(href, sb.toString());
+			String content = sb.toString();
+			String idReg = "\\[\\]\\(id=[^\\s]+?\\)";
+			String replace = "";
+			Pattern idPattern = Pattern.compile(idReg);
+			Matcher idMatcher = idPattern.matcher(content);
+			content = idMatcher.replaceAll(replace);
+
+			String hyperLinkReg = "<a\\s+href\\s*=\\s*\"(http.+?)\"\\s*>.+?</a>";
+			Pattern hyperLinkPattern = Pattern.compile(hyperLinkReg);
+			Matcher hyperLinkMatcher = hyperLinkPattern.matcher(content);
+
+			while(hyperLinkMatcher.find()) {
+				content = content.replace(hyperLinkMatcher.group(), hyperLinkMatcher.group(1));
+			}
+
+			retval.put(href, content);
 		}
 
 		return retval;
