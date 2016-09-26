@@ -168,6 +168,8 @@ public class JavaFileJDT extends WorkspaceFile implements JavaFile {
 	public SearchResult findImport(final String importName) {
 		final List<SearchResult> searchResults = new ArrayList<>();
 
+		setFile(_file);
+
 		_ast.accept(new ASTVisitor() {
 
 			@Override
@@ -199,8 +201,10 @@ public class JavaFileJDT extends WorkspaceFile implements JavaFile {
 	}
 
 	@Override
-	public List<SearchResult> findImports(final String importName , final String[] imports) {
+	public List<SearchResult> findImports(final String importName, final String[] imports) {
 		final List<SearchResult> searchResults = new ArrayList<>();
+
+		resetFile();
 
 		_ast.accept(new ASTVisitor() {
 
@@ -556,6 +560,11 @@ public class JavaFileJDT extends WorkspaceFile implements JavaFile {
 		}
 
 		return null;
+	}
+
+	private void resetFile() {
+		CUCache.unget(_file);
+		setFile(_file);
 	}
 
 }
