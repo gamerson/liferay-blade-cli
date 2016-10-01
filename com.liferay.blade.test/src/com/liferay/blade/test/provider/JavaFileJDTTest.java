@@ -14,12 +14,14 @@
  * limitations under the License.
  */
 
-package com.liferay.blade.eclipse.provider;
+package com.liferay.blade.test.provider;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 
 import com.liferay.blade.api.SearchResult;
+import com.liferay.blade.eclipse.provider.JavaFileJDT;
+import com.liferay.blade.test.Util;
 
 import java.io.File;
 import java.util.List;
@@ -40,7 +42,7 @@ public class JavaFileJDTTest {
 
 		assertNotNull(searchResult);
 
-		if (PlatformUtil.isWindows()) {
+		if (Util.isWindows()) {
 			assertEquals(14, searchResult.startLine);
 			assertEquals(15, searchResult.endLine);
 			assertEquals(242, searchResult.startOffset);
@@ -68,7 +70,7 @@ public class JavaFileJDTTest {
 
 		assertNotNull(searchResult);
 
-		if (PlatformUtil.isWindows()) {
+		if (Util.isWindows()) {
 			assertEquals(10, searchResult.startLine);
 			assertEquals(11, searchResult.endLine);
 			assertEquals(190, searchResult.startOffset);

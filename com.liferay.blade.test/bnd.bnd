@@ -19,7 +19,8 @@ Test-Cases: ${test-cases}
 	org.apache.felix.scr,\
 	osgi.core,\
 	osgi.cmpn,\
-	com.liferay.blade.upgrade.liferay70;version=latest
+	com.liferay.blade.upgrade.liferay70;version=latest,\
+	com.liferay.blade.eclipse.provider;version=latest
 
 -runbundles: \
 	biz.aQute.junit,\
