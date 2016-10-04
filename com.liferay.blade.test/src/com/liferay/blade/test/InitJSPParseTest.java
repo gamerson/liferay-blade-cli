@@ -50,8 +50,15 @@ public class InitJSPParseTest {
 
 		for (Problem problem : problems) {
 			if (problem.file.getName().endsWith("view_search.jsp")) {
-				if (problem.lineNumber == 109 && problem.startOffset == 3697 && problem.endOffset == 3752) {
-					found = true;
+				if (Util.isWindows()) {
+					if (problem.lineNumber == 109 && problem.startOffset == 3810 && problem.endOffset == 3865) {
+						found = true;
+					}
+				}
+				else {
+					if (problem.lineNumber == 109 && problem.startOffset == 3697 && problem.endOffset == 3752) {
+						found = true;
+					}
 				}
 			}
 		}

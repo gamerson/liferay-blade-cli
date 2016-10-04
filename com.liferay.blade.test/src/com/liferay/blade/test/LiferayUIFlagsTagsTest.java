@@ -48,8 +48,15 @@ public class LiferayUIFlagsTagsTest {
 
 		for (Problem problem : problems) {
 			if (problem.file.getName().endsWith("LiferayUIFlagsTagsTest.jsp")) {
-				if (problem.lineNumber == 3 && problem.startOffset == 65 && problem.endOffset == 273) {
-					found = true;
+				if (Util.isWindows()) {
+					if (problem.lineNumber == 3 && problem.startOffset == 67 && problem.endOffset == 280) {
+						found = true;
+					}
+				}
+				else {
+					if (problem.lineNumber == 3 && problem.startOffset == 65 && problem.endOffset == 273) {
+						found = true;
+					}
 				}
 			}
 		}

@@ -54,11 +54,16 @@ public class FileSetMigrationTest {
 		boolean found = false;
 
 		for (Problem problem : problems) {
-			if (problem.file.getName().endsWith("AssetPreviewTest.jsp")
-					&& problem.lineNumber == 7 && problem.startOffset == 230
-					&& problem.endOffset == 310) {
-
-				found = true;
+			if (problem.file.getName().endsWith("AssetPreviewTest.jsp")) {
+				if (Util.isWindows()) {
+					if (problem.lineNumber == 7 && problem.startOffset == 236 && problem.endOffset == 317) {
+						found = true;
+					}
+				} else {
+					if (problem.lineNumber == 7 && problem.startOffset == 230 && problem.endOffset == 310) {
+						found = true;
+					}
+				}
 			}
 		}
 

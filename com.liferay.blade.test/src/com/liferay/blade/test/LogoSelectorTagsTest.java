@@ -47,11 +47,16 @@ public class LogoSelectorTagsTest {
 		boolean found = false;
 
 		for (Problem problem : problems) {
-			if (problem.file.getName().endsWith("LogoSelectorTagsTest.jsp")
-					&& problem.lineNumber == 11 && problem.startOffset == 595
-					&& problem.endOffset == 637) {
-
-				found = true;
+			if (problem.file.getName().endsWith("LogoSelectorTagsTest.jsp")) {
+				if (Util.isWindows()) {
+					if (problem.lineNumber == 11 && problem.startOffset == 605 && problem.endOffset == 648) {
+						found = true;
+					}
+				} else {
+					if (problem.lineNumber == 11 && problem.startOffset == 595 && problem.endOffset == 637) {
+						found = true;
+					}
+				}
 			}
 		}
 

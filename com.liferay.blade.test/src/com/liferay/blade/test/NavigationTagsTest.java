@@ -47,9 +47,18 @@ public class NavigationTagsTest {
 		boolean found = false;
 
 		for (Problem problem : problems) {
-			if (problem.file.getName().endsWith("NavigationTagsTest.jsp")) {
-				if (problem.lineNumber == 3 && problem.startOffset == 57 && problem.endOffset == 374) {
-					found = true;
+			if (Util.isWindows()) {
+				if (problem.file.getName().endsWith("NavigationTagsTest.jsp")) {
+					if (problem.lineNumber == 3 && problem.startOffset == 59 && problem.endOffset == 385) {
+						found = true;
+					}
+				}
+			}
+			else {
+				if (problem.file.getName().endsWith("NavigationTagsTest.jsp")) {
+					if (problem.lineNumber == 3 && problem.startOffset == 57 && problem.endOffset == 374) {
+						found = true;
+					}
 				}
 			}
 		}

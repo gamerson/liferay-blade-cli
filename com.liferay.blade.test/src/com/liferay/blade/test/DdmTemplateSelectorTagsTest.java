@@ -48,8 +48,15 @@ public class DdmTemplateSelectorTagsTest {
 
 		for (Problem problem : problems) {
 			if (problem.file.getName().endsWith("DdmTemplateSelectorTagsTest.jsp")) {
-				if (problem.lineNumber == 70 && problem.startOffset == 2538 && problem.endOffset == 2621) {
-					found = true;
+				if (Util.isWindows()) {
+					if (problem.lineNumber == 70 && problem.startOffset == 2607 && problem.endOffset == 2691) {
+						found = true;
+					}
+				}
+				else {
+					if (problem.lineNumber == 70 && problem.startOffset == 2538 && problem.endOffset == 2621) {
+						found = true;
+					}
 				}
 			}
 		}

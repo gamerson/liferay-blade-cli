@@ -48,8 +48,15 @@ public class AUIColumnTagsTest {
 
 		for (Problem problem : problems) {
 			if (problem.file.getName().endsWith("AUIColumnTagTest.jsp")) {
-				if (problem.lineNumber == 2 && problem.startOffset == 58 && problem.endOffset == 461) {
-					found = true;
+				if (Util.isWindows()) {
+					if (problem.lineNumber == 2 && problem.startOffset == 59 && problem.endOffset == 468) {
+						found = true;
+					}
+				}
+				else {
+					if (problem.lineNumber == 2 && problem.startOffset == 58 && problem.endOffset == 461) {
+						found = true;
+					}
 				}
 			}
 		}
