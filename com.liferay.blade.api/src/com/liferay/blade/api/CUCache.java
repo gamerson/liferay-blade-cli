@@ -22,7 +22,7 @@ import org.osgi.annotation.versioning.ProviderType;
 
 @SuppressWarnings("restriction")
 @ProviderType
-public interface CacheUtil<T> {
+public interface CUCache<T> {
 
 	public T getCU(File file, char[] javaSource);
 
