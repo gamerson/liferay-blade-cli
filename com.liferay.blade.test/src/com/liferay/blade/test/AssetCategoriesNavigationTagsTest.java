@@ -48,8 +48,15 @@ public class AssetCategoriesNavigationTagsTest {
 
 		for (Problem problem : problems) {
 			if (problem.file.getName().endsWith("AssetCategoriesNavigationTagsTest.jsp")) {
-				if (problem.lineNumber == 48 && problem.startOffset == 1530 && problem.endOffset == 1616) {
-					found = true;
+				if (Util.isWindows()) {
+					if (problem.lineNumber == 48 && problem.startOffset == 1577 && problem.endOffset == 1665) {
+						found = true;
+					}
+				}
+				else {
+					if (problem.lineNumber == 48 && problem.startOffset == 1530 && problem.endOffset == 1616) {
+						found = true;
+					}
 				}
 			}
 		}

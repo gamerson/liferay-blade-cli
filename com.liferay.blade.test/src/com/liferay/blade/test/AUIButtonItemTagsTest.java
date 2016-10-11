@@ -48,8 +48,15 @@ public class AUIButtonItemTagsTest {
 
 		for (Problem problem : problems) {
 			if (problem.file.getName().endsWith("AUIButtonItemTagTest.jsp")) {
-				if (problem.lineNumber == 3 && problem.startOffset == 94 && problem.endOffset == 129) {
-					found = true;
+				if (Util.isWindows()) {
+					if (problem.lineNumber == 1 && problem.startOffset == 0 && problem.endOffset == 266) {
+						found = true;
+					}
+				}
+				else {
+					if (problem.lineNumber == 3 && problem.startOffset == 94 && problem.endOffset == 129) {
+						found = true;
+					}
 				}
 			}
 		}

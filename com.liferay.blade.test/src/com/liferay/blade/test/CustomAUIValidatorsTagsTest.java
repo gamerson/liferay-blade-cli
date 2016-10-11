@@ -47,11 +47,16 @@ public class CustomAUIValidatorsTagsTest {
 		boolean found = false;
 
 		for (Problem problem : problems) {
-			if (problem.file.getName().endsWith("CustomAUIValidatorsTest.jsp")
-					&& problem.lineNumber == 314 && problem.startOffset == 11381
-					&& problem.endOffset == 11394) {
-
-				found = true;
+			if (problem.file.getName().endsWith("CustomAUIValidatorsTest.jsp")) {
+				if (Util.isWindows()) {
+					if (problem.lineNumber == 314 && problem.startOffset == 11694 && problem.endOffset == 11707) {
+						found = true;
+					}
+				} else {
+					if (problem.lineNumber == 314 && problem.startOffset == 11381 && problem.endOffset == 11394) {
+						found = true;
+					}
+				}
 			}
 		}
 
