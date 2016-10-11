@@ -18,6 +18,7 @@ package com.liferay.blade.test.apichanges;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 
 import com.liferay.blade.api.FileMigrator;
 import com.liferay.blade.api.Problem;
@@ -26,14 +27,39 @@ import com.liferay.blade.upgrade.liferay70.apichanges.AssetTagProperties;
 import java.io.File;
 import java.util.List;
 
+import org.junit.Before;
 import org.junit.Test;
+import org.osgi.framework.BundleContext;
+import org.osgi.framework.FrameworkUtil;
 import org.osgi.framework.ServiceReference;
+import org.osgi.util.tracker.ServiceTracker;
 
-public class AssetTagPropertiesTest extends BaseAPIChangesTest {
+public class AssetTagPropertiesTest {
 
 	final File testFile = new File("projects/filetests/MediaWikiImporter.java");
 	final File testFile2 = new File(
 			"projects/filetests/AssetTagPropertiesTestFile.java");
+
+	final BundleContext context = FrameworkUtil.getBundle(this.getClass()).getBundleContext();
+
+	ServiceTracker<FileMigrator, FileMigrator> fileMigratorTracker;
+
+	FileMigrator fileMigrator;
+
+	ServiceReference<FileMigrator>[] fileMigrators;
+
+	@Before
+	public void beforeTest() {
+		fileMigratorTracker = new ServiceTracker<FileMigrator, FileMigrator>(context, FileMigrator.class, null);
+
+		fileMigratorTracker.open();
+
+		fileMigrators = fileMigratorTracker.getServiceReferences();
+
+		assertNotNull(fileMigrators);
+
+		assertTrue(fileMigrators.length > 0);
+	}
 
 	@Test
 	public void assetTagPropertiesTest() throws Exception {
