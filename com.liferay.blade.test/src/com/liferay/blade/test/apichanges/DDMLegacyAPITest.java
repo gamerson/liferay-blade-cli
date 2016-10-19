@@ -14,47 +14,44 @@
  * limitations under the License.
  */
 
-package com.liferay.blade.upgrade.liferay70.apichanges;
+package com.liferay.blade.test.apichanges;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
-import com.liferay.blade.api.SearchResult;
-import com.liferay.blade.eclipse.provider.JavaFileJDT;
-import com.liferay.blade.eclipse.provider.PlatformUtil;
+import com.liferay.blade.api.FileMigrator;
+import com.liferay.blade.api.Problem;
+import com.liferay.blade.test.Util;
 
 import java.io.File;
 import java.util.List;
 
-import org.junit.Before;
 import org.junit.Test;
 
-@SuppressWarnings("restriction")
-public class DDMLegacyAPITest {
-	final File testFile = new File(
-			"projects/legacy-apis-ant-portlet/docroot/WEB-INF/src/com/liferay/JournalArticleAssetRendererFactory.java");
-	DDMLegacyAPI component;
+public class DDMLegacyAPITest extends APITestBase {
 
-	@Before
-	public void beforeTest() {
-		assertTrue(testFile.exists());
-		component = new DDMLegacyAPI();
+	@Override
+	public int getExpectedNumber() {
+		return 5;
 	}
 
 	@Test
 	public void dDMLegacyAPITest() throws Exception {
-		List<SearchResult> results = component.searchFile(
-			testFile, new JavaFileJDT(testFile));
+		FileMigrator fmigrator = context.getService(fileMigrators[0]);
 
-		assertNotNull(results);
-		assertEquals(5, results.size());
+		List<Problem> problems = fmigrator.analyze(getTestFile());
 
-		SearchResult problem = results.get(0);
+		context.ungetService(fileMigrators[0]);
 
-		assertEquals(36, problem.startLine);
+		assertNotNull(problems);
+		assertEquals(5, problems.size());
 
-		if (PlatformUtil.isWindows()) {
+		Problem problem = problems.get(0);
+
+		assertEquals(36, problem.lineNumber);
+
+		if (Util.isWindows()) {
 			assertEquals(1704, problem.startOffset);
 			assertEquals(1779, problem.endOffset);
 		}
@@ -63,11 +60,11 @@ public class DDMLegacyAPITest {
 			assertEquals(1744, problem.endOffset);
 		}
 
-		problem = results.get(1);
+		problem = problems.get(1);
 
-		assertEquals(134, problem.startLine);
+		assertEquals(134, problem.lineNumber);
 
-		if (PlatformUtil.isWindows()) {
+		if (Util.isWindows()) {
 			assertTrue(problem.startOffset >= 4829 && problem.startOffset <= 4832);
 			assertTrue(problem.endOffset >= 4886 && problem.endOffset <= 4889);
 		}
@@ -76,11 +73,11 @@ public class DDMLegacyAPITest {
 			assertTrue(problem.endOffset >= 4753 && problem.endOffset <= 4756);
 		}
 
-		problem = results.get(2);
+		problem = problems.get(2);
 
-		assertEquals(147, problem.startLine);
+		assertEquals(147, problem.lineNumber);
 
-		if (PlatformUtil.isWindows()) {
+		if (Util.isWindows()) {
 			assertTrue(problem.startOffset >= 5177 && problem.startOffset <= 5180);
 			assertTrue(problem.endOffset >= 5234 && problem.endOffset <= 5237);
 		}
@@ -89,11 +86,11 @@ public class DDMLegacyAPITest {
 			assertTrue(problem.endOffset >= 5088 && problem.endOffset <= 5091);
 
 		}
-		problem = results.get(3);
+		problem = problems.get(3);
 
-		assertEquals(37, problem.startLine);
+		assertEquals(37, problem.lineNumber);
 
-		if (PlatformUtil.isWindows()) {
+		if (Util.isWindows()) {
 			assertTrue(problem.startOffset >= 1789 && problem.startOffset <= 1792);
 			assertTrue(problem.endOffset >= 1859 && problem.endOffset <= 1862);
 		}
@@ -102,11 +99,11 @@ public class DDMLegacyAPITest {
 			assertEquals(1823, problem.endOffset);
 		}
 
-		problem = results.get(4);
+		problem = problems.get(4);
 
-		assertEquals(162, problem.startLine);
+		assertEquals(162, problem.lineNumber);
 
-		if (PlatformUtil.isWindows()) {
+		if (Util.isWindows()) {
 			assertTrue(problem.startOffset >= 5573 && problem.startOffset <= 5576);
 			assertTrue(problem.endOffset >= 5690 && problem.endOffset <= 5693);
 		}
@@ -118,6 +115,16 @@ public class DDMLegacyAPITest {
 				String.valueOf(problem.endOffset),
 				problem.endOffset >= 5527 && problem.endOffset <= 5530);
 		}
+	}
+
+	@Override
+	public String getImplClassName() {
+		return "DDMLegacyAPI";
+	}
+
+	@Override
+	public File getTestFile() {
+		return new File("projects/legacy-apis-ant-portlet/docroot/WEB-INF/src/com/liferay/JournalArticleAssetRendererFactory.java");
 	}
 
 }
