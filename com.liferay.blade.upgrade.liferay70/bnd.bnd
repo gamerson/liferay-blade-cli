@@ -51,13 +51,12 @@ Private-Package: \
 	org.jsoup.*,\
 	org.objectweb.asm.*,\
 	org.parboiled.*;-split-package:=merge-first,\
-	org.pegdown.*;-split-package:=merge-first
+	org.pegdown.*;-split-package:=merge-first,\
+	com.liferay.blade.api.*
 
 Include-Resource: \
 	@com.liferay.portal.kernel-*.jar!/com/liferay/portal/kernel/util/StringBundler.class,\
 	@com.liferay.portal.kernel-*.jar!/com/liferay/portal/kernel/memory/SoftReferenceThreadLocal.class,\
 	@com.liferay.portal.kernel-*.jar!/com/liferay/portal/kernel/util/CentralizedThreadLocal.class,\
 	@com.liferay.portal.kernel-*.jar!/com/liferay/portal/kernel/util/GetterUtil.class
-Export-Package: \
-	com.liferay.blade.upgrade.liferay70.apichanges,\
-	com.liferay.blade.upgrade.liferay70
+
