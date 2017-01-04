@@ -1,0 +1,61 @@
+<?xml version="1.0"?>
+
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+	<groupId>com.liferay.test</groupId>
+	<artifactId>mavenTt</artifactId>
+	<packaging>pom</packaging>
+	<name>mavenTt</name>
+	<version>1.0.0-SNAPSHOT</version>
+	<build>
+		<plugins>
+			<plugin>
+				<groupId>com.liferay.maven.plugins</groupId>
+				<artifactId>liferay-maven-plugin</artifactId>
+				<version>${liferay.maven.plugin.version}</version>
+				<configuration>
+					<autoDeployDir>${liferay.auto.deploy.dir}</autoDeployDir>
+					<appServerDeployDir>${liferay.app.server.deploy.dir}</appServerDeployDir>
+					<appServerLibGlobalDir>${liferay.app.server.lib.global.dir}</appServerLibGlobalDir>
+					<appServerPortalDir>${liferay.app.server.portal.dir}</appServerPortalDir>
+					<liferayVersion>${liferay.version}</liferayVersion>
+					<pluginName>mavenTt-portlet</pluginName>
+					<pluginType>portlet</pluginType>
+				</configuration>
+			</plugin>
+			<plugin>
+				<artifactId>maven-compiler-plugin</artifactId>
+				<version>2.5</version>
+				<configuration>
+					<encoding>UTF-8</encoding>
+					<source>1.6</source>
+					<target>1.6</target>
+				</configuration>
+			</plugin>
+			<plugin>
+				<artifactId>maven-resources-plugin</artifactId>
+				<version>2.5</version>
+				<configuration>
+					<encoding>UTF-8</encoding>
+				</configuration>
+			</plugin>
+		</plugins>
+	</build>
+	<modules>
+		<module>mavenTt-portlet</module>
+		<module>mavenTt-portlet-service</module>
+	</modules>
+<profiles>
+<profile>
+	<id>Liferay-v6.2-CE-(Tomcat-7)</id>
+	<properties>
+		<liferay.version>6.2.5</liferay.version>
+		<liferay.maven.plugin.version>6.2.5</liferay.maven.plugin.version>
+		<liferay.auto.deploy.dir>D:\dev java\portal\liferay-portal-6.2-ce-ga6\deploy</liferay.auto.deploy.dir>
+		<liferay.app.server.deploy.dir>D:\dev java\portal\liferay-portal-6.2-ce-ga6\tomcat-7.0.62\webapps</liferay.app.server.deploy.dir>
+		<liferay.app.server.lib.global.dir>D:\dev java\portal\liferay-portal-6.2-ce-ga6\tomcat-7.0.62\lib\ext</liferay.app.server.lib.global.dir>
+		<liferay.app.server.portal.dir>D:\dev java\portal\liferay-portal-6.2-ce-ga6\tomcat-7.0.62\webapps\ROOT</liferay.app.server.portal.dir>
+	</properties>
+	</profile>
+</profiles>
+</project>

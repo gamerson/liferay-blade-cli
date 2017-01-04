@@ -4161,3 +4161,55 @@ You should change the package name via "correct automatically" in liferay-ide up
 #### Why was this change made? [](id=why-was-this-change-made-104)
 
 To leverage the benefits of modularization in Liferay 7.
+
+---------------------------------------
+
+### maven pom legacy dependencies [](id=maven-pom-legacy-dependencies)
+- **Date:** 2017-Jan-6
+- **JIRA Ticket:** no ticket number
+
+#### What changed? [](id=what-changed-105)
+
+the pom configuration in 6.2 maven project contains some legacy dependencies which are not supported in 7.x.
+
+#### Who is affected? [](id=who-is-affected-105)
+
+all maven projects that have portal-service, util-java, util-bridges, util-taglib or util-slf4j dependencies.
+
+#### How should I update my code? [](id=how-should-i-update-my-code-105)
+
+- `portal-service to com.liferay.portal.kernel`
+- `util-java to com.liferay.util.java`
+- `util-bridges to com.liferay.util.bridges`
+- `util-taglib to com.liferay.util.taglib`
+- `util-slf4j to com.liferay.util.slf4`
+
+You can use `Correct Automatically` to fix it.
+
+#### Why was this change made? [](id=why-was-this-change-made-105)
+
+To leverage the benefits of modularization in Liferay 7.
+
+---------------------------------------
+
+### maven pom legacy plugins [](id=maven-pom-legacy-plugins)
+- **Date:** 2017-Jan-6
+- **JIRA Ticket:** no ticket number
+
+#### What changed? [](id=what-changed-106)
+
+the liferay-maven-plugin plugin in 6.2 maven project pom is not supported in 7.x.
+
+#### Who is affected? [](id=who-is-affected-106)
+
+all maven projects which apply liferay-maven-plugin.
+
+#### How should I update my code? [](id=how-should-i-update-my-code-106)
+
+remove liferay-maven-plugin configuration and add some service builder or css builder plugin if you need.
+
+You can use `Correct Automatically` to fix it.
+
+#### Why was this change made? [](id=why-was-this-change-made-106)
+
+To leverage the benefits of modularization in Liferay 7.

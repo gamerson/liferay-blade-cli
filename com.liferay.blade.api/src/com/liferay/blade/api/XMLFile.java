@@ -17,8 +17,11 @@
 package com.liferay.blade.api;
 
 import java.util.Collection;
+import java.util.Map;
 
 public interface XMLFile extends SourceFile {
 
 	Collection<SearchResult> findElement(String elementName, String elementValue);
+
+	Collection<SearchResult> matchParentAndChildren(String parentNodeName, Map<String,String> childrenNodeNameValueMap);
 }
