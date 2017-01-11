@@ -95,11 +95,11 @@ public class MavenPomLegacyDependencies extends XMLFileMigrator implements AutoM
 			utilSlf4j.put("groupId", "com.liferay.portal");
 			utilSlf4j.put("artifactId", "util-slf4j");
 
-			searchResults.addAll(xmlFileChecker.matchParentAndChildren(parentNodeName, portalService));
-			searchResults.addAll(xmlFileChecker.matchParentAndChildren(parentNodeName, utilJava));
-			searchResults.addAll(xmlFileChecker.matchParentAndChildren(parentNodeName, utilBridges));
-			searchResults.addAll(xmlFileChecker.matchParentAndChildren(parentNodeName, utilTaglib));
-			searchResults.addAll(xmlFileChecker.matchParentAndChildren(parentNodeName, utilSlf4j));
+			searchResults.addAll(xmlFileChecker.searchChildren(parentNodeName, portalService));
+			searchResults.addAll(xmlFileChecker.searchChildren(parentNodeName, utilJava));
+			searchResults.addAll(xmlFileChecker.searchChildren(parentNodeName, utilBridges));
+			searchResults.addAll(xmlFileChecker.searchChildren(parentNodeName, utilTaglib));
+			searchResults.addAll(xmlFileChecker.searchChildren(parentNodeName, utilSlf4j));
 
 			for (SearchResult result : searchResults) {
 				result.autoCorrectContext = KEY;

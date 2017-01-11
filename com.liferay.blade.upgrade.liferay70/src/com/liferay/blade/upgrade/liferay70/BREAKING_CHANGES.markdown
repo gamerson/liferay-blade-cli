@@ -5,7 +5,7 @@ functionality, APIs, or contracts with third party Liferay developers or users.
 We try our best to minimize these disruptions, but sometimes they are
 unavoidable.
 
-The breaking changes covered in this article apply to both the commercial and 
+The breaking changes covered in this article apply to both the commercial and
 open source versions of Liferay.
 
 Here are some of the types of changes documented in this file:
@@ -4142,21 +4142,21 @@ configuration changes.
 
 ---------------------------------------
 
-### Classes in portal-service.jar moved [](id=classes-in-portal-service-jar-moved)
+### Classes moved from portal-service jar [](id=classes-in-portal-service-jar-moved)
 - **Date:** 2016-Jun-24
 - **JIRA Ticket:** no ticket number
 
 #### What changed? [](id=what-changed-104)
 
-Many classes from former Liferay 6 JAR file portal-service.jar have been moved into application and framework API modules.
+Many classes have been moved from portal-service.jar in Liferay 6.x into application and framework API modules.  Sometimes the package names have been changed along the way.
 
 #### Who is affected? [](id=who-is-affected-104)
 
-Any code that uses the moved classes.
+Any code that uses the moved classes in portal-service.jar
 
 #### How should I update my code? [](id=how-should-i-update-my-code-104)
 
-You should change the package name via "correct automatically" in liferay-ide upgrade tool or you can do it manully. Then add denpencies for them. For more information, see [https://dev.liferay.com/develop/reference/-/knowledge_base/7-0/classes-moved-from-portal-service-jar](https://dev.liferay.com/develop/reference/-/knowledge_base/7-0/classes-moved-from-portal-service-jar)
+You should change the package name via "Correct Automatically" in Liferay IDE Code Upgrade tool or you can do it manually. Then add gradle or maven dependencies for them. For more information, see [https://dev.liferay.com/develop/reference/-/knowledge_base/7-0/classes-moved-from-portal-service-jar](https://dev.liferay.com/develop/reference/-/knowledge_base/7-0/classes-moved-from-portal-service-jar)
 
 #### Why was this change made? [](id=why-was-this-change-made-104)
 
@@ -4164,19 +4164,21 @@ To leverage the benefits of modularization in Liferay 7.
 
 ---------------------------------------
 
-### maven pom legacy dependencies [](id=maven-pom-legacy-dependencies)
+### Liferay Dependency Artifacts has changed Maven coordinates [](id=maven-pom-legacy-dependencies)
 - **Date:** 2017-Jan-6
 - **JIRA Ticket:** no ticket number
 
 #### What changed? [](id=what-changed-105)
 
-the pom configuration in 6.2 maven project contains some legacy dependencies which are not supported in 7.x.
+All of the Liferay artifacts used for dependencies in Maven POMs have been changed in 7.x to new GAV coordinates.
 
 #### Who is affected? [](id=who-is-affected-105)
 
-all maven projects that have portal-service, util-java, util-bridges, util-taglib or util-slf4j dependencies.
+All maven projects that have the following artifact dependencies from the com.liferay.portal groupId: portal-service, util-java, util-bridges, util-taglib or util-slf4j
 
 #### How should I update my code? [](id=how-should-i-update-my-code-105)
+
+In the maven POM you need to change the artifact dependencies to the following new artifactIds:
 
 - `portal-service to com.liferay.portal.kernel`
 - `util-java to com.liferay.util.java`
@@ -4184,7 +4186,7 @@ all maven projects that have portal-service, util-java, util-bridges, util-tagli
 - `util-taglib to com.liferay.util.taglib`
 - `util-slf4j to com.liferay.util.slf4`
 
-You can use `Correct Automatically` to fix it.
+Additionally, you can use the `Correct Automatically` feature in Code Upgrade Tool to fix it.
 
 #### Why was this change made? [](id=why-was-this-change-made-105)
 
@@ -4192,21 +4194,21 @@ To leverage the benefits of modularization in Liferay 7.
 
 ---------------------------------------
 
-### maven pom legacy plugins [](id=maven-pom-legacy-plugins)
+### liferay-maven-plugin has been replaced with new finer-grain maven plugins [](id=maven-pom-legacy-plugins)
 - **Date:** 2017-Jan-6
 - **JIRA Ticket:** no ticket number
 
 #### What changed? [](id=what-changed-106)
 
-the liferay-maven-plugin plugin in 6.2 maven project pom is not supported in 7.x.
+The liferay-maven-plugin plugin from 6.x has been replaced with new finer-grain plugins that support 7.x development.
 
 #### Who is affected? [](id=who-is-affected-106)
 
-all maven projects which apply liferay-maven-plugin.
+All projects that need to use portal tools that used to come from the liferay-maven-plugin.
 
 #### How should I update my code? [](id=how-should-i-update-my-code-106)
 
-remove liferay-maven-plugin configuration and add some service builder or css builder plugin if you need.
+Remove the liferay-maven-plugin configuration and add the cooresponding new Liferay plugin based on the usage your project needs, Service Builder, Css Builder, etc.
 
 You can use `Correct Automatically` to fix it.
 

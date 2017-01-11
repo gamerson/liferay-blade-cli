@@ -22,7 +22,6 @@ import com.liferay.blade.api.XMLFile;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -89,72 +88,72 @@ public class SSEXMLFile extends WorkspaceFile implements XMLFile {
 	}
 
 	@Override
-	public Collection<SearchResult> matchParentAndChildren(String parentNodeName,
+	public Collection<SearchResult> searchChildren(String parentNodeName,
 			Map<String, String> childrenNodeNameValueMap) {
-		List<SearchResult> _results = new ArrayList<>();
 
-		IFile xmlFile = getIFile(_file);
+		final List<SearchResult> results = new ArrayList<>();
+
+		final IFile xmlFile = getIFile(_file);
 		IDOMModel domModel = null;
 
 		try {
 			domModel = (IDOMModel) StructuredModelManager.getModelManager().getModelForRead(xmlFile);
 
-			IDOMDocument document = domModel.getDocument();
+			final IDOMDocument document = domModel.getDocument();
 
-			NodeList elements = document.getElementsByTagName(parentNodeName);
+			final NodeList elements = document.getElementsByTagName(parentNodeName);
 
-			if (elements != null) {
-				for (int i = 0; i < elements.getLength(); i++) {
+			if (elements == null || elements.getLength() == 0)
+				return results;
 
-					IDOMElement element = (IDOMElement) elements.item(i);
+			for (int i = 0; i < elements.getLength(); i++) {
+				final IDOMElement element = (IDOMElement) elements.item(i);
 
-					Map<String, NodeList> nodeListList = new HashMap<String, NodeList>();
+				final Map<String, NodeList> nodeLists = new HashMap<String, NodeList>();
 
-					Set<String> keys = childrenNodeNameValueMap.keySet();
+				final Set<String> keys = childrenNodeNameValueMap.keySet();
 
-					Iterator<String> iterator = keys.iterator();
+				boolean fullMatch = true;
 
-					boolean fullMatch = true;
+				for (String key : keys) {
+					final NodeList nodeList = element.getElementsByTagName(key);
 
-					while (iterator.hasNext()) {
-						String key = iterator.next();
-						NodeList nodeList = element.getElementsByTagName(key);
+					if (nodeList != null && nodeList.getLength() == 1) {
+						nodeLists.put(key, nodeList);
 
-						if (nodeList != null && nodeList.getLength() == 1) {
-							nodeListList.put(key, nodeList);
+						final IDOMElement node = (IDOMElement) nodeList.item(0);
 
-							IDOMElement node = (IDOMElement) nodeList.item(0);
+						final String nodeContent = node.getTextContent();
+						final String exceptedContent = childrenNodeNameValueMap.get(key);
 
-							String nodeContent = node.getTextContent();
-							String exceptedContent = childrenNodeNameValueMap.get(key);
-
-							if (!exceptedContent.equals(nodeContent)) {
-								fullMatch = false;
-							}
+						if (!exceptedContent.equals(nodeContent)) {
+							fullMatch = false;
 						}
 					}
+				}
 
-					if (fullMatch) {
-						int startOffset = element.getStartOffset();
-						int endOffset = element.getEndOffset();
-						int startLine = document.getStructuredDocument().getLineOfOffset(startOffset) + 1;
-						int endLine = document.getStructuredDocument().getLineOfOffset(endOffset) + 1;
+				if (fullMatch) {
+					int startOffset = element.getStartOffset();
+					int endOffset = element.getEndOffset();
+					int startLine = document.getStructuredDocument().getLineOfOffset(startOffset) + 1;
+					int endLine = document.getStructuredDocument().getLineOfOffset(endOffset) + 1;
 
-						SearchResult result = new SearchResult(_file, "startOffset:" + startOffset, startOffset,
-								endOffset, startLine, endLine, true);
+					SearchResult result = new SearchResult(_file, "startOffset:" + startOffset, startOffset,
+							endOffset, startLine, endLine, true);
 
-						_results.add(result);
-					}
+					results.add(result);
 				}
 			}
-		} catch (Exception e) {
-		} finally {
+		}
+		catch (Exception e) {
+		}
+		finally {
 			if (domModel != null) {
 				domModel.releaseFromRead();
 			}
 		}
 
-		return _results;
+		return results;
 	}
 
 }

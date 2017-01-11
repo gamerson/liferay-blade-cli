@@ -23,5 +23,5 @@ public interface XMLFile extends SourceFile {
 
 	Collection<SearchResult> findElement(String elementName, String elementValue);
 
-	Collection<SearchResult> matchParentAndChildren(String parentNodeName, Map<String,String> childrenNodeNameValueMap);
+	Collection<SearchResult> searchChildren(String startingElementName, Map<String,String> childrenNodeNameValueMap);
 }
