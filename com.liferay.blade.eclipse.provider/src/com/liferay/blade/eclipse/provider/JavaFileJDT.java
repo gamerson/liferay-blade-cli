@@ -365,7 +365,7 @@ public class JavaFileJDT extends WorkspaceFile implements JavaFile {
 						// not strictly check the type and will check equals later
 						( (typeHint != null && type != null && type.getName().endsWith(typeHint))  ||
 						// with no typeHint then expressions can be used to match Static invocation
-						 (typeHint == null && expression != null && expression.toString().equals(expressionValue)))) {
+						 (typeHint == null && expression != null && expression.toString().equals(expressionValue))) ) {
 
 					boolean argumentsMatch = false;
 
@@ -384,24 +384,26 @@ public class JavaFileJDT extends WorkspaceFile implements JavaFile {
 								ITypeBinding argType = arg.resolveTypeBinding();
 
 								if (argType != null) {
-									//can resolve the type
-									 if( argType.getName().equals(methodParamTypes[i])) {
-										 //type matched
+									// can resolve the type
+									if (typeMatch(methodParamTypes[i], argType.getName())) {
+										// type matched
 										continue;
-									 } else {
-										 //type unmatched
-										 possibleMatch = false;
-										 typeMatched = false;
-										 break;
-									 }
-								} else{
+									}
+									else {
+										// type unmatched
+										possibleMatch = false;
+										typeMatched = false;
+										break;
+									}
+								}
+								else{
 									possibleMatch = false;
 									//there are two cases :
 									//typeUnresolved : means that  all resolved type is matched and there is unsolved type , need to set fullMatch false
 									//typeUnmatched : means that some resolved type is unmatched , no need to add SearchResult
 
-									//do not add searchResults now , just record the state and continue
-									//because there maybe unmatched type later which will  break this case
+									//do not add searchResults now, just record the state and continue
+									//because there maybe unmatched type later which will break this case
 									typeUnresolved = true;
 								}
 							}
@@ -590,6 +592,59 @@ public class JavaFileJDT extends WorkspaceFile implements JavaFile {
 		}
 
 		return null;
+	}
+
+	private boolean typeMatch(String expectType, String paramType) {
+		boolean match = false;
+
+		if (expectType.endsWith(paramType) || paramType.endsWith(expectType)) {
+			match = true;
+		}
+		else if (expectType.equals("Object") || expectType.equals("java.lang.Object") || expectType.equals("T")
+				|| expectType.equals("E") || expectType.equals("U")) {
+			match = true;
+		}
+		else if (expectType.equals("long")) {
+			if (paramType.equals("long") || paramType.equals("Long") || paramType.equals("java.lang.Long")
+					|| paramType.equals("int") || paramType.equals("short") || paramType.equals("btye"))
+				match = true;
+		}
+		else if (expectType.equals("Long") || expectType.equals("java.lang.Long")) {
+			if (paramType.equals("long") || paramType.equals("Long") || paramType.equals("java.lang.Long")) {
+				match = true;
+			}
+		}
+		else if (expectType.equals("int")) {
+			if (paramType.equals("int") || paramType.equals("Integer") || paramType.equals("java.lang.Integer")
+					|| paramType.equals("short") || paramType.equals("btye"))
+				match = true;
+		}
+		else if (expectType.equals("Integer") || expectType.equals("java.lang.Integer")) {
+			if (paramType.equals("int") || paramType.equals("Integer") || paramType.equals("java.lang.Integer")) {
+				match = true;
+			}
+		}
+		else if (expectType.equals("short")) {
+			if (paramType.equals("short") || paramType.equals("Short") || paramType.equals("java.lang.Short")
+					|| paramType.equals("btye"))
+				match = true;
+		}
+		else if (expectType.equals("Short") || expectType.equals("java.lang.Short")) {
+			if (paramType.equals("short") || paramType.equals("Short") || paramType.equals("java.lang.Short")) {
+				match = true;
+			}
+		}
+		else if (expectType.equals("btye")) {
+			if (paramType.equals("btye") || paramType.equals("Btye") || paramType.equals("java.lang.Btye"))
+				match = true;
+		}
+		else if (expectType.equals("Btye") || expectType.equals("java.lang.Btye")) {
+			if (paramType.equals("btype") || paramType.equals("Btye") || paramType.equals("java.lang.Btye")) {
+				match = true;
+			}
+		}
+
+		return match;
 	}
 
 }
