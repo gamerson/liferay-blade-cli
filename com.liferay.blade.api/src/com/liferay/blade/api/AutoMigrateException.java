@@ -19,6 +19,7 @@ package com.liferay.blade.api;
 public class AutoMigrateException extends Exception {
 
 	private static final long serialVersionUID = 3776203562079756845L;
+	private static final long serialVersionUID2 = 111111111111111111111;
 
 	public AutoMigrateException(String msg) {
 		super(msg);
