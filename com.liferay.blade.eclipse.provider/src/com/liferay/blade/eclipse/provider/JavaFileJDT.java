@@ -183,6 +183,8 @@ public class JavaFileJDT extends WorkspaceFile implements JavaFile {
 	public SearchResult findImport(final String importName) {
 		final List<SearchResult> searchResults = new ArrayList<>();
 
+		setFile(_file);
+
 		_ast.accept(new ASTVisitor() {
 
 			@Override
