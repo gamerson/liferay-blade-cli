@@ -5,7 +5,7 @@
  * and bnd_* values from gradle.properties.
  */
 
-import aQute.bnd.build.Workspace
+   import aQute.bnd.build.Workspace
 import aQute.bnd.osgi.Constants
 
 /* Add bnd gradle plugin as a script dependency */
