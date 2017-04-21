@@ -4161,3 +4161,25 @@ You should change the package name via "correct automatically" in liferay-ide up
 #### Why was this change made? [](id=why-was-this-change-made-104)
 
 To leverage the benefits of modularization in Liferay 7.
+
+---------------------------------------
+
+### pom file in 6.2 maven project [](id=pom-file-in-62-maven-project)
+- **Date:** 2017-Jan-5
+- **JIRA Ticket:** no ticket number
+
+#### What changed? [](id=what-changed-105)
+
+the pom configuration in 6.2 maven project is not supported in 7.x
+
+#### Who is affected? [](id=who-is-affected-105)
+
+all depencencies, plugins in pom
+
+#### How should I update my code? [](id=how-should-i-update-my-code-105)
+
+you can use Correct Automatically to fix it.
+
+#### Why was this change made? [](id=why-was-this-change-made-105)
+
+To leverage the benefits of modularization in Liferay 7.
