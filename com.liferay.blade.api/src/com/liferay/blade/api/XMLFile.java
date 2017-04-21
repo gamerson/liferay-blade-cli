@@ -21,4 +21,6 @@ import java.util.Collection;
 public interface XMLFile extends SourceFile {
 
 	Collection<SearchResult> findElement(String elementName, String elementValue);
+
+	Collection<SearchResult> findLegacyDependency(String groupId, String artifactId);
 }
