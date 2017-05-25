@@ -38,7 +38,6 @@ public class ShoppingFileUploadsPortletProperties
 
 	@Override
 	protected void addPropertiesToSearch(List<String> properties) {
-		
 		properties.add("shopping.cart.min.qty.multiple");
 		properties.add("shopping.category.forward.to.car");
 		properties.add("shopping.category.show.special.items");

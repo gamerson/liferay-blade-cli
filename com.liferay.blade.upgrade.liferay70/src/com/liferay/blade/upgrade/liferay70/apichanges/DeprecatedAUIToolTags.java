@@ -37,7 +37,7 @@ import org.osgi.service.component.annotations.Component;
 	},
 	service = FileMigrator.class
 )
-public class DeprecatedAUIToolTags extends JSPFileMigrator{
+public class DeprecatedAUIToolTags extends JSPFileMigrator {
 
 	@Override
 	protected List<SearchResult> searchFile(File file, JSPFile jspFileChecker) {

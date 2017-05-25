@@ -14,7 +14,6 @@
  * limitations under the License.
  */
 
-
 package com.liferay.blade.upgrade.liferay70.apichanges;
 
 import java.io.File;
@@ -38,7 +37,7 @@ import com.liferay.blade.upgrade.liferay70.JSPFileMigrator;
 	},
 	service = FileMigrator.class
 )
-public class DeprecatedLiferayUICaptchaTags extends JSPFileMigrator{
+public class DeprecatedLiferayUICaptchaTags extends JSPFileMigrator {
 
 	@Override
 	protected List<SearchResult> searchFile(File file, JSPFile jspFileChecker) {

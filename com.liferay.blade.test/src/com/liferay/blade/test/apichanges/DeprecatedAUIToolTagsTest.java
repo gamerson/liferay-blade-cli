@@ -14,10 +14,14 @@
  * limitations under the License.
  */
 
-package com.liferay.blade.test;
+package com.liferay.blade.test.apichanges;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
+
+import com.liferay.blade.api.Migration;
+import com.liferay.blade.api.Problem;
+import com.liferay.blade.util.NullProgressMonitor;
 
 import java.io.File;
 import java.util.List;
@@ -27,30 +31,24 @@ import org.osgi.framework.BundleContext;
 import org.osgi.framework.FrameworkUtil;
 import org.osgi.framework.ServiceReference;
 
-import com.liferay.blade.api.Migration;
-import com.liferay.blade.api.Problem;
-import com.liferay.blade.util.NullProgressMonitor;
-
-public class DeprecatedExpandoCustomFieldTagsTest {
+public class DeprecatedAUIToolTagsTest {
 
 	@Test
-	public void findProblems()
-		throws Exception {
-
+	public void findProblems() throws Exception {
 		ServiceReference<Migration> sr =
 			context.getServiceReference(Migration.class);
 
 		Migration m = context.getService(sr);
 
 		List<Problem> problems = m.findProblems(
-			new File("jsptests/liferay-ui-custom/"), new NullProgressMonitor());
+			new File("jsptests/aui-tool/"), new NullProgressMonitor());
 
-		assertEquals(3, problems.size());
+		assertEquals(1, problems.size());
 
 		boolean found = false;
 
 		for (Problem problem : problems) {
-			if (problem.file.getName().endsWith("LiferayUICustom.jsp")) {
+			if (problem.file.getName().endsWith("AUIToolTagTest.jsp")) {
 				if (problem.lineNumber == 1) {
 					found = true;
 				}

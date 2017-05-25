@@ -33,7 +33,8 @@ import org.osgi.service.component.annotations.Component;
 		"problem.title=Moved the Expando Custom Field Tags to liferay-expando Taglib",
 		"problem.section=#moved-the-expando-custom-field-tags-to-liferay-expando-taglib",
 		"problem.summary=Moved the Expando Custom Field Tags to liferay-expando Taglib",
-		"problem.tickets=LPS-69400", "implName=DeprecatedExpandoCustomFieldTags"
+		"problem.tickets=LPS-69400",
+		"implName=DeprecatedExpandoCustomFieldTags"
 	}, 
 	service = FileMigrator.class
 )
@@ -41,8 +42,8 @@ public class DeprecatedExpandoCustomFieldTags extends JSPFileMigrator {
 
 	@Override
 	protected List<SearchResult> searchFile(File file, JSPFile jspFileChecker) {
-		
 		List<SearchResult> result = new ArrayList<SearchResult>();
+
 		result.addAll(
 			jspFileChecker.findJSPTags("liferay-ui:custom-attribute"));
 		result.addAll(
@@ -50,6 +51,7 @@ public class DeprecatedExpandoCustomFieldTags extends JSPFileMigrator {
 		result.addAll(
 			jspFileChecker.findJSPTags(
 				"liferay-ui:custom-attributes-available"));
+
 		return result;
 	}
 

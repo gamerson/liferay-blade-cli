@@ -38,10 +38,8 @@ public class JournalFileUploadsPortletProperties
 
 	@Override
 	protected void addPropertiesToSearch(List<String> properties) {
-
 		properties.add("journal.image.extensions");
 		properties.add("journal.image.small.max.size");
-
 	}
 
 }

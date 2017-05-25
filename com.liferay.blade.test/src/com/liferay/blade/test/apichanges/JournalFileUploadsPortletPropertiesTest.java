@@ -22,19 +22,16 @@ public class JournalFileUploadsPortletPropertiesTest extends APITestBase {
 
 	@Override
 	public int getExpectedNumber() {
-
 		return 2;
 	}
 
 	@Override
 	public String getImplClassName() {
-
 		return "JournalFileUploadsPortletProperties";
 	}
 
 	@Override
 	public File getTestFile() {
-
 		return new File(
 			"projects/test-portlet/journal-portlet/portal.properties");
 	}
