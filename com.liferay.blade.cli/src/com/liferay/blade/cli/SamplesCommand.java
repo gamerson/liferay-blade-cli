@@ -23,11 +23,10 @@ import aQute.lib.getopt.Options;
 import java.io.File;
 import java.io.InputStream;
 import java.net.URL;
-
+import java.net.URLConnection;
 import java.nio.file.Files;
 
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 
 import org.apache.commons.io.FileUtils;
@@ -83,9 +82,9 @@ public class SamplesCommand {
 
 		File bladeRepo = new File(_blade.getCacheDir(), _BLADE_REPO_NAME);
 
-		File liferayGradleSamples = new File(bladeRepo, "liferay-gradle");
+		File gradleSamples = new File(bladeRepo, "gradle");
 
-		for (File file : liferayGradleSamples.listFiles()) {
+		for (File file : gradleSamples.listFiles()) {
 			String fileName = file.getName();
 
 			if (file.isDirectory() && fileName.equals(sampleName)) {
@@ -117,12 +116,16 @@ public class SamplesCommand {
 	private boolean downloadBladeRepoIfNeeded() throws Exception {
 		File bladeRepoArchive = new File(
 			_blade.getCacheDir(), _BLADE_REPO_ARCHIVE_NAME);
+		
+		URL bladeSamplesUrl = new URL(_BLADE_REPO_URL);
+		
+		URLConnection urlConnection = bladeSamplesUrl.openConnection();
+		
+		urlConnection.connect();
+		
+		long diff = urlConnection.getLastModified() - bladeRepoArchive.lastModified();
 
-		Date now = new Date();
-
-		long diff = now.getTime() - bladeRepoArchive.lastModified();
-
-		if (!bladeRepoArchive.exists() || (diff > _FILE_EXPIRATION_TIME)) {
+		if (!bladeRepoArchive.exists() || (diff != 0)) {
 			FileUtils.copyURLToFile(new URL(_BLADE_REPO_URL), bladeRepoArchive);
 
 			return true;
@@ -141,11 +144,11 @@ public class SamplesCommand {
 	private void listSamples() {
 		File bladeRepo = new File(_blade.getCacheDir(), _BLADE_REPO_NAME);
 
-		File liferayGradleSamples = new File(bladeRepo, "liferay-gradle");
+		File gradleSamples = new File(bladeRepo, "gradle");
 
 		List<String> samples = new ArrayList<>();
 
-		for (File file : liferayGradleSamples.listFiles()) {
+		for (File file : gradleSamples.listFiles()) {
 			String fileName = file.getName();
 
 			if (file.isDirectory() && fileName.startsWith("blade.")) {
@@ -242,7 +245,7 @@ public class SamplesCommand {
 
 		if (!Util.isWorkspace(dir)) {
 			File parentBuildGradleFile = new File(
-				bladeRepo, "liferay-gradle/build.gradle");
+				bladeRepo, "gradle/build.gradle");
 
 			String parentBuildScript = parseGradleScript(
 				Util.read(parentBuildGradleFile), "buildscript", false);
@@ -269,8 +272,6 @@ public class SamplesCommand {
 
 	private static final String _BLADE_REPO_URL =
 		"https://github.com/liferay/liferay-blade-samples/archive/master.zip";
-
-	private static final long _FILE_EXPIRATION_TIME = 604800000;
 
 	private final blade _blade;
 	private final SamplesOptions _options;
