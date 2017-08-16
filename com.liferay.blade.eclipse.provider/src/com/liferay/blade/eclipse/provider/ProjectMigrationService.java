@@ -55,6 +55,7 @@ public class ProjectMigrationService implements Migration {
 	private ServiceTracker<FileMigrator, FileMigrator> _fileMigratorTracker;
 	private ServiceTracker<MigrationListener, MigrationListener> _migrationListenerTracker;
 	private FileHelper _fileHelper = new FileHelper();
+	private final static String FIND_DEPRECATED_METHODS_SERVICE_NAME = "DeprecatedMethodsInvocation";
 
 	@Activate
 	public void activate(BundleContext context) {
@@ -67,8 +68,8 @@ public class ProjectMigrationService implements Migration {
 		_fileMigratorTracker.open();
 	}
 
-	protected FileVisitResult analyzeFile(
-		File file, List<Problem> problems, ProgressMonitor monitor) {
+	protected FileVisitResult analyzeFile(File file, List<Problem> problems, final boolean isFindDeprecatedMethodsService,
+			ProgressMonitor monitor) {
 		try {
 			String fileContent = _fileHelper.readFile(file);
 
@@ -101,18 +102,35 @@ public class ProjectMigrationService implements Migration {
 				if (fileExtensions != null && fileExtensions.contains(extension)) {
 					final FileMigrator fmigrator = _context.getService(fm);
 
-					try {
-						final List<Problem> fileProblems = fmigrator.analyze(
-							file);
+					if (isFindDeprecatedMethodsService) {
+						if (fmigrator.getClass().getName().contains(FIND_DEPRECATED_METHODS_SERVICE_NAME)) {
+							try {
+								final List<Problem> fileProblems = fmigrator.analyze(file);
 
-						if ( fileProblems != null &&
-							fileProblems.size() > 0) {
+								if (fileProblems != null && fileProblems.size() > 0) {
+
+									problems.addAll(fileProblems);
+								}
+							} catch (Exception e) {
+							}
+
+							break;
+						}
+					}
+					else {
+						if (fmigrator.getClass().getName().contains(FIND_DEPRECATED_METHODS_SERVICE_NAME)) {
+							continue;
+						}
+					}
+
+					try {
+						final List<Problem> fileProblems = fmigrator.analyze(file);
+
+						if (fileProblems != null && fileProblems.size() > 0) {
 
 							problems.addAll(fileProblems);
 						}
-					}
-					catch (Exception e) {
-						e.printStackTrace();
+					} catch (Exception e) {
 					}
 
 					_context.ungetService(fm);
@@ -124,6 +142,23 @@ public class ProjectMigrationService implements Migration {
 	}
 
 	@Override
+	public List<Problem> findDeprecatedMethods(File projectDir, ProgressMonitor monitor) {
+		monitor.beginTask("Searching for deprecated methods in " + projectDir, -1);
+
+		final List<Problem> problems = new ArrayList<>();
+
+		monitor.beginTask("Analyzing files", -1);
+
+		walkFiles(projectDir, problems, true, monitor);
+
+		updateListeners(problems);
+
+		monitor.done();
+
+		return problems;
+	}
+
+	@Override
 	public List<Problem> findProblems(final File projectDir, final ProgressMonitor monitor) {
 		monitor.beginTask("Searching for migration problems in " + projectDir, -1);
 
@@ -131,7 +166,7 @@ public class ProjectMigrationService implements Migration {
 
 		monitor.beginTask("Analyzing files", -1);
 
-		walkFiles(projectDir, problems, monitor);
+		walkFiles(projectDir, problems, false, monitor);
 
 		updateListeners(problems);
 
@@ -153,7 +188,7 @@ public class ProjectMigrationService implements Migration {
 				return Collections.emptyList();
 			}
 
-			analyzeFile(file, problems, monitor);
+			analyzeFile(file, problems, false, monitor);
 		}
 
 		updateListeners(problems);
@@ -222,7 +257,9 @@ public class ProjectMigrationService implements Migration {
 			}
 		}
 	}
-	private void walkFiles(final File dir, final List<Problem> problems, final ProgressMonitor monitor) {
+
+	private void walkFiles(final File dir, final List<Problem> problems, final boolean isDeprecatedMethodsService,
+			final ProgressMonitor monitor) {
 		final FileVisitor<Path> visitor = new SimpleFileVisitor<Path>() {
 
 			@Override
@@ -247,8 +284,7 @@ public class ProjectMigrationService implements Migration {
 
 				if (file.isFile())
 				{
-					FileVisitResult result =
-						analyzeFile(file, problems, monitor);
+					FileVisitResult result = analyzeFile(file, problems, isDeprecatedMethodsService, monitor);
 
 					if (result.equals(FileVisitResult.TERMINATE)) {
 						return result;
