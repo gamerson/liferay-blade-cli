@@ -42,7 +42,7 @@ public class JournalArticleTagsTest {
 
 		List<Problem> problems = m.findProblems(new File("jsptests/journal-article-tags/"), new NullProgressMonitor());
 
-		assertEquals(1, problems.size());
+		assertEquals(2, problems.size());
 
 		Problem problem = problems.get(0);
 
