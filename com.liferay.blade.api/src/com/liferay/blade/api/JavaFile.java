@@ -18,9 +18,6 @@ package com.liferay.blade.api;
 
 import java.util.List;
 
-import org.osgi.annotation.versioning.ProviderType;
-
-@ProviderType
 public interface JavaFile extends SourceFile {
 
 	List<SearchResult> findCatchExceptions(String[] exceptions);
@@ -32,6 +29,8 @@ public interface JavaFile extends SourceFile {
 	List<SearchResult> findImports(String[] imports);
 
 	List<SearchResult> findMethodDeclaration(String name, String[] params, String returnType);
+
+	List<SearchResult> findMethodDeclaration(String name, String[] params, String returnType, String... conditionParams);
 
 	List<SearchResult> findMethodInvocations(String typeHint, String expressionValue, String methodName, String[] methodParamTypes);
 

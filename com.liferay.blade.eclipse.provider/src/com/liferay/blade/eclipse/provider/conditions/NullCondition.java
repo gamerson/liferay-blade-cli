@@ -14,25 +14,17 @@
  * limitations under the License.
  */
 
-package com.liferay.blade.test.apichanges;
+package com.liferay.blade.eclipse.provider.conditions;
 
-import java.io.File;
+public class NullCondition extends AbstractJDTCondition{
 
-public class IndexerThreeMethodsChangeTest extends APITestBase {
-
-	@Override
-	public int getExpectedNumber() {
-		return 4;
+	public NullCondition(String[] params) {
+		super(params);
 	}
 
 	@Override
-	public String getImplClassName() {
-		return "IndexerThreeMethodsChange";
-	}
-
-	@Override
-	public File getTestFile() {
-		return new File("projects/filetests/IndexerWrapper.java");
+	public boolean test() {
+		return true;
 	}
 
 }

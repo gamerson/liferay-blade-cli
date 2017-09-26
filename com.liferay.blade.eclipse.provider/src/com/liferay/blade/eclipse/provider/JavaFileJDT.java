@@ -17,6 +17,7 @@
 package com.liferay.blade.eclipse.provider;
 
 import com.liferay.blade.api.CUCache;
+import com.liferay.blade.api.ICondition;
 import com.liferay.blade.api.JavaFile;
 import com.liferay.blade.api.SearchResult;
 import com.liferay.blade.util.FileHelper;
@@ -259,7 +260,34 @@ public class JavaFileJDT extends WorkspaceFile implements JavaFile {
 	public List<SearchResult> findMethodDeclaration(
 		final String name, final String[] params, final String returnType) {
 
+		return findMethodDeclaration(name, params, returnType, "NullCondition");
+	}
+
+	@Override
+	public List<SearchResult> findMethodDeclaration(
+		final String name, final String[] params, final String returnType, String... conditionParams) {
+
 		final List<SearchResult> searchResults = new ArrayList<>();
+
+		if (conditionParams != null && conditionParams.length > 0) {
+			String conditonClassName = conditionParams[0];
+
+			try {
+				Class<?> conditionClass =
+					Class.forName("com.liferay.blade.eclipse.provider.conditions." + conditonClassName);
+
+				ICondition condition =
+					(ICondition) conditionClass.getConstructor(String[].class).newInstance(new Object[] { conditionParams });
+
+				condition.setAst(_ast);
+
+				if (!condition.test()) {
+					return searchResults;
+				}
+			}
+			catch (Exception e) {
+			}
+		}
 
 		_ast.accept(new ASTVisitor() {
 
