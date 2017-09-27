@@ -14,22 +14,20 @@
  * limitations under the License.
  */
 
-package com.liferay.blade.upgrade.liferay70;
+package com.liferay.blade.test.apichanges;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
+import java.io.File;
 
-import java.util.Map;
+public class BaseAssetRendererGetIconPathDeclTest extends APITestBase {
 
-import org.junit.Test;
-
-public class MarkdownParserTest {
-
-	@Test
-	public void parseBreakingChanges() throws Exception {
-		Map<String, String> tags = MarkdownParser.parse("BREAKING_CHANGES.markdown");
-
-		assertNotNull(tags);
-		assertEquals(120, tags.size());
+	@Override
+	public String getImplClassName() {
+		return "BaseAssetRendererGetIconPathDecl";
 	}
+
+	@Override
+	public File getTestFile() {
+		return new File("projects/knowledge-base-portlet-6.2.x/docroot/WEB-INF/src/com/liferay/knowledgebase/admin/asset/KBArticleAssetRenderer.java");
+	}
+
 }
