@@ -4342,3 +4342,35 @@ You should change the package name via "correct automatically" in liferay-ide up
 #### Why was this change made? [](id=why-was-this-change-made-104)
 
 To leverage the benefits of modularization in Liferay 7.
+
+---------------------------------------
+
+### Changed the BaseAssetRenderer APIs getIconPath Method ThemeDisplay Parameters [](id=changed-the-baseassetrenderer-apis-geticonpath-method-themedisplay-parameters)
+- **Date:** 2017-Sept-27
+- **JIRA Ticket:** no ticket number
+
+#### What changed? [](id=what-changed-3)
+
+The `getIconPath(ThemeDisplay themeDisplay)` method in the BaseAssetRenderer API have changed into `getIconPath(PortletRequest portletRequest)`.
+
+#### Who is affected? [](id=who-is-affected-3)
+
+This method must be updated in all BaseAssetRenderer implementations.
+
+#### How should I update my code? [](id=how-should-i-update-my-code-3)
+ 
+**Example**
+
+Old signature:
+
+      protected String getIconPath(ThemeDisplay themeDisplay) {
+      return themeDisplay.getPathThemeImages() + "../icon.png";
+      }
+
+New signature:
+
+      public String getIconPath(PortletRequest portletRequest) {
+      return  PortalUtil.getPortalURL(portletRequest) +
+      "../icon.png";
+      }
+ }
