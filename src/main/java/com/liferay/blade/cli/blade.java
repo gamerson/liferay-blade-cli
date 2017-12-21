@@ -37,7 +37,9 @@ import java.io.File;
 import java.io.IOException;
 import java.io.PrintStream;
 import java.io.UnsupportedEncodingException;
+
 import java.net.URL;
+
 import java.util.Enumeration;
 import java.util.Formatter;
 import java.util.Map;
@@ -61,6 +63,11 @@ public class blade extends AbstractConsoleApp implements Runnable {
 
 	public blade(Object target) throws UnsupportedEncodingException {
 		super(target);
+	}
+
+	@Description(ConvertCommand.DESCRIPTION)
+	public void _convert(ConvertOptions options) throws Exception {
+		new ConvertCommand(this, options).execute();
 	}
 
 	@Description(CreateCommand.DESCRIPTION)
@@ -110,6 +117,7 @@ public class blade extends AbstractConsoleApp implements Runnable {
 	@Description(ServerCommand.DESCRIPTION)
 	public void _server(ServerOptions options) throws Exception {
 		ServerCommand serverCommand = new ServerCommand(this, options);
+
 		String help = options._command().subCmd(options, serverCommand);
 
 		if (help != null) {
@@ -132,24 +140,22 @@ public class blade extends AbstractConsoleApp implements Runnable {
 		new UpgradePropsCommand(this, options);
 	}
 
-	@Description(ConvertCommand.DESCRIPTION)
-	public void _convert(ConvertOptions options) throws Exception {
-		new ConvertCommand(this, options).execute();
-	}
-
 	@Description("Show version information about blade")
 	public void _version(Options options) throws IOException {
-		Enumeration<URL> e =
-			getClass().getClassLoader().getResources("META-INF/MANIFEST.MF");
+		Class<?> clazz = getClass();
+
+		Enumeration<URL> e = clazz.getClassLoader().getResources("META-INF/MANIFEST.MF");
 
 		while (e.hasMoreElements()) {
 			URL u = e.nextElement();
+
 			Manifest m = new Manifest(u.openStream());
-			String bsn =
-				m.getMainAttributes().getValue(Constants.BUNDLE_SYMBOLICNAME);
+
+			String bsn = m.getMainAttributes().getValue(Constants.BUNDLE_SYMBOLICNAME);
 
 			if ((bsn != null) && bsn.equals("com.liferay.blade.cli")) {
 				Attributes attrs = m.getMainAttributes();
+
 				out.printf("%s\n", attrs.getValue(Constants.BUNDLE_VERSION));
 				return;
 			}
@@ -159,7 +165,7 @@ public class blade extends AbstractConsoleApp implements Runnable {
 	}
 
 	public void args(Object object, Map<String, Object> map) {
-		args = (String[])map.get("launcher.arguments");
+		_args = (String[])map.get("launcher.arguments");
 	}
 
 	public PrintStream err() {
@@ -185,7 +191,7 @@ public class blade extends AbstractConsoleApp implements Runnable {
 	@Override
 	public void run() {
 		try {
-			new blade().run(args);
+			new blade().run(_args);
 		}
 		catch (Exception e) {
 			e.printStackTrace();
@@ -194,13 +200,14 @@ public class blade extends AbstractConsoleApp implements Runnable {
 
 	@Override
 	public void trace(String s, Object... args) {
-		if (isTrace() && (tracer != null)) {
-			tracer.format("# " + s + "%n", args);
-			tracer.flush();
+		if (isTrace() && (_tracer != null)) {
+			_tracer.format("# " + s + "%n", args);
+
+			_tracer.flush();
 		}
 	}
 
-	private String[] args;
-	private final Formatter tracer = new Formatter(System.out);
+	private String[] _args;
+	private final Formatter _tracer = new Formatter(System.out);
 
 }

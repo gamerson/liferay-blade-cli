@@ -1,32 +1,17 @@
 /**
- * Copyright (c) 2008, 2010, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2000-present Liferay, Inc. All rights reserved.
  *
- * Redistribution and use in source and binary forms, with or without
- * modification, are permitted provided that the following conditions
- * are met:
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
  *
- *   - Redistributions of source code must retain the above copyright
- *     notice, this list of conditions and the following disclaimer.
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
- *   - Redistributions in binary form must reproduce the above copyright
- *     notice, this list of conditions and the following disclaimer in the
- *     documentation and/or other materials provided with the distribution.
- *
- *   - Neither the name of Oracle nor the names of its
- *     contributors may be used to endorse or promote products derived
- *     from this software without specific prior written permission.
- *
- * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS
- * IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO,
- * THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR
- * PURPOSE ARE DISCLAIMED.  IN NO EVENT SHALL THE COPYRIGHT OWNER OR
- * CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
- * EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
- * PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR
- * PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF
- * LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
- * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
- * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
 
 package com.liferay.blade.cli;
@@ -68,9 +53,7 @@ public class FileWatcher {
 		return (WatchEvent<T>)event;
 	}
 
-	public FileWatcher(Path baseDir, boolean recursive, Consumer<Path> consumer)
-		throws IOException {
-
+	public FileWatcher(Path baseDir, boolean recursive, Consumer<Path> consumer) throws IOException {
 		this(baseDir, null, recursive, consumer);
 	}
 
@@ -78,27 +61,23 @@ public class FileWatcher {
 	 * Creates a WatchService and registers the given directory
 	 * @param runnable
 	 */
-	public FileWatcher(
-			Path baseDir, Path fileToWatch, boolean recursive,
-			Consumer<Path> consumer)
-		throws IOException {
-
-		this.watcher = FileSystems.getDefault().newWatchService();
-		this.keys = new HashMap<>();
-		this.recursive = recursive;
+	public FileWatcher(Path baseDir, Path fileToWatch, boolean recursive, Consumer<Path> consumer) throws IOException {
+		_watcher = FileSystems.getDefault().newWatchService();
+		_keys = new HashMap<>();
+		_recursive = recursive;
 
 		System.out.format("Scanning %s\n", baseDir);
 
 		if (recursive) {
-			registerAll(baseDir);
+			_registerAll(baseDir);
 		}
 		else {
-			register(baseDir);
+			_register(baseDir);
 		}
 
 		// enable trace after initial registration
 
-		this.trace = true;
+		_trace = true;
 
 		processEvents(fileToWatch, consumer);
 	}
@@ -116,13 +95,13 @@ public class FileWatcher {
 			WatchKey key;
 
 			try {
-				key = watcher.take();
+				key = _watcher.take();
 			}
 			catch (InterruptedException ie) {
 				return;
 			}
 
-			Path dir = keys.get(key);
+			Path dir = _keys.get(key);
 
 			if (dir == null) {
 				System.err.println("WatchKey not recognized!!");
@@ -143,7 +122,9 @@ public class FileWatcher {
 				// Context for directory entry event is the file name of entry
 
 				WatchEvent<Path> ev = cast(event);
+
 				Path name = ev.context();
+
 				Path child = dir.resolve(name);
 
 				if ((child.equals(fileToWatch) || (fileToWatch == null)) &&
@@ -155,10 +136,10 @@ public class FileWatcher {
 				// if directory is created, and watching recursively, then
 				// register it and its sub-directories
 
-				if (recursive && (kind == ENTRY_CREATE)) {
+				if (_recursive && (kind == ENTRY_CREATE)) {
 					try {
 						if (Files.isDirectory(child, NOFOLLOW_LINKS)) {
-							registerAll(child);
+							_registerAll(child);
 						}
 					}
 					catch (IOException ioe) {
@@ -169,7 +150,7 @@ public class FileWatcher {
 				}
 			}
 
-			if (reportModified.size() > 0) {
+			if (!reportModified.isEmpty()) {
 				for (Path modified : reportModified) {
 					try {
 						consumer.consume(modified);
@@ -185,11 +166,11 @@ public class FileWatcher {
 			boolean valid = key.reset();
 
 			if (!valid) {
-				keys.remove(key);
+				_keys.remove(key);
 
 				// all directories are inaccessible
 
-				if (keys.isEmpty()) {
+				if (_keys.isEmpty()) {
 					break;
 				}
 			}
@@ -205,13 +186,14 @@ public class FileWatcher {
 	/**
 	 * Register the given directory with the WatchService
 	 */
-	private void register(Path dir) throws IOException {
+	private void _register(Path dir) throws IOException {
 		Modifier modifier = null;
 
 		try {
-			Class<?> c = Class.forName(
-				"com.sun.nio.file.SensitivityWatchEventModifier");
+			Class<?> c = Class.forName("com.sun.nio.file.SensitivityWatchEventModifier");
+
 			Field f = c.getField("HIGH");
+
 			modifier = (Modifier)f.get(c);
 		}
 		catch (Exception e) {
@@ -220,16 +202,14 @@ public class FileWatcher {
 		WatchKey key;
 
 		if (modifier != null) {
-			key = dir.register(
-				watcher, new WatchEvent.Kind[] {ENTRY_CREATE, ENTRY_MODIFY},
-				modifier);
+			key = dir.register(_watcher, new WatchEvent.Kind[] {ENTRY_CREATE, ENTRY_MODIFY}, modifier);
 		}
 		else {
-			key = dir.register(watcher, ENTRY_CREATE, ENTRY_MODIFY);
+			key = dir.register(_watcher, ENTRY_CREATE, ENTRY_MODIFY);
 		}
 
-		if (trace) {
-			Path prev = keys.get(key);
+		if (_trace) {
+			Path prev = _keys.get(key);
 
 			if (prev == null) {
 			}
@@ -239,14 +219,13 @@ public class FileWatcher {
 			}
 		}
 
-		keys.put(key, dir);
+		_keys.put(key, dir);
 	}
 
 	/**
-	 * Register the given directory, and all its sub-directories, with the
-	 * WatchService.
+	 * Register the given directory, and all its sub-directories, with the WatchService.
 	 */
-	private void registerAll(final Path start) throws IOException {
+	private void _registerAll(final Path start) throws IOException {
 
 		// register directory and sub-directories
 
@@ -255,20 +234,18 @@ public class FileWatcher {
 			new SimpleFileVisitor<Path>() {
 
 				@Override
-				public FileVisitResult preVisitDirectory(
-						Path dir, BasicFileAttributes attrs)
-					throws IOException {
+				public FileVisitResult preVisitDirectory(Path dir, BasicFileAttributes attrs) throws IOException {
+					_register(dir);
 
-					register(dir);
 					return FileVisitResult.CONTINUE;
 				}
 
 			});
 	}
 
-	private final Map<WatchKey, Path> keys;
-	private final boolean recursive;
-	private boolean trace = false;
-	private final WatchService watcher;
+	private final Map<WatchKey, Path> _keys;
+	private final boolean _recursive;
+	private boolean _trace = false;
+	private final WatchService _watcher;
 
 }

@@ -23,6 +23,7 @@ import aQute.lib.getopt.Options;
 import com.liferay.blade.cli.jmx.IDEConnector;
 
 import java.io.File;
+
 import java.util.Collections;
 
 /**
@@ -30,8 +31,7 @@ import java.util.Collections;
  */
 public class OpenCommand {
 
-	public static final String DESCRIPTION =
-		"Opens or imports a file or project in Liferay IDE.";
+	public static final String DESCRIPTION = "Opens or imports a file or project in Liferay IDE.";
 
 	public OpenCommand(blade blade, OpenOptions options) throws Exception {
 		_blade = blade;
@@ -42,9 +42,8 @@ public class OpenCommand {
 		File fileName = new File(_options._arguments().get(0));
 
 		if (!fileName.exists()) {
-			addError(
-				"open",
-				"Unable to find specified file " + fileName.getAbsolutePath());
+			_addError("open", "Unable to find specified file " + fileName.getAbsolutePath());
+
 			return;
 		}
 
@@ -54,7 +53,8 @@ public class OpenCommand {
 			Object retval = connector.openDir(fileName);
 
 			if (retval != null) {
-				addError("open", retval.toString());
+				_addError("open", retval.toString());
+
 				return;
 			}
 		}
@@ -69,7 +69,7 @@ public class OpenCommand {
 
 	}
 
-	private void addError(String prefix, String msg) {
+	private void _addError(String prefix, String msg) {
 		_blade.addErrors(prefix, Collections.singleton(msg));
 	}
 

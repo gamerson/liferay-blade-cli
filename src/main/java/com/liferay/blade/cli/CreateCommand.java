@@ -24,12 +24,14 @@ import com.liferay.project.templates.ProjectTemplates;
 import com.liferay.project.templates.ProjectTemplatesArgs;
 
 import java.io.File;
+
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
+import java.util.stream.Stream;
 
 import org.apache.commons.lang3.StringUtils;
 
@@ -39,33 +41,32 @@ import org.apache.commons.lang3.StringUtils;
  */
 public class CreateCommand {
 
-	public static final String DESCRIPTION =
-		"Creates a new Liferay module project from several available " +
-			"templates.";
+	public static final String DESCRIPTION = "Creates a new Liferay module project from several available templates.";
 
+	public CreateCommand(blade blade) {
+		_blade = blade;
+		_options = null;
+	}
 
 	public CreateCommand(blade blade, CreateOptions options) {
 		_blade = blade;
 		_options = options;
 	}
 
-	CreateCommand(blade blade) {
-		_blade = blade;
-		_options = null;
-	}
-
 	public void execute() throws Exception {
 		if (_options.listtemplates()) {
-			printTemplates();
+			_printTemplates();
+
 			return;
 		}
 
 		List<String> args = _options._arguments();
 
-		String name = args.size() > 0 ? args.get(0) : null;
+		String name = args.isEmpty() ? null : args.get(0);
 
 		if (name == null) {
-			addError("Create", "SYNOPSIS\n\t create [options] <[name]>");
+			_addError("Create", "SYNOPSIS\n\t create [options] <[name]>");
+
 			return;
 		}
 
@@ -74,31 +75,31 @@ public class CreateCommand {
 		if (template == null) {
 			template = "mvc-portlet";
 		}
-		else if (!isExistingTemplate(template)) {
-				addError(
-					"Create", "the template "+template+" is not in the list");
-				return;
+		else if (!_isExistingTemplate(template)) {
+			_addError("Create", "the template " + template + " is not in the list");
+
+			return;
 		}
 
 		File dir;
 
-		if(_options.dir() != null) {
+		if (_options.dir() != null) {
 			dir = new File(_options.dir().getAbsolutePath());
 		}
-		else if (template.equals("theme") || template.equals("layout-template")
-				|| template.equals("spring-mvc-portlet")) {
-			dir = getDefaultWarsDir();
+		else if (template.equals("theme") || template.equals("layout-template") ||
+				 template.equals("spring-mvc-portlet")) {
+
+			dir = _getDefaultWarsDir();
 		}
 		else {
-			dir = getDefaultModulesDir();
+			dir = _getDefaultModulesDir();
 		}
 
-		final File checkDir = new File(dir, name);
+		File checkDir = new File(dir, name);
 
-		if(!checkDir(checkDir)) {
-			addError(
-				"Create", name + " is not empty or it is a file." +
-				" Please clean or delete it then run again");
+		if (!_checkDir(checkDir)) {
+			_addError("Create", name + " is not empty or it is a file. Please clean or delete it then run again");
+
 			return;
 		}
 
@@ -122,19 +123,18 @@ public class CreateCommand {
 		execute(projectTemplatesArgs);
 
 		_blade.out().println(
-			"Successfully created project " + projectTemplatesArgs.getName() + 
-				" in " + dir.getAbsolutePath());
+			"Successfully created project " + projectTemplatesArgs.getName() + " in " + dir.getAbsolutePath());
 	}
 
-	void execute(ProjectTemplatesArgs projectTemplatesArgs) throws Exception {
+	public void execute(ProjectTemplatesArgs projectTemplatesArgs) throws Exception {
 		File dir = projectTemplatesArgs.getDestinationDir();
 		String name = projectTemplatesArgs.getName();
 
 		new ProjectTemplates(projectTemplatesArgs);
 
-		File gradlew = new File(dir, name+"/gradlew");
+		File gradlew = new File(dir, name + "/gradlew");
 
-		if(gradlew.exists()) {
+		if (gradlew.exists()) {
 			gradlew.setExecutable(true);
 		}
 	}
@@ -143,37 +143,28 @@ public class CreateCommand {
 	@Description(DESCRIPTION)
 	public interface CreateOptions extends Options {
 
-		@Description(
-			"Specify the build type of the project. " +
-				"Available options are gradle, maven. (gradle is default)")
-	    public String build();
+		@Description("Specify the build type of the project. Available options are gradle, maven. (gradle is default)")
+		public String build();
 
 		@Description(
-			"If a class is generated in the project, provide the name of the " +
-				"class to be generated. If not provided defaults to Project " +
-					"name."
+			"If a class is generated in the project, provide the name of the class to be generated. If not provided defaults to Project name."
 		)
 		public String classname();
 
 		@Description(
-			"Used to identify your module as a Theme Contributor. Also, used " +
-			"to add the Liferay-Theme-Contributor-Type and Web-ContextPath " +
-			"bundle headers.")
+			"Used to identify your module as a Theme Contributor. Also, used to add the Liferay-Theme-Contributor-Type and Web-ContextPath bundle headers."
+		)
 		public String contributorType();
 
 		@Description("The directory where to create the new project.")
 		public File dir();
 
 		@Description(
-			"If a new jsp hook fragment needs to be created, provide the name" +
-				" of the host bundle symbolic name."
+			"If a new jsp hook fragment needs to be created, provide the name of the host bundle symbolic name."
 		)
 		public String hostbundlebsn();
 
-		@Description(
-			"If a new jsp hook fragment needs to be created, provide the name" +
-				" of the host bundle version."
-		)
+		@Description("If a new jsp hook fragment needs to be created, provide the name of the host bundle version.")
 		public String hostbundleversion();
 
 		@Description("Prints a list of available project templates")
@@ -181,43 +172,29 @@ public class CreateCommand {
 
 		public String packagename();
 
-		@Description(
-			"If a new DS component needs to be created, provide the name of " +
-				"the service to be implemented."
-		)
+		@Description("If a new DS component needs to be created, provide the name of the service to be implemented.")
 		public String service();
 
 		@Description(
-			"The project template to use when creating the project. To " +
-				"see the list of templates available use blade create <-l | " +
-					"--listtemplates>"
+			"The project template to use when creating the project. To see the list of templates available use blade create <-l | --listtemplates>"
 		)
 		public String template();
+
 	}
 
-	private void addError(String prefix, String msg) {
+	private void _addError(String prefix, String msg) {
 		_blade.addErrors(prefix, Collections.singleton(msg));
 	}
 
-	private boolean containsDir(File currentDir, File parentDir)
-		throws Exception {
-
-		String currentPath = currentDir.getCanonicalPath();
-
-		String parentPath = parentDir.getCanonicalPath();
-
-		return currentPath.startsWith(parentPath);
-	}
-
-	private boolean checkDir(File file) {
-		if(file.exists()) {
-			if(!file.isDirectory()) {
+	private boolean _checkDir(File file) {
+		if (file.exists()) {
+			if (!file.isDirectory()) {
 				return false;
 			}
 			else {
 				File[] children = file.listFiles();
 
-				if(children != null && children.length > 0) {
+				if ((children != null) && (children.length > 0)) {
 					return false;
 				}
 			}
@@ -226,7 +203,15 @@ public class CreateCommand {
 		return true;
 	}
 
-	private File getDefaultModulesDir() throws Exception {
+	private boolean _containsDir(File currentDir, File parentDir) throws Exception {
+		String currentPath = currentDir.getCanonicalPath();
+
+		String parentPath = parentDir.getCanonicalPath();
+
+		return currentPath.startsWith(parentPath);
+	}
+
+	private File _getDefaultModulesDir() throws Exception {
 		File baseDir = _blade.getBase();
 
 		if (!Util.isWorkspace(baseDir)) {
@@ -235,8 +220,7 @@ public class CreateCommand {
 
 		Properties properties = Util.getGradleProperties(baseDir);
 
-		String modulesDirValue = (String)properties.get(
-			Workspace.DEFAULT_MODULES_DIR_PROPERTY);
+		String modulesDirValue = (String)properties.get(Workspace.DEFAULT_MODULES_DIR_PROPERTY);
 
 		if (modulesDirValue == null) {
 			modulesDirValue = Workspace.DEFAULT_MODULES_DIR;
@@ -246,10 +230,14 @@ public class CreateCommand {
 
 		File modulesDir = new File(projectDir, modulesDirValue);
 
-		return containsDir(baseDir, modulesDir) ? baseDir : modulesDir;
+		if (_containsDir(baseDir, modulesDir)) {
+			return baseDir;
+		}
+
+		return modulesDir;
 	}
 
-	private File getDefaultWarsDir() throws Exception {
+	private File _getDefaultWarsDir() throws Exception {
 		File baseDir = _blade.getBase();
 
 		if (!Util.isWorkspace(baseDir)) {
@@ -258,14 +246,13 @@ public class CreateCommand {
 
 		Properties properties = Util.getGradleProperties(baseDir);
 
-		String warsDirValue = (String)properties.get(
-			Workspace.DEFAULT_WARS_DIR_PROPERTY);
+		String warsDirValue = (String)properties.get(Workspace.DEFAULT_WARS_DIR_PROPERTY);
 
 		if (warsDirValue == null) {
 			warsDirValue = Workspace.DEFAULT_WARS_DIR;
 		}
 
-		if(warsDirValue.contains(",")) {
+		if (warsDirValue.contains(",")) {
 			warsDirValue = warsDirValue.split(",")[0];
 		}
 
@@ -273,17 +260,21 @@ public class CreateCommand {
 
 		File warsDir = new File(projectDir, warsDirValue);
 
-		return containsDir(baseDir, warsDir) ? baseDir : warsDir;
+		if (_containsDir(baseDir, warsDir)) {
+			return baseDir;
+		}
+
+		return warsDir;
 	}
 
-	private String[] getTemplateNames() throws Exception {
+	private String[] _getTemplateNames() throws Exception {
 		Map<String, String> templates = ProjectTemplates.getTemplates();
 
 		return templates.keySet().toArray(new String[0]);
 	}
 
-	private boolean isExistingTemplate(String templateName) throws Exception {
-		String[] templates = getTemplateNames();
+	private boolean _isExistingTemplate(String templateName) throws Exception {
+		String[] templates = _getTemplateNames();
 
 		for (String template : templates) {
 			if (templateName.equals(template)) {
@@ -294,17 +285,18 @@ public class CreateCommand {
 		return false;
 	}
 
-	private void printTemplates() throws Exception {
-		Map<String,String> templates = ProjectTemplates.getTemplates();
+	private void _printTemplates() throws Exception {
+		Map<String, String> templates = ProjectTemplates.getTemplates();
 
 		List<String> templateNames = new ArrayList<>(templates.keySet());
 
 		Collections.sort(templateNames);
 
-		Comparator<String> compareLength =
-			Comparator.comparingInt(String::length);
+		Comparator<String> compareLength = Comparator.comparingInt(String::length);
 
-		String longestString = templateNames.stream().max(compareLength).get();
+		Stream<String> stream = templateNames.stream();
+
+		String longestString = stream.max(compareLength).get();
 
 		int padLength = longestString.length() + 2;
 

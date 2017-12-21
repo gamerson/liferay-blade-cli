@@ -22,9 +22,11 @@ import com.liferay.project.templates.ProjectTemplatesArgs;
 
 import java.io.File;
 import java.io.IOException;
+
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
+
 import java.util.List;
 import java.util.Properties;
 import java.util.stream.Stream;
@@ -76,9 +78,9 @@ public class ConvertServiceBuilderCommand {
 	}
 
 	public void execute() throws Exception {
-	final List<String> args = _options._arguments();
+		List<String> args = _options._arguments();
 
-		final String projectName = !args.isEmpty() ? args.get(0) : null;
+		String projectName = !args.isEmpty() ? args.get(0) : null;
 
 		if (!Util.isWorkspace(_blade)) {
 			_blade.error("Please execute command in a Liferay Workspace project");
@@ -163,7 +165,8 @@ public class ConvertServiceBuilderCommand {
 		if (oldServiceImplFolder.exists()) {
 			newServiceImplFolder.mkdirs();
 
-			Files.move(oldServiceImplFolder.toPath(), newServiceImplFolder.toPath(), StandardCopyOption.REPLACE_EXISTING);
+			Files.move(
+				oldServiceImplFolder.toPath(), newServiceImplFolder.toPath(), StandardCopyOption.REPLACE_EXISTING);
 		}
 
 		File oldModelImplFolder = new File(oldSBFolder, "model");
@@ -181,7 +184,8 @@ public class ConvertServiceBuilderCommand {
 		if (oldMetaInfFolder.exists()) {
 			newMetaInfFolder.mkdirs();
 
-			Files.move(new File(oldMetaInfFolder, ServiceBuilder.PORTLET_MODEL_HINTS_XML).toPath(),
+			Files.move(
+				new File(oldMetaInfFolder, ServiceBuilder.PORTLET_MODEL_HINTS_XML).toPath(),
 				new File(newMetaInfFolder, ServiceBuilder.PORTLET_MODEL_HINTS_XML).toPath());
 		}
 
@@ -191,7 +195,8 @@ public class ConvertServiceBuilderCommand {
 		if (oldSrcFolder.exists()) {
 			newResourcesSrcFolder.mkdirs();
 
-			Files.move(new File(oldSrcFolder, ServiceBuilder.SERVICE_PROPERTIES).toPath(),
+			Files.move(
+				new File(oldSrcFolder, ServiceBuilder.SERVICE_PROPERTIES).toPath(),
 				new File(newResourcesSrcFolder, ServiceBuilder.SERVICE_PROPERTIES).toPath());
 		}
 
@@ -217,7 +222,7 @@ public class ConvertServiceBuilderCommand {
 		srcPaths.map(
 			path -> path.toFile()
 		).filter(
-			file -> file.isFile() && file.getName().endsWith(".java") && isInExportedApiFolder(file)
+			file -> file.isFile() && file.getName().endsWith(".java") && _isInExportedApiFolder(file)
 		).map(
 			file -> file.toPath().resolveSibling("packageinfo").toFile()
 		).filter(
@@ -227,8 +232,8 @@ public class ConvertServiceBuilderCommand {
 				try {
 					Files.write(file.toPath(), new String("version 1.0.0").getBytes());
 				}
-				catch (IOException e) {
-					e.printStackTrace();
+				catch (IOException ioe) {
+					ioe.printStackTrace();
 				}
 			}
 		);
@@ -236,6 +241,7 @@ public class ConvertServiceBuilderCommand {
 		srcPaths.close();
 
 		// add dependency on -api to portlet project
+
 		File gradleFile = new File(project, "build.gradle");
 
 		String gradleContent = new String(Files.readAllBytes(gradleFile.toPath()));
@@ -256,47 +262,62 @@ public class ConvertServiceBuilderCommand {
 		System.out.println("Migrating files done, then you should fix breaking changes and re-run build-service task.");
 	}
 
-	private boolean isInExportedApiFolder(File file) {
+	private boolean _isInExportedApiFolder(File file) {
 		File dir = file.getParentFile();
 
 		String dirName = dir.getName();
 
-		return dirName.equals("exception") || dirName.equals("model") || dirName.equals("service") || dirName.equals("persistence");
+		if (dirName.equals("exception") || dirName.equals("model") || dirName.equals("service") ||
+			dirName.equals("persistence")) {
+
+			return true;
+		}
+
+		return false;
 	}
 
+	private blade _blade;
+	private final File _moduleDir;
+	private ConvertOptions _options;
+	private final File _warsDir;
+
 	private class ServiceBuilder {
-		public static final String META_INF = "META-INF/";
+
 		public static final String API_62 = "WEB-INF/service/";
+
+		public static final String META_INF = "META-INF/";
+
 		public static final String PORTLET_MODEL_HINTS_XML = "portlet-model-hints.xml";
-		public static final String SERVICE_XML = "service.xml";
+
 		public static final String SERVICE_PROPERTIES = "service.properties";
 
-		File _serviceXml;
-		Element _rootElement;
+		public static final String SERVICE_XML = "service.xml";
 
 		public ServiceBuilder(File serviceXml) throws Exception {
 			_serviceXml = serviceXml;
-			parse();
+
+			_parse();
 		}
 
-		private void parse() throws Exception {
-			if ((_rootElement == null) && (_serviceXml != null) && (_serviceXml.exists())) {
+		public String getPackagePath() {
+			return _rootElement.getAttribute("package-path");
+		}
+
+		private void _parse() throws Exception {
+			if ((_rootElement == null) && (_serviceXml != null) && _serviceXml.exists()) {
 				DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
+
 				DocumentBuilder dBuilder = dbFactory.newDocumentBuilder();
+
 				Document doc = dBuilder.parse(_serviceXml);
 
 				_rootElement = doc.getDocumentElement();
 			}
 		}
 
-		public String getPackagePath() {
-			return _rootElement.getAttribute("package-path");
-		}
-	}
+		private Element _rootElement;
+		private File _serviceXml;
 
-	private blade _blade;
-	private final File _warsDir;
-	private final File _moduleDir;
-	private ConvertOptions _options;
+	}
 
 }

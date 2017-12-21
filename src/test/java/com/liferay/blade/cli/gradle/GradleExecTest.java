@@ -33,6 +33,7 @@ public class GradleExecTest {
 	@Test
 	public void testGradleWrapper() throws Exception {
 		ByteArrayOutputStream baos = new ByteArrayOutputStream();
+
 		PrintStream ps = new PrintStream(baos);
 
 		blade blade = new bladenofail(ps);
