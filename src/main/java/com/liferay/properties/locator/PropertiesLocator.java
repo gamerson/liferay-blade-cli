@@ -1,21 +1,24 @@
 /**
  * Copyright (c) 2000-present Liferay, Inc. All rights reserved.
  *
- * This library is free software; you can redistribute it and/or modify it under
- * the terms of the GNU Lesser General Public License as published by the Free
- * Software Foundation; either version 2.1 of the License, or (at your option)
- * any later version.
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
  *
- * This library is distributed in the hope that it will be useful, but WITHOUT
- * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
- * FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License for more
- * details.
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
 
 package com.liferay.properties.locator;
 
 import com.beust.jcommander.JCommander;
 import com.beust.jcommander.ParameterException;
+
 import com.liferay.blade.cli.util.ArrayUtil;
 import com.liferay.blade.cli.util.CamelCaseUtil;
 import com.liferay.blade.cli.util.ListUtil;
@@ -30,13 +33,17 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.PrintWriter;
+
 import java.net.URL;
+
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.attribute.BasicFileAttributes;
+
 import java.security.CodeSource;
 import java.security.ProtectionDomain;
+
 import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.HashMap;
@@ -137,8 +144,8 @@ public class PropertiesLocator {
 
 			_outputFile.println();
 			_outputFile.println(
-				"We haven't found a new property for the following old properties (check if you still " +
-					"need them or check the documentation to find a replacement):");
+				"We haven't found a new property for the following old properties " +
+					"(check if you still need them or check the documentation to find a replacement):");
 
 			Stream<PropertyProblem> problemsStream = problems.stream();
 
@@ -194,17 +201,19 @@ public class PropertiesLocator {
 		Map<String, ConfigurationClassData> configClassesMap = new HashMap<>();
 
 		try (Stream<Path> paths = Files.walk(searchPathRoot)) {
-			paths.map(
+			Stream<File> stream = paths.map(
 				path -> path.toFile()
 			).filter(
 				file -> {
 					String absolutePath = file.getAbsolutePath();
 
 					return ((absolutePath.endsWith(".jar")) ||
-							 (absolutePath.endsWith(".lpkg"))) &&
-							 (!absolutePath.contains("/osgi/state/"));
+						(absolutePath.endsWith(".lpkg"))) &&
+						(!absolutePath.contains("/osgi/state/"));
 				}
-			).forEach(
+			);
+
+			stream.forEach(
 				file -> {
 					try {
 						String absolutePath = file.getAbsolutePath();
@@ -271,17 +280,17 @@ public class PropertiesLocator {
 
 						return;
 					}
-				}
-			);
+				});
 		}
 
 		List<Pair<String, String[]>> configurationProperties = _getConfigurationProperties(configClassesMap);
 
 		SortedSet<PropertyProblem> updatedProblems = new TreeSet<>();
 
-		problems.stream().filter(
-			problem -> problem.getType() == PropertyProblemType.MISSING
-		).forEach(
+		Stream<PropertyProblem> problemsStream = problems.stream().filter(
+			problem -> problem.getType() == PropertyProblemType.MISSING);
+
+		problemsStream.forEach(
 			problem -> {
 				String property = problem.getPropertyName();
 
@@ -297,8 +306,7 @@ public class PropertiesLocator {
 				else {
 					updatedProblems.add(problem);
 				}
-			}
-		);
+			});
 
 		Stream<PropertyProblem> stream = updatedProblems.stream();
 
@@ -362,11 +370,13 @@ public class PropertiesLocator {
 		Path searchPathRoot = bundlePath.resolve("osgi");
 
 		try (Stream<Path> paths = Files.walk(searchPathRoot)) {
-			paths.filter(
+			Stream<String> stream = paths.filter(
 				ignoreStateFilter
 			).map(
 				jarPath -> jarPath.toAbsolutePath().toString()
-			).filter(
+			);
+
+			stream.filter(
 				PropertiesLocator::_isLiferayJar
 			).forEach(
 				jarAbsolutePath -> {
@@ -401,11 +411,13 @@ public class PropertiesLocator {
 		}
 
 		try (Stream<Path> paths = Files.walk(searchPathRoot)) {
-			paths.filter(
+			Stream<Path> stream = paths.filter(
 				ignoreStateFilter
 			).filter(
 				lpkgFilter
-			).map(
+			);
+
+			stream.map(
 				lpkgPath -> lpkgPath.toAbsolutePath().toString()
 			).forEach(
 				lpkgAbsolutePath -> {
@@ -589,12 +601,12 @@ public class PropertiesLocator {
 		else if (propertiesLocatorArgs.isQuiet()) {
 			return new PrintWriter(
 				new OutputStream() {
+
 					@Override
 					public void write(int b) {
 					}
 
-				}
-			);
+				});
 		}
 		else {
 			return new PrintWriter(System.out);
@@ -822,7 +834,7 @@ public class PropertiesLocator {
 	}
 
 	private static boolean _isLiferayJar(String path) {
-		if ((!path.endsWith(".jar")) || (!path.contains("com.liferay"))) {
+		if (!path.endsWith(".jar") || !path.contains("com.liferay")) {
 			return false;
 		}
 
@@ -851,7 +863,7 @@ public class PropertiesLocator {
 			else if (property.endsWith("breadcrumb.display.style.default")) {
 				PropertyProblem updatedProblem = new PropertyProblem(
 					property, PropertyProblemType.MODULARIZED,
-					" ddmTemplateKeyDefault in com.liferay.site.navigation.breadcrumb.web.configuration." + "SiteNavigationBreadcrumbWebTemplateConfiguration. More information at Breaking Changes for Liferay 7: https://dev.liferay.com/develop/reference/-/knowledge_base/7-0/breaking-changes#replaced-the-breadcrumb-portlets-display-styles-with-adts",
+					" ddmTemplateKeyDefault in com.liferay.site.navigation.breadcrumb.web.configuration.SiteNavigationBreadcrumbWebTemplateConfiguration. More information at Breaking Changes for Liferay 7: https://dev.liferay.com/develop/reference/-/knowledge_base/7-0/breaking-changes#replaced-the-breadcrumb-portlets-display-styles-with-adts",
 					null);
 
 				informationToPrint.add(updatedProblem);

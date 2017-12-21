@@ -29,8 +29,7 @@ import org.apache.commons.lang3.StringUtils;
  */
 public class ShellCommand {
 
-	public static final String DESCRIPTION =
-		"Connects to Liferay and executes gogo command and returns output.";
+	public static final String DESCRIPTION = "Connects to Liferay and executes gogo command and returns output.";
 
 	public ShellCommand(blade blade, ShellOptions options) throws Exception {
 		_blade = blade;
@@ -40,17 +39,15 @@ public class ShellCommand {
 	}
 
 	public void execute() throws Exception {
-		if (!Util.canConnect(_host , _port)) {
-			addError(
-				"sh",
-				"Unable to connect to gogo shell on " + _host + ":" + _port);
+		if (!Util.canConnect(_host, _port)) {
+			_addError("sh", "Unable to connect to gogo shell on " + _host + ":" + _port);
 
 			return;
 		}
 
 		String gogoCommand = StringUtils.join(_options._arguments(), " ");
 
-		executeCommand(gogoCommand);
+		_executeCommand(gogoCommand);
 	}
 
 	@Arguments(arg = {"gogo-command", "args..."})
@@ -65,13 +62,12 @@ public class ShellCommand {
 
 	}
 
-	private void addError(String prefix, String msg) {
+	private void _addError(String prefix, String msg) {
 		_blade.addErrors(prefix, Collections.singleton(msg));
 	}
 
-	private void executeCommand(String cmd) throws Exception {
-		final GogoTelnetClient telnetClient =
-			new GogoTelnetClient(_host, _port);
+	private void _executeCommand(String cmd) throws Exception {
+		final GogoTelnetClient telnetClient = new GogoTelnetClient(_host, _port);
 
 		String response = telnetClient.send(cmd);
 

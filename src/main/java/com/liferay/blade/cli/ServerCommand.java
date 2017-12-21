@@ -31,14 +31,11 @@ import java.util.Properties;
  */
 public class ServerCommand {
 
-	public static final String DESCRIPTION =
-		"Start or stop server defined by your Liferay project";
+	public static final String DESCRIPTION = "Start or stop server defined by your Liferay project";
 
-	public static final String DESCRIPTION_START =
-		"Start server defined by your Liferay project";
+	public static final String DESCRIPTION_START = "Start server defined by your Liferay project";
 
-	public static final String DESCRIPTION_STOP =
-		"Stop server defined by your Liferay project";
+	public static final String DESCRIPTION_STOP = "Stop server defined by your Liferay project";
 
 	public ServerCommand(blade blade, ServerOptions options) {
 		_blade = blade;
@@ -46,12 +43,12 @@ public class ServerCommand {
 
 	@Description(DESCRIPTION_START)
 	public void _start(ServerStartOptions options) throws Exception {
-		executeCommand("start", options);
+		_executeCommand("start", options);
 	}
 
 	@Description(DESCRIPTION_STOP)
 	public void _stop(ServerStopOptions options) throws Exception {
-		executeCommand("stop", options);
+		_executeCommand("stop", options);
 	}
 
 	@Description(DESCRIPTION)
@@ -76,23 +73,18 @@ public class ServerCommand {
 	public interface ServerStopOptions extends ServerOptions {
 	}
 
-	private void commandServer(
-			String cmd, File dir, String serverType, ServerOptions options)
-		throws Exception {
-
+	private void _commandServer(String cmd, File dir, String serverType, ServerOptions options) throws Exception {
 		for (File file : dir.listFiles()) {
 			String fileName = file.getName();
 
 			if (fileName.startsWith(serverType) && file.isDirectory()) {
 				if (serverType.equals("tomcat")) {
-					commmandTomcat(cmd, file, options);
+					_commmandTomcat(cmd, file, options);
 
 					return;
 				}
-				else if (serverType.equals("jboss") ||
-						 serverType.equals("wildfly")) {
-
-					commmandJBossWildfly(cmd, file, options);
+				else if (serverType.equals("jboss") || serverType.equals("wildfly")) {
+					_commmandJBossWildfly(cmd, file, options);
 
 					return;
 				}
@@ -102,10 +94,7 @@ public class ServerCommand {
 		_blade.error(serverType + " not supported");
 	}
 
-	private void commmandJBossWildfly(
-			String cmd, File dir, ServerOptions options)
-		throws Exception {
-
+	private void _commmandJBossWildfly(String cmd, File dir, ServerOptions options) throws Exception {
 		Map<String, String> enviroment = new HashMap<>();
 
 		String executable = "./standalone.sh";
@@ -123,8 +112,7 @@ public class ServerCommand {
 				debug = " --debug";
 			}
 
-			Process process = Util.startProcess(
-				_blade, executable + debug, new File(dir, "bin"), enviroment);
+			Process process = Util.startProcess(_blade, executable + debug, new File(dir, "bin"), enviroment);
 
 			process.waitFor();
 		}
@@ -133,9 +121,7 @@ public class ServerCommand {
 		}
 	}
 
-	private void commmandTomcat(String cmd, File dir, ServerOptions options)
-		throws Exception {
-
+	private void _commmandTomcat(String cmd, File dir, ServerOptions options) throws Exception {
 		Map<String, String> enviroment = new HashMap<>();
 
 		enviroment.put("CATALINA_PID", "catalina.pid");
@@ -159,47 +145,47 @@ public class ServerCommand {
 			}
 
 			File logs = new File(dir, "logs");
+
 			logs.mkdirs();
 
 			File catalinaOut = new File(logs, "catalina.out");
+
 			catalinaOut.createNewFile();
 
 			final Process process = Util.startProcess(
-				_blade, executable + startCommand, new File(dir, "bin"),
-				enviroment);
+				_blade, executable + startCommand, new File(dir, "bin"), enviroment);
 
 			Runtime runtime = Runtime.getRuntime();
 
-			runtime.addShutdownHook(new Thread() {
-				public void run() {
-					try {
-						process.waitFor();
-					} catch (InterruptedException e) {
-						_blade.error("Could not wait for process to end " +
-							"before shutting down");
+			runtime.addShutdownHook(
+				new Thread() {
+
+					public void run() {
+						try {
+							process.waitFor();
+						}
+						catch (InterruptedException ie) {
+							_blade.error("Could not wait for process to end before shutting down");
+						}
 					}
-				}
-			});
+
+				});
 
 			if (startOptions.background() && startOptions.tail()) {
-				Process tailProcess = Util.startProcess(
-					_blade, "tail -f catalina.out", logs, enviroment);
+				Process tailProcess = Util.startProcess(_blade, "tail -f catalina.out", logs, enviroment);
 
 				tailProcess.waitFor();
 			}
 		}
 		else if (cmd.equals("stop")) {
 			Process process = Util.startProcess(
-				_blade, executable + " stop 60 -force", new File(dir, "bin"),
-				enviroment);
+				_blade, executable + " stop 60 -force", new File(dir, "bin"), enviroment);
 
 			process.waitFor();
 		}
 	}
 
-	private void executeCommand(String cmd, ServerOptions options)
-		throws Exception {
-
+	private void _executeCommand(String cmd, ServerOptions options) throws Exception {
 		File gradleWrapper = Util.getGradleWrapper(_blade.getBase());
 
 		File rootDir = gradleWrapper.getParentFile();
@@ -209,8 +195,7 @@ public class ServerCommand {
 		if (Util.isWorkspace(rootDir)) {
 			Properties properties = Util.getGradleProperties(rootDir);
 
-			String liferayHomePath = properties.getProperty(
-				Workspace.DEFAULT_LIFERAY_HOME_DIR_PROPERTY);
+			String liferayHomePath = properties.getProperty(Workspace.DEFAULT_LIFERAY_HOME_DIR_PROPERTY);
 
 			if ((liferayHomePath == null) || liferayHomePath.equals("")) {
 				liferayHomePath = Workspace.DEFAULT_LIFERAY_HOME_DIR;
@@ -224,12 +209,14 @@ public class ServerCommand {
 			}
 			else {
 				File tempFile = new File(rootDir, liferayHomePath);
+
 				liferayHomeDir = tempFile.getCanonicalFile();
 			}
 
 			if (!liferayHomeDir.exists() || !(liferayHomeDir.listFiles().length > 0)) {
-				_blade.error(" bundles folder does not exist or is empty in Liferay Workspace,"
-						+ "execute 'gradlew initBundle' in order to create it.");
+				_blade.error(
+					" bundles folder does not exist or is empty in Liferay Workspace," +
+						"execute 'gradlew initBundle' in order to create it.");
 
 				return;
 			}
@@ -248,11 +235,11 @@ public class ServerCommand {
 				}
 			}
 
-			if(serverType == null) {
+			if (serverType == null) {
 				for (File file : liferayHomeDir.listFiles()) {
-					if(file.isDirectory()) {
+					if (file.isDirectory()) {
 						String fileName = file.getName();
-	
+
 						if (fileName.startsWith("jboss")) {
 							serverType = "jboss";
 						}
@@ -270,59 +257,44 @@ public class ServerCommand {
 				serverType = Workspace.DEFAULT_BUNDLE_ARTIFACT_NAME;
 			}
 
-			commandServer(cmd, liferayHomeDir, serverType, options);
+			_commandServer(cmd, liferayHomeDir, serverType, options);
 		}
 		else {
 			try {
-				List<Properties> propertiesList = Util.getAppServerProperties(
-					rootDir);
+				List<Properties> propertiesList = Util.getAppServerProperties(rootDir);
 
 				String appServerParentDir = "";
 
 				for (Properties properties : propertiesList) {
 					if (appServerParentDir.equals("")) {
-						String appServerParentDirTemp = properties.getProperty(
-							Util.APP_SERVER_PARENT_DIR_PROPERTY);
+						String appServerParentDirTemp = properties.getProperty(Util.APP_SERVER_PARENT_DIR_PROPERTY);
 
-						if ((appServerParentDirTemp != null) &&
-							!appServerParentDirTemp.equals("")) {
-
-							appServerParentDirTemp =
-								appServerParentDirTemp.replace(
-									"${project.dir}",
-									rootDir.getCanonicalPath());
+						if ((appServerParentDirTemp != null) && !appServerParentDirTemp.equals("")) {
+							appServerParentDirTemp = appServerParentDirTemp.replace(
+								"${project.dir}", rootDir.getCanonicalPath());
 
 							appServerParentDir = appServerParentDirTemp;
 						}
 					}
 
 					if ((serverType == null) || serverType.equals("")) {
-						String serverTypeTemp = properties.getProperty(
-							Util.APP_SERVER_TYPE_PROPERTY);
+						String serverTypeTemp = properties.getProperty(Util.APP_SERVER_TYPE_PROPERTY);
 
-						if ((serverTypeTemp != null) &&
-							!serverTypeTemp.equals("")) {
-
+						if ((serverTypeTemp != null) && !serverTypeTemp.equals("")) {
 							serverType = serverTypeTemp;
 						}
 					}
 				}
 
-				if (appServerParentDir.startsWith("/") ||
-					appServerParentDir.contains(":")) {
-
-					commandServer(
-						cmd, new File(appServerParentDir), serverType, options);
+				if (appServerParentDir.startsWith("/") || appServerParentDir.contains(":")) {
+					_commandServer(cmd, new File(appServerParentDir), serverType, options);
 				}
 				else {
-					commandServer(
-						cmd, new File(rootDir, appServerParentDir), serverType,
-						options);
+					_commandServer(cmd, new File(rootDir, appServerParentDir), serverType, options);
 				}
 			}
 			catch (Exception e) {
-				_blade.error(
-					"Please execute this command from a Liferay project");
+				_blade.error("Please execute this command from a Liferay project");
 			}
 		}
 	}

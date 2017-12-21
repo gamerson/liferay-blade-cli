@@ -16,15 +16,14 @@
 
 package com.liferay.blade.cli;
 
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
-
 import aQute.lib.io.IO;
 
 import java.io.File;
+
 import java.util.regex.Pattern;
 
 import org.junit.After;
+import org.junit.Assert;
 import org.junit.Test;
 
 /**
@@ -34,7 +33,7 @@ public class ConvertCommandTest {
 
 	@After
 	public void cleanUp() throws Exception {
-		IO.delete(workspaceDir.getParentFile());
+		IO.delete(_workspaceDir.getParentFile());
 	}
 
 	@Test
@@ -43,14 +42,15 @@ public class ConvertCommandTest {
 
 		if (testdir.exists()) {
 			IO.deleteWithException(testdir);
-			assertFalse(testdir.exists());
+
+			Assert.assertFalse(testdir.exists());
 		}
 
 		testdir.mkdirs();
 
 		Util.unzip(new File("test-resources/projects/plugins-sdk-with-git.zip"), testdir);
 
-		assertTrue(testdir.exists());
+		Assert.assertTrue(testdir.exists());
 
 		File projectDir = new File(testdir, "plugins-sdk-with-git");
 
@@ -62,11 +62,16 @@ public class ConvertCommandTest {
 
 		new bladenofail().run(args);
 
-		assertTrue(new File(testdir, "plugins-sdk-with-git/modules/sample-service-builder/sample-service-builder-api").exists());
+		Assert.assertTrue(
+			new File(
+				testdir, "plugins-sdk-with-git/modules/sample-service-builder/sample-service-builder-api").exists());
 
-		assertTrue(new File(testdir, "plugins-sdk-with-git/modules/sample-service-builder/sample-service-builder-service").exists());
+		Assert.assertTrue(
+			new File(
+				testdir,
+				"plugins-sdk-with-git/modules/sample-service-builder/sample-service-builder-service").exists());
 
-		assertTrue(new File(testdir, "plugins-sdk-with-git/wars/sample-service-builder-portlet").exists());
+		Assert.assertTrue(new File(testdir, "plugins-sdk-with-git/wars/sample-service-builder-portlet").exists());
 	}
 
 	@Test
@@ -75,12 +80,13 @@ public class ConvertCommandTest {
 
 		if (testdir.exists()) {
 			IO.deleteWithException(testdir);
-			assertFalse(testdir.exists());
+
+			Assert.assertFalse(testdir.exists());
 		}
 
 		Util.unzip(new File("test-resources/projects/plugins-sdk-with-git.zip"), testdir);
 
-		assertTrue(testdir.exists());
+		Assert.assertTrue(testdir.exists());
 
 		File projectDir = new File(testdir, "plugins-sdk-with-git");
 
@@ -94,73 +100,13 @@ public class ConvertCommandTest {
 
 		File layoutWar = new File(projectDir, "wars/1-2-1-columns-layouttpl");
 
-		assertTrue(layoutWar.exists());
+		Assert.assertTrue(layoutWar.exists());
 
-		assertFalse(new File(layoutWar, "build.xml").exists());
+		Assert.assertFalse(new File(layoutWar, "build.xml").exists());
 
-		assertFalse(new File(layoutWar, "build.gradle").exists());
+		Assert.assertFalse(new File(layoutWar, "build.gradle").exists());
 
-		assertFalse(new File(layoutWar, "docroot").exists());
-	}
-
-	@Test
-	public void testMoveThemesToWars() throws Exception {
-		File testdir = IO.getFile("build/testMoveThemesToWar");
-
-		if (testdir.exists()) {
-			IO.deleteWithException(testdir);
-			assertFalse(testdir.exists());
-		}
-
-		Util.unzip(new File("test-resources/projects/plugins-sdk-with-git.zip"), testdir);
-
-		assertTrue(testdir.exists());
-
-		File projectDir = new File(testdir, "plugins-sdk-with-git");
-
-		String[] args = {"-b", projectDir.getPath(), "init", "-u"};
-
-		new bladenofail().run(args);
-
-		File theme = new File(projectDir, "wars/sample-styled-minimal-theme");
-
-		args = new String[] {"-b", projectDir.getPath(), "convert", "-t", "sample-styled-minimal-theme"};
-
-		new bladenofail().run(args);
-
-		assertTrue(theme.exists());
-
-		assertFalse(new File(theme, "build.xml").exists());
-
-		assertTrue(new File(theme, "build.gradle").exists());
-
-		assertFalse(new File(theme, "docroot").exists());
-
-		assertTrue(new File(theme, "src/main/webapp").exists());
-
-		assertFalse(new File(theme, "src/main/webapp/_diffs").exists());
-
-		assertFalse(new File(projectDir, "plugins-sdk/themes/sample-styled-minimal-theme").exists());
-
-		args = new String[] {"-b", projectDir.getPath(), "convert", "-t", "sample-styled-advanced-theme"};
-
-		new bladenofail().run(args);
-
-		File advancedTheme = new File(projectDir, "wars/sample-styled-advanced-theme");
-
-		assertTrue(advancedTheme.exists());
-
-		assertFalse(new File(advancedTheme, "build.xml").exists());
-
-		assertTrue(new File(advancedTheme, "build.gradle").exists());
-
-		assertFalse(new File(advancedTheme, "docroot").exists());
-
-		assertTrue(new File(advancedTheme, "src/main/webapp").exists());
-
-		assertFalse(new File(advancedTheme, "src/main/webapp/_diffs").exists());
-
-		assertFalse(new File(projectDir, "plugins-sdk/themes/sample-styled-advanced-theme").exists());
+		Assert.assertFalse(new File(layoutWar, "docroot").exists());
 	}
 
 	@Test
@@ -169,12 +115,12 @@ public class ConvertCommandTest {
 
 		if (testdir.exists()) {
 			IO.deleteWithException(testdir);
-			assertFalse(testdir.exists());
+			Assert.assertFalse(testdir.exists());
 		}
 
 		Util.unzip(new File("test-resources/projects/plugins-sdk-with-git.zip"), testdir);
 
-		assertTrue(testdir.exists());
+		Assert.assertTrue(testdir.exists());
 
 		File projectDir = new File(testdir, "plugins-sdk-with-git");
 
@@ -188,9 +134,9 @@ public class ConvertCommandTest {
 
 		File sampleExpandoHook = new File(projectDir, "wars/sample-application-adapter-hook");
 
-		assertTrue(sampleExpandoHook.exists());
+		Assert.assertTrue(sampleExpandoHook.exists());
 
-		assertFalse(new File(projectDir, "plugins-sdk/hooks/sample-application-adapter-hook").exists());
+		Assert.assertFalse(new File(projectDir, "plugins-sdk/hooks/sample-application-adapter-hook").exists());
 
 		args = new String[] {"-b", projectDir.getPath(), "convert", "sample-servlet-filter-hook"};
 
@@ -198,22 +144,23 @@ public class ConvertCommandTest {
 
 		File sampleServletFilterHook = new File(projectDir, "wars/sample-servlet-filter-hook");
 
-		assertTrue(sampleServletFilterHook.exists());
+		Assert.assertTrue(sampleServletFilterHook.exists());
 
-		assertFalse(new File(projectDir, "plugins-sdk/hooks/sample-servlet-filter-hook").exists());
+		Assert.assertFalse(new File(projectDir, "plugins-sdk/hooks/sample-servlet-filter-hook").exists());
 	}
 
-	private File setupWorkspace(String name) throws Exception {
-		File testdir = IO.getFile("build/" + name);
+	@Test
+	public void testMoveThemesToWars() throws Exception {
+		File testdir = IO.getFile("build/testMoveThemesToWar");
 
 		if (testdir.exists()) {
 			IO.deleteWithException(testdir);
-			assertFalse(testdir.exists());
+			Assert.assertFalse(testdir.exists());
 		}
 
 		Util.unzip(new File("test-resources/projects/plugins-sdk-with-git.zip"), testdir);
 
-		assertTrue(testdir.exists());
+		Assert.assertTrue(testdir.exists());
 
 		File projectDir = new File(testdir, "plugins-sdk-with-git");
 
@@ -221,31 +168,56 @@ public class ConvertCommandTest {
 
 		new bladenofail().run(args);
 
-		assertTrue(new File(projectDir, "plugins-sdk").exists());
+		File theme = new File(projectDir, "wars/sample-styled-minimal-theme");
 
-		return projectDir;
-	}
-
-	@Test
-	public void testThemeDocrootBackup() throws Exception {
-		File projectDir = setupWorkspace("testThemeDocrootBackup");
-
-		String[] args = {"-b", projectDir.getPath(), "convert", "-t", "sample-html4-theme"};
+		args = new String[] {"-b", projectDir.getPath(), "convert", "-t", "sample-styled-minimal-theme"};
 
 		new bladenofail().run(args);
 
-		assertTrue(new File(projectDir, "wars/sample-html4-theme/docroot_backup/other/afile").exists());
+		Assert.assertTrue(theme.exists());
+
+		Assert.assertFalse(new File(theme, "build.xml").exists());
+
+		Assert.assertTrue(new File(theme, "build.gradle").exists());
+
+		Assert.assertFalse(new File(theme, "docroot").exists());
+
+		Assert.assertTrue(new File(theme, "src/main/webapp").exists());
+
+		Assert.assertFalse(new File(theme, "src/main/webapp/_diffs").exists());
+
+		Assert.assertFalse(new File(projectDir, "plugins-sdk/themes/sample-styled-minimal-theme").exists());
+
+		args = new String[] {"-b", projectDir.getPath(), "convert", "-t", "sample-styled-advanced-theme"};
+
+		new bladenofail().run(args);
+
+		File advancedTheme = new File(projectDir, "wars/sample-styled-advanced-theme");
+
+		Assert.assertTrue(advancedTheme.exists());
+
+		Assert.assertFalse(new File(advancedTheme, "build.xml").exists());
+
+		Assert.assertTrue(new File(advancedTheme, "build.gradle").exists());
+
+		Assert.assertFalse(new File(advancedTheme, "docroot").exists());
+
+		Assert.assertTrue(new File(advancedTheme, "src/main/webapp").exists());
+
+		Assert.assertFalse(new File(advancedTheme, "src/main/webapp/_diffs").exists());
+
+		Assert.assertFalse(new File(projectDir, "plugins-sdk/themes/sample-styled-advanced-theme").exists());
 	}
 
 	@Test
 	public void testReadIvyXml() throws Exception {
-		File projectDir = setupWorkspace("readIvyXml");
+		File projectDir = _setupWorkspace("readIvyXml");
 
 		String[] args = {"-b", projectDir.getPath(), "convert", "sample-dao-portlet"};
 
 		new bladenofail().run(args);
 
-		contains(
+		_contains(
 			new File(projectDir, "wars/sample-dao-portlet/build.gradle"),
 			".*compile group: 'c3p0', name: 'c3p0', version: '0.9.0.4'.*",
 			".*compile group: 'mysql', name: 'mysql-connector-java', version: '5.0.7'.*");
@@ -254,7 +226,7 @@ public class ConvertCommandTest {
 
 		new bladenofail().run(args);
 
-		contains(
+		_contains(
 			new File(projectDir, "wars/sample-tapestry-portlet/build.gradle"),
 			".*compile group: 'hivemind', name: 'hivemind', version: '1.1'.*",
 			".*compile group: 'hivemind', name: 'hivemind-lib', version: '1.1'.*",
@@ -262,23 +234,57 @@ public class ConvertCommandTest {
 			".*compile group: 'org.apache.tapestry', name: 'tapestry-framework', version: '4.1'.*",
 			".*compile group: 'org.apache.tapestry', name: 'tapestry-portlet', version: '4.1'.*");
 
-		assertFalse(new File(projectDir, "wars/sample-tapestry-portlet/ivy.xml").exists());
+		Assert.assertFalse(new File(projectDir, "wars/sample-tapestry-portlet/ivy.xml").exists());
 	}
 
-	private void contains(File file, String... patterns) throws Exception {
+	@Test
+	public void testThemeDocrootBackup() throws Exception {
+		File projectDir = _setupWorkspace("testThemeDocrootBackup");
+
+		String[] args = {"-b", projectDir.getPath(), "convert", "-t", "sample-html4-theme"};
+
+		new bladenofail().run(args);
+
+		Assert.assertTrue(new File(projectDir, "wars/sample-html4-theme/docroot_backup/other/afile").exists());
+	}
+
+	private void _contains(File file, String... patterns) throws Exception {
 		String content = new String(IO.read(file));
 
 		for (String pattern : patterns) {
-			contains(content, pattern);
+			_contains(content, pattern);
 		}
 	}
 
-	private void contains(String content, String pattern) throws Exception {
-		assertTrue(
-			Pattern.compile(
-				pattern,
-				Pattern.MULTILINE | Pattern.DOTALL).matcher(content).matches());
+	private void _contains(String content, String pattern) throws Exception {
+		Pattern p = Pattern.compile(pattern, Pattern.MULTILINE | Pattern.DOTALL);
+
+		Assert.assertTrue(p.matcher(content).matches());
 	}
-	private final File workspaceDir = IO.getFile("build/test/workspace");
+
+	private File _setupWorkspace(String name) throws Exception {
+		File testdir = IO.getFile("build/" + name);
+
+		if (testdir.exists()) {
+			IO.deleteWithException(testdir);
+			Assert.assertFalse(testdir.exists());
+		}
+
+		Util.unzip(new File("test-resources/projects/plugins-sdk-with-git.zip"), testdir);
+
+		Assert.assertTrue(testdir.exists());
+
+		File projectDir = new File(testdir, "plugins-sdk-with-git");
+
+		String[] args = {"-b", projectDir.getPath(), "init", "-u"};
+
+		new bladenofail().run(args);
+
+		Assert.assertTrue(new File(projectDir, "plugins-sdk").exists());
+
+		return projectDir;
+	}
+
+	private final File _workspaceDir = IO.getFile("build/test/workspace");
 
 }

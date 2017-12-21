@@ -16,15 +16,16 @@
 
 package com.liferay.blade.cli;
 
+import aQute.lib.getopt.Description;
+import aQute.lib.getopt.Options;
+import aQute.lib.justif.Justif;
+
 import com.liferay.properties.locator.PropertiesLocator;
 import com.liferay.properties.locator.PropertiesLocatorArgs;
 
 import java.io.File;
-import java.util.Collections;
 
-import aQute.lib.getopt.Description;
-import aQute.lib.getopt.Options;
-import aQute.lib.justif.Justif;
+import java.util.Collections;
 
 /**
  * @author Gregory Amerson
@@ -34,14 +35,13 @@ public class UpgradePropsCommand {
 	public static final String DESCRIPTION =
 		"Helps to upgrade portal properties from Liferay server 6.x to 7.x versions";
 
-	public UpgradePropsCommand(blade blade, UpgradePropsOptions options)
-		throws Exception {
-
+	public UpgradePropsCommand(blade blade, UpgradePropsOptions options) throws Exception {
 		File bundleDir = options.bundleDir();
 		File propertiesFile = options.propertiesFile();
 
-		if (bundleDir == null || propertiesFile == null) {
-			blade.addErrors("upgradeProps", Collections.singleton("bundleDir and propertiesFile options both required."));
+		if ((bundleDir == null) || (propertiesFile == null)) {
+			blade.addErrors(
+				"upgradeProps", Collections.singleton("bundleDir and propertiesFile options both required."));
 			options._command().help(new Justif().formatter(), blade);
 
 			return;
@@ -67,6 +67,7 @@ public class UpgradePropsCommand {
 
 		@Description("Specify existing Liferay 6.x portal-ext.properties file.")
 		public File propertiesFile();
+
 	}
 
 }

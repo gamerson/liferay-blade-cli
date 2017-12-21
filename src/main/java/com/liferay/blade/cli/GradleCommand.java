@@ -29,8 +29,7 @@ import org.apache.commons.lang3.StringUtils;
  */
 public class GradleCommand {
 
-	public static final String DESCRIPTION =
-		"Execute gradle command using the gradle wrapper if detected";
+	public static final String DESCRIPTION = "Execute gradle command using the gradle wrapper if detected";
 
 	public GradleCommand(blade blade, GradleOptions options) throws Exception {
 		_blade = blade;

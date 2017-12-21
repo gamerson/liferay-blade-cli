@@ -21,6 +21,7 @@ import aQute.lib.getopt.Description;
 import aQute.lib.getopt.Options;
 
 import java.io.File;
+
 import java.util.Collections;
 import java.util.List;
 
@@ -29,8 +30,7 @@ import java.util.List;
  */
 public class InstallCommand {
 
-	public static final String DESCRIPTION =
-		"Installs a bundle into Liferay module framework.";
+	public static final String DESCRIPTION = "Installs a bundle into Liferay module framework.";
 
 	public InstallCommand(blade blade, InstallOptions options) throws Exception {
 		_blade = blade;
@@ -41,24 +41,26 @@ public class InstallCommand {
 
 	public void execute() throws Exception {
 		if (!Util.canConnect(_host, _port)) {
-			addError(
-				"Unable to connect to gogo shell on " + _host + ":" + _port);
+			_addError("Unable to connect to gogo shell on " + _host + ":" + _port);
+
 			return;
 		}
 
-		final List<String> args = _options._arguments();
+		List<String> args = _options._arguments();
 
-		if (args.size() == 0) {
-			addError("Must specify bundle file to install.");
+		if (args.isEmpty()) {
+			_addError("Must specify bundle file to install.");
+
 			return;
 		}
 
-		final String bundleFileName = args.get(0);
+		String bundleFileName = args.get(0);
 
-		final File bundleFile = new File(_blade.getBase(), bundleFileName);
+		File bundleFile = new File(_blade.getBase(), bundleFileName);
 
 		if (!bundleFile.exists()) {
-			addError(bundleFile + "doesn't exist.");
+			_addError(bundleFile + "doesn't exist.");
+
 			return;
 		}
 
@@ -81,11 +83,11 @@ public class InstallCommand {
 
 	}
 
-	private void addError(String msg) {
-		addError("install", msg);
+	private void _addError(String msg) {
+		_addError("install", msg);
 	}
 
-	private void addError(String prefix, String msg) {
+	private void _addError(String prefix, String msg) {
 		_blade.addErrors(prefix, Collections.singleton(msg));
 	}
 

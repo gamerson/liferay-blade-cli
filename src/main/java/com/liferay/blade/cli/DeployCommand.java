@@ -18,6 +18,7 @@ package com.liferay.blade.cli;
 
 import aQute.bnd.header.Parameters;
 import aQute.bnd.osgi.Jar;
+
 import aQute.lib.getopt.Description;
 import aQute.lib.getopt.Options;
 
@@ -27,7 +28,9 @@ import com.liferay.blade.cli.gradle.GradleTooling;
 
 import java.io.File;
 import java.io.IOException;
+
 import java.nio.file.Path;
+
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -43,8 +46,7 @@ import org.osgi.framework.dto.BundleDTO;
  */
 public class DeployCommand {
 
-	public static final String DESCRIPTION =
-		"Builds and deploys bundles to the Liferay module framework.";
+	public static final String DESCRIPTION = "Builds and deploys bundles to the Liferay module framework.";
 
 	public DeployCommand(blade blade, DeployOptions options) throws Exception {
 		_blade = blade;
@@ -53,25 +55,20 @@ public class DeployCommand {
 		_port = /*options.port() != 0 ? options.port() : */11311;
 	}
 
-	public void deploy(GradleExec gradle, Set<File> outputFiles)
-		throws Exception {
-
+	public void deploy(GradleExec gradle, Set<File> outputFiles) throws Exception {
 		int retcode = gradle.executeGradleCommand("build -x check");
 
 		if (retcode > 0) {
-			addError("Gradle jar task failed.");
+			_addError("Gradle jar task failed.");
 			return;
 		}
 
 		for (File outputFile : outputFiles) {
-			installOrUpdate(outputFile);
+			_installOrUpdate(outputFile);
 		}
 	}
 
-	public void deployWatch(
-			final GradleExec gradleExec, final Set<File> outputFiles)
-		throws Exception {
-
+	public void deployWatch(final GradleExec gradleExec, final Set<File> outputFiles) throws Exception {
 		deploy(gradleExec, outputFiles);
 
 		new Thread() {
@@ -96,7 +93,7 @@ public class DeployCommand {
 					if (outputFiles.contains(modifiedFile)) {
 						_blade.out().println("installOrUpdate " + modifiedFile);
 
-						installOrUpdate(modifiedFile);
+						_installOrUpdate(modifiedFile);
 					}
 				}
 				catch (Exception e) {
@@ -110,16 +107,13 @@ public class DeployCommand {
 
 	public void execute() throws Exception {
 		if (!Util.canConnect(_host, _port)) {
-			addError(
-				"deploy",
-				"Unable to connect to gogo shell on " + _host + ":" + _port);
+			_addError("deploy", "Unable to connect to gogo shell on " + _host + ":" + _port);
 			return;
 		}
 
 		GradleExec gradleExec = new GradleExec(_blade);
 
-		Set<File> outputFiles = GradleTooling.getOutputFiles(
-			_blade.getCacheDir(), _blade.getBase());
+		Set<File> outputFiles = GradleTooling.getOutputFiles(_blade.getCacheDir(), _blade.getBase());
 
 		if (_options.watch()) {
 			deployWatch(gradleExec, outputFiles);
@@ -138,117 +132,27 @@ public class DeployCommand {
 		//@Description("The port to use to connect to gogo shell")
 		//public int port();
 
-		@Description(
-			"Watches the deployed file for changes and will automatically " +
-				"redeploy"
-		)
+		@Description("Watches the deployed file for changes and will automatically redeploy")
 		public boolean watch();
 
 	}
 
-
-	private void addError(String msg) {
+	private void _addError(String msg) {
 		_blade.addErrors("deploy", Collections.singleton(msg));
 	}
 
-	private void addError(String prefix, String msg) {
+	private void _addError(String prefix, String msg) {
 		_blade.addErrors(prefix, Collections.singleton(msg));
 	}
 
-	private void installOrUpdate(File outputFile) throws Exception {
-		boolean isFragment = false;
-		String fragmentHost = null;
-		String bsn = null;
-		String hostBSN = null;
-
-		try(Jar bundle = new Jar(outputFile)) {
-			Manifest manifest = bundle.getManifest();
-			Attributes mainAttributes = manifest.getMainAttributes();
-
-			fragmentHost = mainAttributes.getValue("Fragment-Host");
-
-			isFragment = fragmentHost != null;
-
-			bsn = bundle.getBsn();
-
-			if(isFragment) {
-				hostBSN =
-						new Parameters(fragmentHost).keySet().iterator().next();
-			}
-		}
-
-		GogoTelnetClient client = new GogoTelnetClient(_host, _port);
-
-		List<BundleDTO> bundles = getBundles(client);
-
-		long hostId = getBundleId(bundles, hostBSN);
-
-		long existingId = getBundleId(bundles,bsn);
-
-		String bundleURL = outputFile.toURI().toASCIIString();
-
-		if (existingId > 0) {
-			if (isFragment && hostId > 0) {
-				String response =
-						client.send("update " + existingId + " " + bundleURL);
-
-				_blade.out().println(response);
-
-				response = client.send("refresh " + hostId);
-
-				_blade.out().println(response);
-			}
-			else {
-				String response = client.send("stop " + existingId);
-
-				_blade.out().println(response);
-
-				response =
-						client.send("update " + existingId + " " + bundleURL);
-
-				_blade.out().println(response);
-
-				response = client.send("start " + existingId);
-
-				_blade.out().println(response);
-			}
-
-			_blade.out().println("Updated bundle " + existingId);
-		}
-		else {
-			String response = client.send("install " + bundleURL);
-
-			_blade.out().println(response);
-
-			if (isFragment && hostId > 0) {
-				response = client.send("refresh " + hostId);
-
-				_blade.out().println(response);
-			}
-			else {
-				existingId = getBundleId(getBundles(client),bsn);
-
-				if(existingId > 1) {
-					response = client.send("start " + existingId);
-					_blade.out().println(response);
-				}
-				else {
-					_blade.out().println("Error: fail to install "+bsn);
-				}
-			}
-		}
-
-		client.close();
-	}
-
-	private long getBundleId(List<BundleDTO> bundles, String bsn)
-			throws IOException {
+	private long _getBundleId(List<BundleDTO> bundles, String bsn) throws IOException {
 		long existingId = -1;
 
-		if(bundles != null && bundles.size() > 0 ) {
+		if ((bundles != null) && !bundles.isEmpty()) {
 			for (BundleDTO bundle : bundles) {
 				if (bundle.symbolicName.equals(bsn)) {
 					existingId = bundle.id;
+
 					break;
 				}
 			}
@@ -257,14 +161,12 @@ public class DeployCommand {
 		return existingId;
 	}
 
-	private List<BundleDTO> getBundles(GogoTelnetClient client)
-		throws IOException {
-
+	private List<BundleDTO> _getBundles(GogoTelnetClient client) throws IOException {
 		List<BundleDTO> bundles = new ArrayList<>();
 
 		String output = client.send("lb -s -u");
 
-		String lines[] = output.split("\\r?\\n");
+		String[] lines = output.split("\\r?\\n");
 
 		for (String line : lines) {
 			try {
@@ -274,7 +176,7 @@ public class DeployCommand {
 				BundleDTO bundle = new BundleDTO();
 
 				bundle.id = Long.parseLong(fields[0].trim());
-				bundle.state = getState(fields[1].trim());
+				bundle.state = _getState(fields[1].trim());
 				bundle.symbolicName = fields[3];
 
 				bundles.add(bundle);
@@ -286,7 +188,7 @@ public class DeployCommand {
 		return bundles;
 	}
 
-	private int getState(String state) {
+	private int _getState(String state) {
 		String bundleState = state.toUpperCase();
 
 		if ("ACTIVE".equals(bundleState)) {
@@ -309,6 +211,93 @@ public class DeployCommand {
 		}
 
 		return 0;
+	}
+
+	private void _installOrUpdate(File outputFile) throws Exception {
+		boolean fragment = false;
+		String fragmentHost = null;
+		String bsn = null;
+		String hostBSN = null;
+
+		try (Jar bundle = new Jar(outputFile)) {
+			Manifest manifest = bundle.getManifest();
+
+			Attributes mainAttributes = manifest.getMainAttributes();
+
+			fragmentHost = mainAttributes.getValue("Fragment-Host");
+
+			fragment = fragmentHost != null;
+
+			bsn = bundle.getBsn();
+
+			if (fragment) {
+				Set<String> set = new Parameters(fragmentHost).keySet();
+
+				hostBSN = set.iterator().next();
+			}
+		}
+
+		GogoTelnetClient client = new GogoTelnetClient(_host, _port);
+
+		List<BundleDTO> bundles = _getBundles(client);
+
+		long hostId = _getBundleId(bundles, hostBSN);
+
+		long existingId = _getBundleId(bundles, bsn);
+
+		String bundleURL = outputFile.toURI().toASCIIString();
+
+		if (existingId > 0) {
+			if (fragment && (hostId > 0)) {
+				String response = client.send("update " + existingId + " " + bundleURL);
+
+				_blade.out().println(response);
+
+				response = client.send("refresh " + hostId);
+
+				_blade.out().println(response);
+			}
+			else {
+				String response = client.send("stop " + existingId);
+
+				_blade.out().println(response);
+
+				response = client.send("update " + existingId + " " + bundleURL);
+
+				_blade.out().println(response);
+
+				response = client.send("start " + existingId);
+
+				_blade.out().println(response);
+			}
+
+			_blade.out().println("Updated bundle " + existingId);
+		}
+		else {
+			String response = client.send("install " + bundleURL);
+
+			_blade.out().println(response);
+
+			if (fragment && (hostId > 0)) {
+				response = client.send("refresh " + hostId);
+
+				_blade.out().println(response);
+			}
+			else {
+				existingId = _getBundleId(_getBundles(client), bsn);
+
+				if (existingId > 1) {
+					response = client.send("start " + existingId);
+
+					_blade.out().println(response);
+				}
+				else {
+					_blade.out().println("Error: fail to install " + bsn);
+				}
+			}
+		}
+
+		client.close();
 	}
 
 	private final blade _blade;
