@@ -38,6 +38,10 @@ public class ShellCommand {
 		_host = options.host() != null ? options.host() : "localhost";
 		_port = options.port() != 0 ? options.port() : 11311;
 	}
+	
+	public static ShellCommand get(blade blade, ShellOptions options) throws Exception {
+		return new ShellCommand(blade, options);
+	}
 
 	public void execute() throws Exception {
 		if (!Util.canConnect(_host , _port)) {

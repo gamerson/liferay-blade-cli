@@ -48,6 +48,10 @@ public class GradleExec {
 			_executable = "gradle";
 		}
 	}
+	
+	public static GradleExec get(blade blade) {
+		return new GradleExec(blade);
+	}
 
 	public int executeGradleCommand(String cmd) throws Exception {
 		Process process = Util.startProcess(
