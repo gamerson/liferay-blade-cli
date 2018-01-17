@@ -45,10 +45,7 @@ public class InitCommandArgs {
 		return _upgrade;
 	}
 
-	@Parameter(
-			description = "Specify the build type of liferay workspace. Available options are gradle, maven. (gradle is default)",
-			names = {"-b", "--build"}
-		)
+	@Parameter(description = "specify the build type of liferay workspace. Available options are gradle, maven. (gradle is default)", names = {"-b", "--build"})
 	private String _build;
 
 	@Parameter(description = "create anyway if there are files located at target folder", names = {"-f", "--force"})
