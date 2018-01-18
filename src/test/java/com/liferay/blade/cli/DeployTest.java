@@ -93,7 +93,7 @@ public class DeployTest {
 			
 			assertEquals(options.getArgs().get(0), "install");
 	
-			assertEquals(options.getArgs().get(1),  String.format("webbundle:file:%s?Web-ContextPath=/%s", war.getAbsolutePath(), fileNameWithoutExt));
+			assertEquals(options.getArgs().get(1),  String.format("webbundle:%s?Web-ContextPath=/%s", war.getAbsoluteFile().toURI().toASCIIString(), fileNameWithoutExt));
 			
 			return c;
 		});
