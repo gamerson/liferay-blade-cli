@@ -205,7 +205,7 @@ public class DeployCommand {
  			ShellCommandArgs options = new ShellCommandArgs();
  			options.getArgs().addAll(Arrays.asList (
  					"install",
- 					"webbundle:" + outputFile.toURI().toASCIIString() + "?Web-ContextPath=/" +
+ 					"webbundle:" + outputFile.getAbsolutePath() + "?Web-ContextPath=/" +
  						printFileName ));
  			new ShellCommand(_blade, options).execute();
  		
