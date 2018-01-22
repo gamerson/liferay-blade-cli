@@ -16,10 +16,10 @@
 
 package com.liferay.blade.cli;
 
-import aQute.lib.getopt.Options;
-
 import com.beust.jcommander.JCommander;
 import com.beust.jcommander.JCommander.Builder;
+
+import com.liferay.blade.cli.util.FlagSorter;
 
 import java.io.File;
 import java.io.PrintStream;
@@ -27,11 +27,13 @@ import java.io.PrintStream;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Formatter;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 /**
  * @author Gregory Amerson
@@ -74,11 +76,15 @@ public class BladeCLI implements Runnable {
 	}
 
 	public File getBase() {
-		return new File(_bladeArgs.getBase());
+		if (_commandArgs == null) {
+			return new File(".");
+		}
+
+		return new File(_commandArgs.getBase());
 	}
 
-	public BladeArgs getBladeArgs() {
-		return _bladeArgs;
+	public BaseArgs getBladeArgs() {
+		return _commandArgs;
 	}
 
 	public Path getBundleDir() {
@@ -97,8 +103,8 @@ public class BladeCLI implements Runnable {
 		new GradleCommand(this, options).execute();
 	}
 
-	public void help(Options options) throws Exception {
-		options._help();
+	public void help(HelpCommandArgs options) throws Exception {
+		new HelpCommand(this, options).execute();
 	}
 
 	public void init(InitCommandArgs options) throws Exception {
@@ -124,85 +130,90 @@ public class BladeCLI implements Runnable {
 	@Override
 	public void run() {
 		try {
-			switch (_command) {
-				case "create":
-					create((CreateCommandArgs)_commandArgs);
+			if (_commandArgs.isHelp()) {
+				_jcommander.usage();
+			}
+			else {
+				switch (_command) {
+					case "create":
+						create((CreateCommandArgs)_commandArgs);
 
-					break;
+						break;
 
-				case "convert":
-					convert((ConvertCommandArgs)_commandArgs);
+					case "convert":
+						convert((ConvertCommandArgs)_commandArgs);
 
-					break;
+						break;
 
-				case "deploy":
-					deploy((DeployCommandArgs)_commandArgs);
+					case "deploy":
+						deploy((DeployCommandArgs)_commandArgs);
 
-					break;
+						break;
 
-				case "gw":
-					gw((GradleCommandArgs)_commandArgs);
+					case "gw":
+						gw((GradleCommandArgs)_commandArgs);
 
-					break;
+						break;
 
-				case "help":
+					case "help":
+						help((HelpCommandArgs)_commandArgs);
 
-					break;
+						break;
+					case "init":
+						init((InitCommandArgs)_commandArgs);
 
-				case "init":
-					init((InitCommandArgs)_commandArgs);
+						break;
 
-					break;
+					case "install":
+						install((InstallCommandArgs)_commandArgs);
 
-				case "install":
-					install((InstallCommandArgs)_commandArgs);
+						break;
 
-					break;
+					case "open":
+						open((OpenCommandArgs)_commandArgs);
 
-				case "open":
-					open((OpenCommandArgs)_commandArgs);
+						break;
 
-					break;
+					case "outputs":
+						outputs((OutputsCommandArgs)_commandArgs);
 
-				case "outputs":
-					outputs((OutputsCommandArgs)_commandArgs);
+						break;
 
-					break;
+					case "samples":
+						samples((SamplesCommandArgs)_commandArgs);
 
-				case "samples":
-					samples((SamplesCommandArgs)_commandArgs);
+						break;
 
-					break;
+					case "server start":
+						serverStart((ServerStartCommandArgs)_commandArgs);
 
-				case "server start":
-					serverStart((ServerStartCommandArgs)_commandArgs);
+						break;
 
-					break;
+					case "server stop":
+						serverStop((ServerStopCommandArgs)_commandArgs);
 
-				case "server stop":
-					serverStop((ServerStopCommandArgs)_commandArgs);
+						break;
 
-					break;
+					case "sh":
+						sh((ShellCommandArgs)_commandArgs);
 
-				case "sh":
-					sh((ShellCommandArgs)_commandArgs);
+						break;
 
-					break;
+					case "update":
+						update((UpdateCommandArgs)_commandArgs);
 
-				case "update":
-					update((UpdateCommandArgs)_commandArgs);
+						break;
 
-					break;
+					case "upgradeProps":
+						upgradeProps((UpgradePropsOptions)_commandArgs);
 
-				case "upgradeProps":
-					upgradeProps((UpgradePropsOptions)_commandArgs);
+						break;
 
-					break;
+					case "version":
+						version((VersionCommandArgs)_commandArgs);
 
-				case "version":
-					version((VersionCommandArgs)_commandArgs);
-
-					break;
+						break;
+				}
 			}
 		}
 		catch (Exception e) {
@@ -212,11 +223,18 @@ public class BladeCLI implements Runnable {
 	}
 
 	public void run(String[] args) {
+		List<String> flags = new ArrayList<>(Arrays.asList(args));
+
+		FlagSorter.sort(flags);
+
+		args = flags.toArray(new String[0]);
+
 		List<Object> argsList = Arrays.asList(
 			new CreateCommandArgs(), new ConvertCommandArgs(), new DeployCommandArgs(), new GradleCommandArgs(),
-			new InitCommandArgs(), new InstallCommandArgs(), new OpenCommandArgs(), new OutputsCommandArgs(),
-			new SamplesCommandArgs(), new ServerStartCommandArgs(), new ServerStopCommandArgs(), new ShellCommandArgs(),
-			new UpdateCommandArgs(), new UpgradePropsOptions(), new VersionCommandArgs());
+			new HelpCommandArgs(), new InitCommandArgs(), new InstallCommandArgs(), new OpenCommandArgs(),
+			new OutputsCommandArgs(), new SamplesCommandArgs(), new ServerStartCommandArgs(),
+			new ServerStopCommandArgs(), new ShellCommandArgs(), new UpdateCommandArgs(), new UpgradePropsOptions(),
+			new VersionCommandArgs());
 
 		Builder builder = JCommander.newBuilder();
 
@@ -224,25 +242,36 @@ public class BladeCLI implements Runnable {
 			builder.addCommand(o);
 		}
 
-		JCommander commander = builder.addObject(_bladeArgs).build();
+		JCommander commander = builder.build();
 
-		commander.parse(args);
+		if ((args.length == 1) && args[0].equals("--help")) {
+			commander.usage();
+		}
+		else {
+			_jcommander = commander;
 
-		String command = commander.getParsedCommand();
+			commander.parse(args);
 
-		Map<String, JCommander> commands = commander.getCommands();
+			String command = commander.getParsedCommand();
 
-		JCommander jcommander = commands.get(command);
+			Map<String, JCommander> commands = commander.getCommands();
 
-		List<Object> objects = jcommander.getObjects();
+			JCommander jcommander = commands.get(command);
 
-		Object commandArgs = objects.get(0);
+			if (Objects.nonNull(jcommander)) {
+				_jcommander = jcommander;
+			}
 
-		_command = command;
+			List<Object> objects = jcommander.getObjects();
 
-		_commandArgs = commandArgs;
+			Object commandArgs = objects.get(0);
 
-		run();
+			_command = command;
+
+			_commandArgs = (BaseArgs)commandArgs;
+
+			run();
+		}
 	}
 
 	public void samples(SamplesCommandArgs options) throws Exception {
@@ -262,7 +291,7 @@ public class BladeCLI implements Runnable {
 	}
 
 	public void trace(String s, Object... args) {
-		if (_bladeArgs.isTrace() && (_tracer != null)) {
+		if (_commandArgs.isTrace() && (_tracer != null)) {
 			_tracer.format("# " + s + "%n", args);
 			_tracer.flush();
 		}
@@ -282,10 +311,10 @@ public class BladeCLI implements Runnable {
 
 	private static final Formatter _tracer = new Formatter(System.out);
 
-	private BladeArgs _bladeArgs = new BladeArgs();
 	private String _command;
-	private Object _commandArgs;
+	private BaseArgs _commandArgs;
 	private PrintStream _err = System.err;
+	private JCommander _jcommander;
 	private PrintStream _out = System.out;
 
 }

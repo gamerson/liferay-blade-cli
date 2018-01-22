@@ -125,7 +125,25 @@ task testVersionCommand(dependsOn: jar) {
 	}
 }
 
-check.dependsOn testExecutableJar, testVersionCommand
+task testHelpCommand(dependsOn: jar) {
+	doLast {
+		javaexec {
+			main = "-jar"
+			args = [jar.archivePath, "help", "create"]
+		}
+	}
+}
+
+task testHelpFlag(dependsOn: jar) {
+	doLast {
+		javaexec {
+			main = "-jar"
+			args = [jar.archivePath, "create", "--help"]
+		}
+	}
+}
+
+check.dependsOn testExecutableJar, testVersionCommand, testHelpCommand, testHelpFlag
 
 task unzipPortal(dependsOn: downloadPortal, type: Copy) {
 	from zipTree(downloadPortal.dest)

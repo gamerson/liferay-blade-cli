@@ -14,26 +14,33 @@
  * limitations under the License.
  */
 
-package com.liferay.blade.cli;
+package com.liferay.blade.cli.util;
 
-import com.beust.jcommander.Parameter;
-import com.beust.jcommander.Parameters;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
 
 /**
- * @author Gregory Amerson
+ * @author Christopher Bryan Boyd
  */
-@Parameters(
-	commandDescription = "Builds and deploys bundles to the Liferay module framework.", commandNames = {"deploy"}
-)
-public class DeployCommandArgs extends BaseArgs {
+public class FlagSorter {
 
-	public boolean isWatch() {
-		return _watch;
+	public static void sort(List<String> flags) {
+		Collection<String> addLast = new ArrayList<>();
+
+		for (int x = 0; x < flags.size(); x++) {
+			String s = flags.get(x);
+
+			if (s.equals("--base") || s.equals("--working-dir")) {
+				addLast.add(flags.remove(x));
+				addLast.add(flags.remove(x));
+			}
+			else if (s.equals("--trace") || s.equals("--help")) {
+				addLast.add(flags.remove(x));
+			}
+		}
+
+		flags.addAll(addLast);
 	}
-
-	@Parameter(
-		description = "Watches the deployed file for changes and will automatically redeploy", names = {"-w", "--watch"}
-	)
-	private boolean _watch;
 
 }
