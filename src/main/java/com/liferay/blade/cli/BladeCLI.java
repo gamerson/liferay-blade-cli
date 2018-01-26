@@ -18,8 +18,7 @@ package com.liferay.blade.cli;
 
 import com.beust.jcommander.JCommander;
 import com.beust.jcommander.JCommander.Builder;
-
-import com.liferay.blade.cli.util.FlagSorter;
+import com.beust.jcommander.MissingCommandException;
 
 import java.io.File;
 import java.io.PrintStream;
@@ -41,6 +40,9 @@ import java.util.Objects;
  */
 public class BladeCLI implements Runnable {
 
+	public BladeCLI() {
+	}
+	
 	public static void main(String[] args) {
 		new BladeCLI().run(args);
 	}
@@ -50,16 +52,16 @@ public class BladeCLI implements Runnable {
 		data.forEach(err()::println);
 	}
 
-	public void convert(ConvertCommandArgs options) throws Exception {
-		new ConvertCommand(this, options).execute();
+	public void convert(ConvertCommandArgs args) throws Exception {
+		new ConvertCommand(this, args).execute();
 	}
 
-	public void create(CreateCommandArgs options) throws Exception {
-		new CreateCommand(this, options).execute();
+	public void create(CreateCommandArgs args) throws Exception {
+		new CreateCommand(this, args).execute();
 	}
 
-	public void deploy(DeployCommandArgs options) throws Exception {
-		new DeployCommand(this, options).execute();
+	public void deploy(DeployCommandArgs args) throws Exception {
+		new DeployCommand(this, args).execute();
 	}
 
 	public PrintStream err() {
@@ -74,6 +76,25 @@ public class BladeCLI implements Runnable {
 		err().println(string + " [" + name + "]");
 		err().println(message);
 	}
+	
+	public static void sort(List<String> flags) {
+		Collection<String> addLast = new ArrayList<>();
+
+		for (int x = 0; x < flags.size(); x++) {
+			String s = flags.get(x);
+
+			if (s.equals("--base") || s.equals("--working-dir")) {
+				addLast.add(flags.remove(x));
+				addLast.add(flags.remove(x));
+			}
+			else if (s.equals("--trace") || s.equals("--help")) {
+				addLast.add(flags.remove(x));
+			}
+		}
+
+		flags.addAll(addLast);
+	}
+
 
 	public File getBase() {
 		if (_commandArgs == null) {
@@ -99,32 +120,32 @@ public class BladeCLI implements Runnable {
 		return Paths.get(userHome, ".blade", "cache").toFile();
 	}
 
-	public void gw(GradleCommandArgs options) throws Exception {
-		new GradleCommand(this, options).execute();
+	public void gw(GradleCommandArgs args) throws Exception {
+		new GradleCommand(this, args).execute();
 	}
 
-	public void help(HelpCommandArgs options) throws Exception {
-		new HelpCommand(this, options).execute();
+	public void help(HelpCommandArgs args) throws Exception {
+		new HelpCommand(this, args).execute();
 	}
 
-	public void init(InitCommandArgs options) throws Exception {
-		new InitCommand(this, options).execute();
+	public void init(InitCommandArgs args) throws Exception {
+		new InitCommand(this, args).execute();
 	}
 
-	public void install(InstallCommandArgs options) throws Exception {
-		new InstallCommand(this, options).execute();
+	public void install(InstallCommandArgs args) throws Exception {
+		new InstallCommand(this, args).execute();
 	}
 
-	public void open(OpenCommandArgs options) throws Exception {
-		new OpenCommand(this, options).execute();
+	public void open(OpenCommandArgs args) throws Exception {
+		new OpenCommand(this, args).execute();
 	}
 
 	public PrintStream out() {
 		return _out;
 	}
 
-	public void outputs(OutputsCommandArgs options) throws Exception {
-		new OutputsCommand(this, options).execute();
+	public void outputs(OutputsCommandArgs args) throws Exception {
+		new OutputsCommand(this, args).execute();
 	}
 
 	@Override
@@ -205,7 +226,7 @@ public class BladeCLI implements Runnable {
 						break;
 
 					case "upgradeProps":
-						upgradeProps((UpgradePropsOptions)_commandArgs);
+						upgradeProps((UpgradePropsArgs)_commandArgs);
 
 						break;
 
@@ -223,9 +244,15 @@ public class BladeCLI implements Runnable {
 	}
 
 	public void run(String[] args) {
+	
+
+		System.setOut(out());
+		
+		System.setErr(err());
+		
 		List<String> flags = new ArrayList<>(Arrays.asList(args));
 
-		FlagSorter.sort(flags);
+		sort(flags);
 
 		args = flags.toArray(new String[0]);
 
@@ -233,11 +260,11 @@ public class BladeCLI implements Runnable {
 			new CreateCommandArgs(), new ConvertCommandArgs(), new DeployCommandArgs(), new GradleCommandArgs(),
 			new HelpCommandArgs(), new InitCommandArgs(), new InstallCommandArgs(), new OpenCommandArgs(),
 			new OutputsCommandArgs(), new SamplesCommandArgs(), new ServerStartCommandArgs(),
-			new ServerStopCommandArgs(), new ShellCommandArgs(), new UpdateCommandArgs(), new UpgradePropsOptions(),
+			new ServerStopCommandArgs(), new ShellCommandArgs(), new UpdateCommandArgs(), new UpgradePropsArgs(),
 			new VersionCommandArgs());
 
 		Builder builder = JCommander.newBuilder();
-
+		
 		for (Object o : argsList) {
 			builder.addCommand(o);
 		}
@@ -250,44 +277,57 @@ public class BladeCLI implements Runnable {
 		else {
 			_jcommander = commander;
 
-			commander.parse(args);
+			try {
+				
+				commander.parse(args);
+	
+				String command = commander.getParsedCommand();
+	
+				Map<String, JCommander> commands = commander.getCommands();
+	
+				JCommander jcommander = commands.get(command);
+	
+				if (Objects.nonNull(jcommander)) {
+					_jcommander = jcommander;
+				}
+	
+				List<Object> objects = jcommander.getObjects();
+	
+				Object commandArgs = objects.get(0);
+	
+				_command = command;
+	
+				_commandArgs = (BaseArgs)commandArgs;
+	
+				run();
+				
+			} catch (MissingCommandException exception) {
+				error("Error");
+				StringBuilder stringBuilder = new StringBuilder("0. No such command");
 
-			String command = commander.getParsedCommand();
-
-			Map<String, JCommander> commands = commander.getCommands();
-
-			JCommander jcommander = commands.get(command);
-
-			if (Objects.nonNull(jcommander)) {
-				_jcommander = jcommander;
+				for (String arg : args) {
+					stringBuilder.append(" " + arg);
+				}
+				error(stringBuilder.toString());
+				commander.usage();
 			}
-
-			List<Object> objects = jcommander.getObjects();
-
-			Object commandArgs = objects.get(0);
-
-			_command = command;
-
-			_commandArgs = (BaseArgs)commandArgs;
-
-			run();
 		}
 	}
 
-	public void samples(SamplesCommandArgs options) throws Exception {
-		new SamplesCommand(this, options).execute();
+	public void samples(SamplesCommandArgs args) throws Exception {
+		new SamplesCommand(this, args).execute();
 	}
 
-	public void serverStart(ServerStartCommandArgs options) throws Exception {
-		new ServerStartCommand(this, options).execute();
+	public void serverStart(ServerStartCommandArgs args) throws Exception {
+		new ServerStartCommand(this, args).execute();
 	}
 
-	public void serverStop(ServerStopCommandArgs options) throws Exception {
-		new ServerStopCommand(this, options).execute();
+	public void serverStop(ServerStopCommandArgs args) throws Exception {
+		new ServerStopCommand(this, args).execute();
 	}
 
-	public void sh(ShellCommandArgs options) throws Exception {
-		new ShellCommand(this, options).execute();
+	public void sh(ShellCommandArgs args) throws Exception {
+		new ShellCommand(this, args).execute();
 	}
 
 	public void trace(String s, Object... args) {
@@ -297,16 +337,16 @@ public class BladeCLI implements Runnable {
 		}
 	}
 
-	public void update(UpdateCommandArgs options) throws Exception {
-		new UpdateCommand(this, options).execute();
+	public void update(UpdateCommandArgs args) throws Exception {
+		new UpdateCommand(this, args).execute();
 	}
 
-	public void upgradeProps(UpgradePropsOptions options) throws Exception {
-		new UpgradePropsCommand(this, options);
+	public void upgradeProps(UpgradePropsArgs args) throws Exception {
+		new UpgradePropsCommand(this, args);
 	}
 
-	public void version(VersionCommandArgs options) throws Exception {
-		new VersionCommand(this, options).execute();
+	public void version(VersionCommandArgs args) throws Exception {
+		new VersionCommand(this, args).execute();
 	}
 
 	private static final Formatter _tracer = new Formatter(System.out);

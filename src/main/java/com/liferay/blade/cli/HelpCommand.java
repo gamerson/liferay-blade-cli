@@ -29,19 +29,19 @@ import java.util.Objects;
  */
 public class HelpCommand {
 
-	public HelpCommand(BladeCLI blade, HelpCommandArgs options) throws Exception {
+	public HelpCommand(BladeCLI blade, HelpCommandArgs args) throws Exception {
 		_blade = blade;
-		_options = options;
+		_args = args;
 	}
 
 	public void execute() throws Exception {
-		String commandName = _options.getName();
+		String commandName = _args.getName();
 
 		List<Object> argsList = Arrays.asList(
 			new CreateCommandArgs(), new ConvertCommandArgs(), new DeployCommandArgs(), new GradleCommandArgs(),
 			new HelpCommandArgs(), new InitCommandArgs(), new InstallCommandArgs(), new OpenCommandArgs(),
 			new OutputsCommandArgs(), new SamplesCommandArgs(), new ServerStartCommandArgs(),
-			new ServerStopCommandArgs(), new ShellCommandArgs(), new UpdateCommandArgs(), new UpgradePropsOptions(),
+			new ServerStopCommandArgs(), new ShellCommandArgs(), new UpdateCommandArgs(), new UpgradePropsArgs(),
 			new VersionCommandArgs());
 
 		Builder builder = JCommander.newBuilder();
@@ -74,6 +74,6 @@ public class HelpCommand {
 	}
 
 	private BladeCLI _blade;
-	private HelpCommandArgs _options;
+	private HelpCommandArgs _args;
 
 }
