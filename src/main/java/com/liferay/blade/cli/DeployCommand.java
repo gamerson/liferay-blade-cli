@@ -16,26 +16,27 @@
 
 package com.liferay.blade.cli;
 
-import aQute.bnd.header.Parameters;
-import aQute.bnd.osgi.Jar;
+import aQute.bnd.header.Attrs;
+import aQute.bnd.osgi.Domain;
 
 import com.liferay.blade.cli.FileWatcher.Consumer;
 import com.liferay.blade.cli.gradle.GradleExec;
 import com.liferay.blade.cli.gradle.GradleTooling;
 
 import java.io.File;
-import java.io.IOException;
+import java.io.PrintStream;
+
+import java.net.URI;
 
 import java.nio.file.Path;
 
-import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
-import java.util.List;
+import java.util.Map.Entry;
+import java.util.Objects;
 import java.util.Set;
-import java.util.jar.Attributes;
-import java.util.jar.Manifest;
+import java.util.stream.Stream;
 
-import org.osgi.framework.Bundle;
 import org.osgi.framework.dto.BundleDTO;
 
 /**
@@ -51,16 +52,31 @@ public class DeployCommand {
 	}
 
 	public void deploy(GradleExec gradle, Set<File> outputFiles) throws Exception {
-		int retcode = gradle.executeGradleCommand("build -x check");
+		int retcode = gradle.executeGradleCommand("assemble -x check");
 
 		if (retcode > 0) {
-			_addError("Gradle jar task failed.");
+			_addError("Gradle assemble task failed.");
 			return;
 		}
 
-		for (File outputFile : outputFiles) {
-			_installOrUpdate(outputFile);
-		}
+		Stream<File> stream = outputFiles.stream();
+
+		stream.filter(
+			File::exists
+		).forEach(
+			outputFile -> {
+				try {
+					_installOrUpdate(outputFile);
+				} 
+				catch (Exception e) {
+					PrintStream err = _blade.err();
+
+					err.println(e.getMessage());
+
+					e.printStackTrace(err);
+				}
+			}
+		);
 	}
 
 	public void deployWatch(final GradleExec gradleExec, final Set<File> outputFiles) throws Exception {
@@ -71,7 +87,7 @@ public class DeployCommand {
 			@Override
 			public void run() {
 				try {
-					gradleExec.executeGradleCommand("build -x check -t");
+					gradleExec.executeGradleCommand("assemble -x check -t");
 				}
 				catch (Exception e) {
 				}
@@ -119,72 +135,19 @@ public class DeployCommand {
 		}
 	}
 
-	private static long _getBundleId(List<BundleDTO> bundles, String bsn) throws IOException {
-		long existingId = -1;
+	private static void deployWar(File file, LiferayBundleDeployer deployer) throws Exception {
+		URI uri = file.toURI();
 
-		if (Util.isNotEmpty(bundles)) {
-			for (BundleDTO bundle : bundles) {
-				if (bundle.symbolicName.equals(bsn)) {
-					existingId = bundle.id;
+		long bundleId = deployer.install(uri);
 
-					break;
-				}
-			}
+		if (bundleId > 0) {
+			deployer.start(bundleId);
+
+		} 
+		else {
+
+			throw new Exception("Failed to deploy war: " + file.toURI().toASCIIString());
 		}
-
-		return existingId;
-	}
-
-	private static List<BundleDTO> _getBundles(GogoTelnetClient client) throws IOException {
-		List<BundleDTO> bundles = new ArrayList<>();
-
-		String output = client.send("lb -s -u");
-
-		String[] lines = output.split("\\r?\\n");
-
-		for (String line : lines) {
-			try {
-				String[] fields = line.split("\\|");
-
-				//ID|State|Level|Symbolic name
-				BundleDTO bundle = new BundleDTO();
-
-				bundle.id = Long.parseLong(fields[0].trim());
-				bundle.state = _getState(fields[1].trim());
-				bundle.symbolicName = fields[3];
-
-				bundles.add(bundle);
-			}
-			catch (Exception e) {
-			}
-		}
-
-		return bundles;
-	}
-
-	private static int _getState(String state) {
-		String bundleState = state.toUpperCase();
-
-		if ("ACTIVE".equals(bundleState)) {
-			return Bundle.ACTIVE;
-		}
-		else if ("INSTALLED".equals(bundleState)) {
-			return Bundle.INSTALLED;
-		}
-		else if ("RESOLVED".equals(bundleState)) {
-			return Bundle.RESOLVED;
-		}
-		else if ("STARTING".equals(bundleState)) {
-			return Bundle.STARTING;
-		}
-		else if ("STOPPING".equals(bundleState)) {
-			return Bundle.STOPPING;
-		}
-		else if ("UNINSTALLED".equals(bundleState)) {
-			return Bundle.UNINSTALLED;
-		}
-
-		return 0;
 	}
 
 	private void _addError(String msg) {
@@ -195,91 +158,103 @@ public class DeployCommand {
 		_blade.addErrors(prefix, Collections.singleton(msg));
 	}
 
-	private void _installOrUpdate(File outputFile) throws Exception {
-		boolean fragment = false;
-		String fragmentHost = null;
-		String bsn = null;
-		String hostBSN = null;
+	private void _installOrUpdate(File file) throws Exception {
+		file = file.getAbsoluteFile();
 
-		try (Jar bundle = new Jar(outputFile)) {
-			Manifest manifest = bundle.getManifest();
+		try (LiferayBundleDeployer client = LiferayBundleDeployer._getDefault(_host, _port)) {
+			String name = file.getName();
 
-			Attributes mainAttributes = manifest.getMainAttributes();
+			name = name.toLowerCase();
 
-			fragmentHost = mainAttributes.getValue("Fragment-Host");
+			Domain bundle = Domain.domain(file);
 
-			fragment = fragmentHost != null;
+			Entry<String, Attrs> bsn = bundle.getBundleSymbolicName();
 
-			bsn = bundle.getBsn();
-
-			if (fragment) {
-				Set<String> keySet = new Parameters(fragmentHost).keySet();
-
-				hostBSN = keySet.iterator().next();
+			if (bsn != null) {
+				deployBundle(file, client, bundle, bsn);
+			}
+			else if (name.endsWith(".war")) {
+				deployWar(file, client);
 			}
 		}
+	}
 
-		GogoTelnetClient client = new GogoTelnetClient(_host, _port);
+	private void deployBundle(File file, LiferayBundleDeployer client, Domain bundle, Entry<String, Attrs> bsn)
+		throws Exception {
 
-		List<BundleDTO> bundles = _getBundles(client);
+		Entry<String, Attrs> fragmentHost = bundle.getFragmentHost();
 
-		long hostId = _getBundleId(bundles, hostBSN);
+		String hostBsn = null;
 
-		long existingId = _getBundleId(bundles, bsn);
+		if (fragmentHost != null) {
+			hostBsn = fragmentHost.getKey();
+		}
 
-		String bundleURL = outputFile.toURI().toASCIIString();
+		Collection<BundleDTO> bundles = client.getBundles();
+
+		long existingId = client.getBundleId(bundles, bsn.getKey());
+
+		long hostId = client.getBundleId(bundles, hostBsn);
+
+		URI uri = file.toURI();
 
 		if (existingId > 0) {
-			if (fragment && (hostId > 0)) {
-				String response = client.send("update " + existingId + " " + bundleURL);
-
-				_blade.out().println(response);
-
-				response = client.send("refresh " + hostId);
-
-				_blade.out().println(response);
-			}
-			else {
-				String response = client.send("stop " + existingId);
-
-				_blade.out().println(response);
-
-				response = client.send("update " + existingId + " " + bundleURL);
-
-				_blade.out().println(response);
-
-				response = client.send("start " + existingId);
-
-				_blade.out().println(response);
-			}
-
-			_blade.out().println("Updated bundle " + existingId);
+			reloadExistingBundle(client, fragmentHost, existingId, hostId, uri);
 		}
 		else {
-			String response = client.send("install " + bundleURL);
+			installNewBundle(client, bsn, fragmentHost, hostId, uri);
+		}
+	}
 
-			_blade.out().println(response);
+	private void installNewBundle(LiferayBundleDeployer client, Entry<String, Attrs> bsn,
+			Entry<String, Attrs> fragmentHost, long hostId, URI uri) throws Exception {
 
-			if (fragment && (hostId > 0)) {
-				response = client.send("refresh " + hostId);
+		PrintStream out = _blade.out();
 
-				_blade.out().println(response);
-			}
-			else {
-				existingId = _getBundleId(_getBundles(client), bsn);
+		long existingId = client.install(uri);
 
-				if (existingId > 1) {
-					response = client.send("start " + existingId);
+		if ((fragmentHost != null) && (hostId > 0)) {
+			client.refresh(hostId);
 
-					_blade.out().println(response);
+			_blade.out().println("Installed fragment bundle " + existingId);
+		}
+		else {
+			long checkedExistingId = client.getBundleId(bsn.getKey());
+
+			try {
+				if (!Objects.equals(existingId, checkedExistingId)) {
+					out.print("Error: Bundle IDs do not match.");
+
+				} else {
+
+					if (checkedExistingId > 1) {
+						client.start(checkedExistingId);
+
+						_blade.out().println("Installed bundle " + existingId);
+					}
+					else {
+						out.println("Error: Bundle failed to install: " + bsn);
+					}
 				}
-				else {
-					_blade.out().println("Error: fail to install " + bsn);
-				}
+			} catch (Exception e) {
+
+				out.println("Error: Bundle failed to install: " + bsn);
+				e.printStackTrace(out);
 			}
 		}
+	}
 
-		client.close();
+	private final void reloadExistingBundle(LiferayBundleDeployer client, Entry<String, Attrs> fragmentHost,
+			long existingId, long hostId, URI uri) throws Exception {
+
+		if (fragmentHost != null && (hostId > 0)) {
+			client.reloadFragment(existingId, hostId, uri);
+		}
+		else {
+			client.reloadBundle(existingId, uri);
+		}
+
+		_blade.out().println("Updated bundle " + existingId);
 	}
 
 	private final BladeCLI _blade;
