@@ -19,6 +19,7 @@ package com.liferay.blade.cli;
 import com.beust.jcommander.JCommander;
 import com.beust.jcommander.JCommander.Builder;
 import com.beust.jcommander.MissingCommandException;
+import com.beust.jcommander.ParameterException;
 
 import java.io.File;
 import java.io.PrintStream;
@@ -236,6 +237,9 @@ public class BladeCLI implements Runnable {
 				}
 			}
 		}
+		catch (ParameterException e) {
+			throw e;
+		}
 		catch (Exception e) {
 			error(e.getMessage());
 			e.printStackTrace(err());
@@ -273,11 +277,13 @@ public class BladeCLI implements Runnable {
 		}
 		else {
 			_jcommander = commander;
+			
+			String command = null;
 
 			try {
 				commander.parse(args);
 
-				String command = commander.getParsedCommand();
+				command = commander.getParsedCommand();
 
 				Map<String, JCommander> commands = commander.getCommands();
 
@@ -310,6 +316,9 @@ public class BladeCLI implements Runnable {
 				error(stringBuilder.toString());
 				commander.usage();
 			}
+			catch (ParameterException pe) {
+				error(pe.getClass().getName() + ": " + pe.getMessage());
+			}
 		}
 	}
 
@@ -323,6 +332,14 @@ public class BladeCLI implements Runnable {
 
 	public void serverStop(ServerStopCommandArgs args) throws Exception {
 		new ServerStopCommand(this, args).execute();
+	}
+	
+	public void setErr(PrintStream printStream) {
+		_err = printStream;
+	}
+
+	public void setOut(PrintStream printStream) {
+		_out = printStream;
 	}
 
 	public void sh(ShellCommandArgs args) throws Exception {
@@ -373,7 +390,7 @@ public class BladeCLI implements Runnable {
 
 		flags.addAll(addLast);
 	}
-
+	
 	private static final Formatter _tracer = new Formatter(System.out);
 
 	private String _command;
