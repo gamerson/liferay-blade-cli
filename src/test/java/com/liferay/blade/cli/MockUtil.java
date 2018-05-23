@@ -24,7 +24,7 @@ import com.liferay.blade.cli.gradle.GradleTooling;
 
 import java.io.File;
 import java.io.IOException;
-
+import java.nio.file.Path;
 import java.util.AbstractMap;
 import java.util.Arrays;
 import java.util.HashSet;
@@ -132,6 +132,11 @@ public class MockUtil {
 			Util.canConnect(EasyMock.anyString(), EasyMock.anyInt()));
 
 		canConnect.andStubReturn(true);
+		
+		IExpectationSetters<Boolean> isGradle = EasyMock.expect(
+			Util.isProjectGradle(EasyMock.isA(Path.class)));
+		
+		isGradle.andStubReturn(true);
 
 		PowerMock.replay(Util.class);
 	}

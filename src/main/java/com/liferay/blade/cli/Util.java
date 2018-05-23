@@ -38,10 +38,12 @@ import java.net.InetSocketAddress;
 import java.net.Socket;
 
 import java.nio.file.DirectoryStream;
+import java.nio.file.FileSystems;
 import java.nio.file.Files;
 import java.nio.file.Path;
-
+import java.nio.file.PathMatcher;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Enumeration;
 import java.util.Iterator;
 import java.util.List;
@@ -49,6 +51,8 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Properties;
 import java.util.regex.Matcher;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 
@@ -176,6 +180,49 @@ public class Util {
 
 		return null;
 	}
+	
+	public static Path getMavenOutputFile(Path projectDir) {
+		Path outputPath = null;
+		
+		Path targetPath = projectDir.resolve("target");
+		
+		if (Files.exists(targetPath) && Files.isDirectory(targetPath)) {
+			
+			PathMatcher matcher =
+				    FileSystems.getDefault().getPathMatcher("glob:*.{jar,war}");
+
+			try (Stream<Path> stream = Files.list(targetPath)) {
+				Collection<Path> paths = stream.collect(Collectors.toSet());
+				
+				for (Path path : paths) {
+					Path fileName = path.getFileName();
+					if (matcher.matches(fileName))  {
+						outputPath = path;
+						break;
+					}
+				}
+				
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+		}
+		return outputPath;
+	}
+
+	public static File getMavenWrapper(File dir) {
+		File gradleRoot = findParentFile(dir, new String[] {_MAVENW_UNIX_FILE_NAME, _MAVENW_WINDOWS_FILE_NAME}, true);
+
+		if (gradleRoot != null) {
+			if (isWindows()) {
+				return new File(gradleRoot, _MAVENW_WINDOWS_FILE_NAME);
+			}
+			else {
+				return new File(gradleRoot, _MAVENW_UNIX_FILE_NAME);
+			}
+		}
+
+		return null;
+	}
 
 	public static Properties getProperties(File file) {
 		try (InputStream inputStream = new FileInputStream(file)) {
@@ -211,6 +258,18 @@ public class Util {
 		}
 
 		return false;
+	}
+	
+	public static boolean isProjectMaven(final Path directory) {
+		Path buildScriptPath = directory.resolve("pom.xml");
+		
+		return Files.exists(buildScriptPath);
+	}
+	
+	public static boolean isProjectGradle(final Path directory) {
+		Path buildScriptPath = directory.resolve("build.gradle");
+		
+		return Files.exists(buildScriptPath);
 	}
 
 	public static boolean isDirEmpty(final Path directory) throws IOException {
@@ -354,7 +413,7 @@ public class Util {
 	public static Process startProcess(BladeCLI blade, String command) throws Exception {
 		return startProcess(blade, command, blade.getBase(), null, true);
 	}
-
+	
 	public static Process startProcess(BladeCLI blade, String command, File dir, boolean inheritIO) throws Exception {
 		return startProcess(blade, command, dir, null, inheritIO);
 	}
@@ -397,6 +456,23 @@ public class Util {
 		OutputStream outputStream = process.getOutputStream();
 
 		outputStream.close();
+
+		return process;
+	}
+	
+	public static Process startProcessAsync(
+			BladeCLI blade, String command)
+		throws Exception {
+
+		ProcessBuilder processBuilder = new ProcessBuilder();
+
+		if ((blade.getBase() != null) && blade.getBase().exists()) {
+			processBuilder.directory(blade.getBase());
+		}
+
+		setShell(processBuilder, command);
+
+		Process process = processBuilder.start();
 
 		return process;
 	}
@@ -488,5 +564,9 @@ public class Util {
 	private static final String _GRADLEW_WINDOWS_FILE_NAME = "gradlew.bat";
 
 	private static final String _SETTINGS_GRADLE_FILE_NAME = "settings.gradle";
+
+	private static final String _MAVENW_UNIX_FILE_NAME = "mvnw";
+
+	private static final String _MAVENW_WINDOWS_FILE_NAME = "mvnw.cmd";
 
 }

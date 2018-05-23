@@ -22,17 +22,23 @@ import aQute.bnd.osgi.Domain;
 import com.liferay.blade.cli.FileWatcher.Consumer;
 import com.liferay.blade.cli.gradle.GradleExec;
 import com.liferay.blade.cli.gradle.GradleTooling;
+import com.liferay.blade.cli.gradle.MavenExec;
+import com.liferay.blade.cli.util.PomUtil;
 
+import java.io.BufferedReader;
 import java.io.File;
+import java.io.IOException;
+import java.io.InputStreamReader;
 import java.io.PrintStream;
 
 import java.net.URI;
 
 import java.nio.file.Path;
-
+import java.nio.file.Paths;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Map.Entry;
+import java.util.concurrent.CompletableFuture;
 import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -60,15 +66,106 @@ public class DeployCommand {
 			return;
 		}
 
-		GradleExec gradleExec = new GradleExec(_blade);
+		Path currentPath = Paths.get("./");
+		if (Util.isProjectGradle(currentPath)) {
+			GradleExec gradleExec = new GradleExec(_blade);
 
-		Set<File> outputFiles = GradleTooling.getOutputFiles(_blade.getCacheDir(), _blade.getBase());
+			Set<File> outputFiles = GradleTooling.getOutputFiles(_blade.getCacheDir(), _blade.getBase());
 
-		if (_args.isWatch()) {
-			_deployWatch(gradleExec, outputFiles);
+			if (_args.isWatch()) {
+				_deployGradleWatch(gradleExec, outputFiles);
+			}
+			else {
+				_deployGradle(gradleExec, outputFiles);
+			}
+		} else if (Util.isProjectMaven(currentPath)) {
+			
+			if (_args.isWatch()) {
+				_deployMavenWatch(currentPath);
+			}
+			else
+			{
+				
+				_deployMaven(currentPath);
+			}
 		}
 		else {
-			_deploy(gradleExec, outputFiles);
+			_blade.err("Unknown Project Type");
+		}
+
+	}
+
+	private void _deployMaven(Path currentPath) throws Exception {
+		MavenExec mavenExec = new MavenExec(_blade);
+		
+		if (mavenExec.executeMavenCommand("clean") == 0) {
+		
+			if (mavenExec.executeMavenCommand("package") == 0) { 
+				
+				installFromMavenCurrentPath(currentPath);
+
+			}
+		}
+	}
+	
+	private void _deployMavenWatch(Path currentPath) throws Exception {
+
+		if (PomUtil.addPluginToPom(currentPath.resolve("pom.xml"))) {
+
+			MavenExec mavenExec = new MavenExec(_blade);
+
+			if (mavenExec.executeMavenCommand("clean") == 0) {
+				
+				if (mavenExec.executeMavenCommand("package") == 0) {
+
+					installFromMavenCurrentPath(currentPath);
+	
+					Process pr = mavenExec.executeMavenCommandAsync("fizzed-watcher:run");
+		
+					try (BufferedReader in = new BufferedReader(new InputStreamReader(pr.getInputStream()))) {
+					
+						CompletableFuture.runAsync(() -> {
+							String line;
+							try {
+								while ((line = in.readLine()) != null) {
+									_blade.out(line);
+									if (line.contains("BUILD SUCCESS")) {
+										installFromMavenCurrentPath(currentPath);
+									}
+								}
+							} catch (IOException e) {
+								_blade.err(e.getMessage());
+								e.printStackTrace(_blade.err());
+							}
+						});
+						pr.waitFor();
+					}
+					
+				} 
+				else {
+					_blade.err("Unable to build project.");
+				}
+			}
+			else {
+				_blade.err("Unable to clean project.");
+			}
+		} 
+		else {
+			_blade.err("Unable to add Maven Watcher Plugin to pom.xml");
+		}
+	}
+
+	private void installFromMavenCurrentPath(Path currentPath) {
+		File outputFile = Util.getMavenOutputFile(currentPath).toFile();
+
+		try {
+			_installOrUpdate(outputFile);
+		} catch (Exception e) {
+			PrintStream error = _blade.err();
+
+			error.println(e.getMessage());
+
+			e.printStackTrace(error);
 		}
 	}
 
@@ -93,7 +190,7 @@ public class DeployCommand {
 		_blade.addErrors(prefix, Collections.singleton(msg));
 	}
 
-	private void _deploy(GradleExec gradle, Set<File> outputFiles) throws Exception {
+	private void _deployGradle(GradleExec gradle, Set<File> outputFiles) throws Exception {
 		int retcode = gradle.executeGradleCommand("assemble -x check");
 
 		if (retcode > 0) {
@@ -149,8 +246,8 @@ public class DeployCommand {
 		}
 	}
 
-	private void _deployWatch(final GradleExec gradleExec, final Set<File> outputFiles) throws Exception {
-		_deploy(gradleExec, outputFiles);
+	private void _deployGradleWatch(final GradleExec gradleExec, final Set<File> outputFiles) throws Exception {
+		_deployGradle(gradleExec, outputFiles);
 
 		Stream<File> stream = outputFiles.stream();
 
