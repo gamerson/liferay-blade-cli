@@ -16,30 +16,23 @@
 
 package com.liferay.blade.cli;
 
-import java.util.Objects;
+import org.junit.Assert;
+import org.junit.Test;
 
 /**
  * @author Christopher Bryan Boyd
  */
-public class HelpCommand extends BaseCommand<HelpCommandArgs> {
+public class ListExtensionsCommandTest {
 
-	public HelpCommand() {
+	@Test
+	public void testListExtensions() throws Exception {
+		String[] args = {"extension", "list", "src/test/resources/com/liferay/blade/cli/extensions/extensions.xml"};
+
+		String content = TestUtil.runBlade(args);
+
+		Assert.assertTrue(content.contains("ext1 description"));
+		Assert.assertTrue(content.contains("ext1 location"));
+		Assert.assertTrue(content.contains("ext2 description"));
+		Assert.assertTrue(content.contains("ext2 location"));
 	}
-
-	public void execute() throws Exception {
-		String commandName = _args.getName();
-
-		if (Objects.nonNull(commandName) && (commandName.length() > 0)) {
-			_blade.printUsage(commandName);
-		}
-		else {
-			_blade.printUsage();
-		}
-	}
-
-	@Override
-	public Class<HelpCommandArgs> getArgsClass() {
-		return HelpCommandArgs.class;
-	}
-
 }

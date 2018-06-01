@@ -16,30 +16,33 @@
 
 package com.liferay.blade.cli;
 
-import java.util.Objects;
+import java.io.File;
+
+import java.nio.file.Files;
+import java.nio.file.Path;
+
+import org.junit.Assert;
+import org.junit.Rule;
+import org.junit.Test;
+import org.junit.rules.TemporaryFolder;
 
 /**
  * @author Christopher Bryan Boyd
  */
-public class HelpCommand extends BaseCommand<HelpCommandArgs> {
+public class LinkDownloaderTest {
 
-	public HelpCommand() {
+	@Test
+	public void testMavenInitWorkspaceDirectoryHasFiles() throws Exception {
+		Path targetFile = new File(tempFolder.getRoot(), "bnd.bnd").toPath();
+
+		String link = "https://raw.githubusercontent.com/liferay/liferay-blade-cli/master/bnd.bnd";
+
+		Util.downloadLink(link, targetFile);
+
+		Assert.assertTrue(Files.exists(targetFile));
 	}
 
-	public void execute() throws Exception {
-		String commandName = _args.getName();
-
-		if (Objects.nonNull(commandName) && (commandName.length() > 0)) {
-			_blade.printUsage(commandName);
-		}
-		else {
-			_blade.printUsage();
-		}
-	}
-
-	@Override
-	public Class<HelpCommandArgs> getArgsClass() {
-		return HelpCommandArgs.class;
-	}
+	@Rule
+	public final TemporaryFolder tempFolder = new TemporaryFolder();
 
 }
