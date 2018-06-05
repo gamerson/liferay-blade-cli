@@ -23,6 +23,7 @@ import aQute.bnd.osgi.Resource;
 import aQute.lib.io.IO;
 
 import com.liferay.blade.cli.util.AnsiLinePrinter;
+import com.liferay.blade.cli.util.LinkDownloader;
 import com.liferay.project.templates.ProjectTemplates;
 
 import java.io.BufferedReader;
@@ -35,8 +36,10 @@ import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.io.PrintStream;
 
+import java.net.HttpURLConnection;
 import java.net.InetSocketAddress;
 import java.net.Socket;
+import java.net.URL;
 
 import java.nio.file.DirectoryStream;
 import java.nio.file.Files;
@@ -52,6 +55,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Properties;
+import java.util.jar.JarEntry;
+import java.util.jar.JarFile;
 import java.util.regex.Matcher;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
@@ -117,6 +122,18 @@ public class Util {
 				}
 			}
 		}
+	}
+
+	public static void downloadGithubProject(String link, Path target) {
+		link = link + "/archive/master.zip";
+
+		downloadLink(link, target);
+	}
+
+	public static void downloadLink(String link, Path target) {
+		LinkDownloader downloader = new LinkDownloader(link, target);
+
+		downloader.run();
 	}
 
 	public static File findParentFile(File dir, String[] fileNames, boolean checkParents) {
@@ -265,6 +282,30 @@ public class Util {
 		return false;
 	}
 
+	public static boolean isArchetype(Path path) {
+		try (JarFile jarFile = new JarFile(path.toFile())) {
+			Enumeration<JarEntry> enumeration = jarFile.entries();
+
+			while (enumeration.hasMoreElements()) {
+				JarEntry jarEntry = enumeration.nextElement();
+
+				if (jarEntry.isDirectory()) {
+					continue;
+				}
+
+				String name = jarEntry.getName();
+
+				if (name.equals("archetype-metadata.xml")) {
+					return true;
+				}
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+
+		return false;
+	}
+
 	public static boolean isDirEmpty(final Path directory) throws IOException {
 		try (DirectoryStream<Path> directoryStream = Files.newDirectoryStream(directory)) {
 			Iterator<Path> iterator = directoryStream.iterator();
@@ -311,6 +352,38 @@ public class Util {
 
 	public static boolean isNotEmpty(Object[] array) {
 		return !isEmpty(array);
+	}
+
+	public static boolean isURLAvailable(String urlString) {
+		try {
+		URL u = new URL(urlString);
+
+		u.toURI();
+		HttpURLConnection.setFollowRedirects(false);
+		HttpURLConnection huc = (HttpURLConnection)u.openConnection();
+
+		huc.setRequestMethod("GET");
+		huc.connect();
+		int code = huc.getResponseCode();
+
+		if ((code == HttpURLConnection.HTTP_OK)) {
+			return true;
+		}
+
+		return false;
+		} catch (Exception e) {
+			return false;
+		}
+	}
+
+	public static boolean isValidURL(String urlString) {
+		try {
+			new URL(urlString).toURI();
+
+			return true;
+		} catch (Exception e) {
+			return false;
+		}
 	}
 
 	public static boolean isWindows() {

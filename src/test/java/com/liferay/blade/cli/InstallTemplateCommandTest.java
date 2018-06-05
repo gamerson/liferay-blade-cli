@@ -85,7 +85,11 @@ public class InstallTemplateCommandTest {
 
 		Assert.assertTrue(fakeJar.createNewFile());
 
-		PowerMock.mockStaticPartialNice(Util.class, "getCustomTemplatesPath");
+		PowerMock.mockStaticPartialNice(Util.class, "getCustomTemplatesPath", "isArchetype");
+
+		IExpectationSetters<Boolean> isArchetypeMethod = EasyMock.expect(Util.isArchetype(EasyMock.isA(Path.class)));
+
+		isArchetypeMethod.andReturn(true).atLeastOnce();
 
 		IExpectationSetters<Path> templatesDirMethod = EasyMock.expect(Util.getCustomTemplatesPath());
 
