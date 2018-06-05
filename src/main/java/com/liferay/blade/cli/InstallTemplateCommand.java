@@ -46,27 +46,50 @@ public class InstallTemplateCommand {
 	public void execute() throws Exception {
 		String arg = _args.getPath();
 
-		Path path = StringUtil.isNullOrEmpty(arg) ? Paths.get(".") : Paths.get(arg);
-
-		if (Files.exists(path)) {
-			Path templatePath = Optional.of(
-				path
-			).filter(
-				Files::exists
-			).filter(
-				Files::isDirectory
-			).filter(
-				Util::isGradleBuildPath
-			).map(
-				this::_gradleAssemble
-			).orElse(
-				path
-			);
-
-			_installTemplatePath(templatePath);
+		if (StringUtil.isNullOrEmpty(arg)) {
+			arg = ".";
 		}
-		else {
-			throw new Exception("Template path must exist");
+
+		if (arg.toLowerCase().startsWith("http") && Util.isValidURL(arg)) {
+			if (arg.toLowerCase().contains("github")) {
+				Path path = Files.createTempDirectory(null);
+
+				Path zip = path.resolve("master.zip");
+
+				Util.downloadGithubProject(arg, zip);
+				Util.unzip(zip.toFile(), path.toFile(), null);
+
+				if (Util.isGradleBuildPath(path)) {
+					_gradleAssemble(path);
+
+					_installTemplatePath(path);
+				}
+			} else {
+				throw new Exception("Only Github HTTP links are supported.");
+			}
+		} else {
+			Path path = StringUtil.isNullOrEmpty(arg) ? Paths.get(".") : Paths.get(arg);
+
+			if (Files.exists(path)) {
+				Path templatePath = Optional.of(
+					path
+				).filter(
+					Files::exists
+				).filter(
+					Files::isDirectory
+				).filter(
+					Util::isGradleBuildPath
+				).map(
+					this::_gradleAssemble
+				).orElse(
+					path
+				);
+
+				_installTemplatePath(templatePath);
+			}
+			else {
+				throw new Exception("Template path must exist");
+			}
 		}
 	}
 
@@ -114,12 +137,16 @@ public class InstallTemplateCommand {
 			_installTemplate(outputFile);
 		}
 		else {
-			throw new Exception();
+			throw new Exception("File " + outputFile.getFileName() + " is not a valid template.");
 		}
 	}
 
 	private boolean _isTemplateMatch(Path path) {
-		return _customTemplatePathMatcher.matches(path);
+		if (_customTemplatePathMatcher.matches(path) && Files.exists(path) && Util.isArchetype(path)) {
+			return true;
+		}
+
+		return false;
 	}
 
 	private static final PathMatcher _customTemplatePathMatcher = FileSystems.getDefault().getPathMatcher(
