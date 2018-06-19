@@ -30,6 +30,8 @@ import java.io.PrintStream;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Formatter;
 import java.util.List;
@@ -193,7 +195,9 @@ public class BladeCLI implements Runnable {
 
 		System.setErr(err());
 
-		_commands = new Extensions().getCommands();
+		String basePath = _extractBasePath(args);
+
+		_commands = new Extensions().getCommands(new File(basePath));
 
 		args = Extensions.sortArgs(_commands, args);
 
@@ -260,6 +264,24 @@ public class BladeCLI implements Runnable {
 			_tracer.format("# " + s + "%n", args);
 			_tracer.flush();
 		}
+	}
+
+	private static String _extractBasePath(String[] args) {
+		List<String> argsList = new ArrayList<>(Arrays.asList(args));
+
+		String realBasePath = ".";
+
+		for (int x = 0; x < argsList.size(); x++) {
+			String s = argsList.get(x);
+
+			if (s.equals("--base") && (argsList.size() > (x + 1))) {
+				realBasePath = argsList.get(x + 1);
+
+				break;
+			}
+		}
+
+		return realBasePath;
 	}
 
 	private void _runCommand() throws Exception {
