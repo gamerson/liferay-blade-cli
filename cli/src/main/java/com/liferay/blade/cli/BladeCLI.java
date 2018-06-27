@@ -49,6 +49,8 @@ import org.fusesource.jansi.AnsiConsole;
  */
 public class BladeCLI implements Runnable {
 
+	public static final File USER_HOME_DIR = new File(System.getProperty("user.home"));
+
 	public static void main(String[] args) {
 		BladeCLI bladeCLI = new BladeCLI();
 
@@ -127,7 +129,7 @@ public class BladeCLI implements Runnable {
 			settingsFile = new File(workspaceDir, ".blade/settings.properties");
 		}
 		else {
-			File homeDir = new File(System.getProperty("user.home"));
+			File homeDir = USER_HOME_DIR;
 
 			settingsFile = new File(homeDir, ".blade/settings.properties");
 		}
@@ -213,7 +215,9 @@ public class BladeCLI implements Runnable {
 
 		System.setErr(err());
 
-		_commands = new Extensions(getSettings()).getCommands();
+		Extensions extensions = new Extensions(getSettings());
+
+		_commands = extensions.getCommands();
 
 		args = Extensions.sortArgs(_commands, args);
 
@@ -242,6 +246,8 @@ public class BladeCLI implements Runnable {
 
 				if (jCommander == null) {
 					printUsage();
+
+					extensions.close();
 
 					return;
 				}
@@ -273,6 +279,8 @@ public class BladeCLI implements Runnable {
 				error(_jCommander.getParsedCommand() + ": " + pe.getMessage());
 			}
 		}
+
+		extensions.close();
 	}
 
 	public void setBase(File baseDir) {

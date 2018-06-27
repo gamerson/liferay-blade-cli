@@ -16,8 +16,10 @@
 
 package com.liferay.blade.cli.command;
 
-import com.liferay.blade.cli.Extensions;
+import com.liferay.blade.cli.BladeCLI;
+import com.liferay.blade.cli.BladeTest;
 import com.liferay.blade.cli.TestUtil;
+import com.liferay.project.templates.internal.util.FileUtil;
 
 import java.io.File;
 
@@ -41,7 +43,15 @@ public class InstallExtensionCommandTest {
 
 	@Before
 	public void setUp() throws Exception {
-		Whitebox.setInternalState(Extensions.class, "_USER_HOME_DIR", temporaryFolder.getRoot());
+		Whitebox.setInternalState(BladeCLI.class, "USER_HOME_DIR", temporaryFolder.getRoot());
+
+		BladeTest bladeTest = new BladeTest();
+
+		File cacheDir = bladeTest.getCacheDir();
+
+		if (cacheDir.exists()) {
+			FileUtil.deleteDir(cacheDir.toPath());
+		}
 	}
 
 	@Test
@@ -94,6 +104,25 @@ public class InstallExtensionCommandTest {
 		boolean pathExists = Files.exists(extensionJarPath);
 
 		Assert.assertTrue(extensionJarPath.toAbsolutePath() + " does not exist", pathExists);
+	}
+
+	@Test
+	public void testInstallUninstallCustomExtension() throws Exception {
+		String[] args = {"extension install", _sampleCommandJarFile.getAbsolutePath()};
+
+		String output = TestUtil.runBlade(args);
+
+		Assert.assertTrue("Expected output to contain \"successful\"\n" + output, output.contains(" successful"));
+
+		Assert.assertTrue(output.contains(_sampleCommandJarFile.getName()));
+
+		args = new String[] {"extension uninstall", _sampleCommandJarFile.getName()};
+
+		output = TestUtil.runBlade(args);
+
+		Assert.assertTrue("Expected output to contain \"successful\"\n" + output, output.contains(" successful"));
+
+		Assert.assertTrue(output.contains(_sampleCommandJarFile.getName()));
 	}
 
 	@Rule
