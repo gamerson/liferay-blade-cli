@@ -49,7 +49,7 @@ public class ExtensionsTest {
 
 	@Before
 	public void setUp() throws Exception {
-		Whitebox.setInternalState(Extensions.class, "_USER_HOME_DIR", temporaryFolder.getRoot());
+		Whitebox.setInternalState(Extensions.class, "USER_HOME_DIR", temporaryFolder.getRoot());
 	}
 
 	@Test
@@ -58,30 +58,34 @@ public class ExtensionsTest {
 
 		BladeTest bladeTest = new BladeTest();
 
-		Map<String, BaseCommand<? extends BaseArgs>> commands = new Extensions(bladeTest.getSettings()).getCommands();
+		try (Extensions extensions = new Extensions(bladeTest.getSettings())) {
+			Map<String, BaseCommand<? extends BaseArgs>> commands = extensions.getCommands();
 
-		String[] sortedArgs = Extensions.sortArgs(commands, args);
+			String[] sortedArgs = Extensions.sortArgs(commands, args);
 
-		boolean correctSort = false;
+			boolean correctSort = false;
 
-		for (String arg : sortedArgs) {
-			if (Objects.equals(arg, "extension install")) {
-				correctSort = true;
+			for (String arg : sortedArgs) {
+				if (Objects.equals(arg, "extension install")) {
+					correctSort = true;
+				}
 			}
-		}
 
-		Assert.assertTrue(correctSort);
+			Assert.assertTrue(correctSort);
+		}
 	}
 
 	@Test
 	public void testLoadCommandsBuiltIn() throws Exception {
 		BladeTest bladeTest = new BladeTest();
 
-		Map<String, BaseCommand<? extends BaseArgs>> commands = new Extensions(bladeTest.getSettings()).getCommands();
+		try (Extensions extensions = new Extensions(bladeTest.getSettings())) {
+			Map<String, BaseCommand<? extends BaseArgs>> commands = extensions.getCommands();
 
-		Assert.assertNotNull(commands);
+			Assert.assertNotNull(commands);
 
-		Assert.assertEquals(commands.toString(), _NUM_BUILTIN_COMMANDS, commands.size());
+			Assert.assertEquals(commands.toString(), _NUM_BUILTIN_COMMANDS, commands.size());
+		}
 	}
 
 	@Test
@@ -90,11 +94,13 @@ public class ExtensionsTest {
 
 		BladeTest bladeTest = new BladeTest();
 
-		Map<String, BaseCommand<? extends BaseArgs>> commands = new Extensions(bladeTest.getSettings()).getCommands();
+		try (Extensions extensions = new Extensions(bladeTest.getSettings())) {
+			Map<String, BaseCommand<? extends BaseArgs>> commands = extensions.getCommands();
 
-		Assert.assertNotNull(commands);
+			Assert.assertNotNull(commands);
 
-		Assert.assertEquals(commands.toString(), _NUM_BUILTIN_COMMANDS + 1, commands.size());
+			Assert.assertEquals(commands.toString(), _NUM_BUILTIN_COMMANDS + 1, commands.size());
+		}
 	}
 
 	@Test
