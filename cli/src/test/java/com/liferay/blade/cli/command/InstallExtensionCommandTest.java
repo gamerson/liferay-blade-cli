@@ -83,7 +83,7 @@ public class InstallExtensionCommandTest {
 
 		String output = TestUtil.runBlade(args);
 
-		Assert.assertTrue("Expected output to contain \"successful\"\n" + output, output.contains(" successful"));
+		Assert.assertTrue("Expected the output to contain \"successful\"\n" + output, output.contains(" successful"));
 
 		File root = temporaryFolder.getRoot();
 
