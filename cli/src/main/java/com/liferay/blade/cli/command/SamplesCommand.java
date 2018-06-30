@@ -73,7 +73,7 @@ public class SamplesCommand extends BaseCommand<SamplesArgs> {
 	private void _addGradleWrapper(File dest) throws Exception {
 		InputStream in = SamplesCommand.class.getResourceAsStream("/wrapper.zip");
 
-		BladeUtil.copy(in, dest);
+		BladeUtil.unzipStream(in, dest);
 
 		new File(dest, "gradlew").setExecutable(true);
 	}

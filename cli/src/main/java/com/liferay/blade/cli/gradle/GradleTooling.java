@@ -76,7 +76,7 @@ public class GradleTooling {
 
 			InputStream in = GradleTooling.class.getResourceAsStream("/deps.zip");
 
-			BladeUtil.copy(in, depsDir);
+			BladeUtil.unzipStream(in, depsDir);
 
 			final String initScriptTemplate = IO.collect(GradleTooling.class.getResourceAsStream("init.gradle"));
 
