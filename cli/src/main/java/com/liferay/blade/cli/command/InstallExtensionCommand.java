@@ -23,6 +23,7 @@ import com.liferay.blade.cli.gradle.GradleTooling;
 import com.liferay.blade.cli.gradle.ProcessResult;
 import com.liferay.blade.cli.util.BladeUtil;
 import com.liferay.blade.cli.util.FileUtil;
+import com.liferay.blade.cli.util.PromptUtil;
 import com.liferay.blade.cli.util.StringUtil;
 
 import java.io.File;
@@ -35,6 +36,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.PathMatcher;
 import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
 
 import java.util.HashSet;
 import java.util.Iterator;
@@ -250,13 +252,37 @@ public class InstallExtensionCommand extends BaseCommand<InstallExtensionArgs> {
 
 			Path newExtensionPath = extensionsHome.resolve(extensionName);
 
-			if (Files.exists(newExtensionPath)) {
-				getBladeCLI().out("The extension " + extensionName + " already exists in blade extensions.");
-			}
-			else {
-				Files.copy(extensionPath, newExtensionPath);
+			boolean extensionExists = Files.exists(newExtensionPath);
 
-				getBladeCLI().out("The extension " + extensionName + " has been installed successfully.");
+			boolean doInstall = true;
+
+			String newVersion = BladeUtil.getBundleVersion(extensionPath);
+
+			if (extensionExists) {
+				String installedVersion = BladeUtil.getBundleVersion(newExtensionPath);
+
+				getBladeCLI().out("The extension " + extensionName + " already exists in blade extensions.");
+				getBladeCLI().out("Installed version: " + installedVersion);
+				getBladeCLI().out("New version: " + newVersion);
+
+				doInstall = PromptUtil.askBoolean("Overwrite existing extension?", System.in, getBladeCLI().out(), "n");
+
+				if (doInstall) {
+					getBladeCLI().out(
+						"Overwriting " + extensionName + ":" + installedVersion + " with " + extensionName + ":" +
+							newVersion);
+				}
+			}
+
+			if (doInstall) {
+				try {
+					Files.copy(extensionPath, newExtensionPath, StandardCopyOption.REPLACE_EXISTING);
+					getBladeCLI().out(
+						"The extension " + extensionName + ":" + newVersion + " has been installed successfully.");
+				}
+				catch (Exception e) {
+					throw new RuntimeException(e);
+				}
 			}
 		}
 		else {
