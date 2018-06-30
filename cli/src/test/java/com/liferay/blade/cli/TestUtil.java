@@ -16,9 +16,7 @@
 
 package com.liferay.blade.cli;
 
-import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.io.PrintStream;
 
 import java.nio.file.FileVisitResult;
 import java.nio.file.Files;
@@ -28,6 +26,7 @@ import java.nio.file.SimpleFileVisitor;
 import java.nio.file.StandardOpenOption;
 import java.nio.file.attribute.BasicFileAttributes;
 
+import java.util.Optional;
 import java.util.Scanner;
 
 import org.gradle.testkit.runner.BuildTask;
@@ -63,34 +62,32 @@ public class TestUtil {
 			});
 	}
 
-	public static String runBlade(String... args) throws Exception {
-		ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+	public static String runBlade(boolean checkAssert, String... args) throws Exception {
+		StringPrintStream outputStream = StringPrintStream.newInstance();
 
-		PrintStream outputPrintStream = new PrintStream(outputStream);
+		StringPrintStream errorStream = StringPrintStream.newInstance();
 
-		ByteArrayOutputStream errorStream = new ByteArrayOutputStream();
-
-		PrintStream errorPrintStream = new PrintStream(errorStream);
-
-		new BladeTest(outputPrintStream, errorPrintStream).run(args);
+		new BladeTest(outputStream, errorStream).run(args);
 
 		String error = errorStream.toString();
 
-		try (Scanner scanner = new Scanner(error)) {
-			while (scanner.hasNextLine()) {
-				String line = scanner.nextLine();
+		Optional<StringBuilder> errorStringBuilderOptional = _getErrorString(error);
 
-				if (line.startsWith("SLF4J:")) {
-					continue;
-				}
-
-				Assert.fail("Encountered error at line: " + line + "\n" + error);
-			}
+		if (checkAssert && errorStringBuilderOptional.isPresent()) {
+			Assert.fail(errorStringBuilderOptional.get().toString());
 		}
 
 		String content = outputStream.toString();
 
+		if (errorStringBuilderOptional.isPresent()) {
+			content = content + errorStringBuilderOptional.get();
+		}
+
 		return content;
+	}
+
+	public static String runBlade(String... args) throws Exception {
+		return runBlade(true, args);
 	}
 
 	public static void verifyBuild(String projectPath, String outputFileName) throws Exception {
@@ -119,6 +116,37 @@ public class TestUtil {
 		GradleRunnerUtil.verifyGradleRunnerOutput(buildTask);
 
 		GradleRunnerUtil.verifyBuildOutput(projectPath, outputFileName);
+	}
+
+	private static Optional<StringBuilder> _getErrorString(String error) {
+		Optional<StringBuilder> errorStringBuilderOptional = Optional.empty();
+
+		try (Scanner scanner = new Scanner(error)) {
+			while (scanner.hasNextLine()) {
+				String line = scanner.nextLine();
+
+				if (line.startsWith("SLF4J:")) {
+					continue;
+				}
+
+				StringBuilder sb;
+
+				if (!errorStringBuilderOptional.isPresent()) {
+					errorStringBuilderOptional = Optional.of(new StringBuilder());
+
+					sb = errorStringBuilderOptional.get();
+
+					sb.append("Encountered error at line: " + line + System.lineSeparator());
+				}
+				else {
+					sb = errorStringBuilderOptional.get();
+
+					sb.append(line + System.lineSeparator());
+				}
+			}
+		}
+
+		return errorStringBuilderOptional;
 	}
 
 }
