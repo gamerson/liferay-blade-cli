@@ -180,4 +180,18 @@ test {
 		dependsOn project.jar
 		systemProperty 'sampleTemplateJarFile', project.jar.archivePath
 	}
+
+	def parallelForks = 1
+	def cores = Runtime.runtime.availableProcessors()
+
+	if (cores > 4) {
+
+		parallelForks = cores - 2
+	}
+	else if (cores > 2) {
+
+		parallelForks = cores - 1
+	}
+
+	maxParallelForks = parallelForks
 }

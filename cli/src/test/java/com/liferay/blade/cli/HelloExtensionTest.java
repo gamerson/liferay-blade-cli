@@ -29,8 +29,6 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
 
-import org.powermock.reflect.Whitebox;
-
 /**
  * @author Christopher Bryan Boyd
  * @author Gregory Amerson
@@ -43,13 +41,19 @@ public class HelloExtensionTest {
 
 		_workspaceDir = temporaryFolder.newFolder("build", "test", "workspace");
 
-		Whitebox.setInternalState(BladeCLI.class, "USER_HOME_DIR", temporaryFolder.getRoot());
+		//Whitebox.setInternalState(BladeCLI.class, "USER_HOME_DIR", temporaryFolder.getRoot());
 
 		_setupTestExtensions();
 	}
 
 	@Test
 	public void testCustomProfileExtension() throws Exception {
+		File tempRootFile = temporaryFolder.getRoot();
+
+		Path tempRoot = tempRootFile.toPath();
+
+		tempRoot = tempRoot.toAbsolutePath();
+
 		String[] args = {"--base", _workspaceDir.getPath(), "init", "-f", "-b", "maven", "newproject"};
 
 		File newproject = new File(_workspaceDir, "newproject");
@@ -57,6 +61,8 @@ public class HelloExtensionTest {
 		Assert.assertTrue(newproject.mkdirs());
 
 		BladeTest bladeTest = new BladeTest();
+
+		bladeTest.setUserHomeDir(temporaryFolder.getRoot());
 
 		bladeTest.run(args);
 
@@ -66,16 +72,22 @@ public class HelloExtensionTest {
 
 		args = new String[] {"--base", _workspaceDir.getPath() + "/newproject", "hello", "--name", "foobar"};
 
-		String content = TestUtil.runBlade(args);
+		String content = TestUtil.runBlade(tempRoot, args);
 
 		Assert.assertTrue(content.contains("maven"));
 	}
 
 	@Test
 	public void testHelp() throws Exception {
+		File tempRootFile = temporaryFolder.getRoot();
+
+		Path tempRoot = tempRootFile.toPath();
+
+		tempRoot = tempRoot.toAbsolutePath();
+
 		String[] args = {"hello", "--name", "foo"};
 
-		String output = TestUtil.runBlade(args);
+		String output = TestUtil.runBlade(tempRoot, args);
 
 		Assert.assertEquals("Hello foo!", output.trim());
 	}

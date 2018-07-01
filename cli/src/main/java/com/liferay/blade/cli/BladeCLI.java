@@ -50,8 +50,6 @@ import org.fusesource.jansi.AnsiConsole;
  */
 public class BladeCLI implements Runnable {
 
-	public static final File USER_HOME_DIR = new File(System.getProperty("user.home"));
-
 	public static void main(String[] args) {
 		BladeCLI bladeCLI = new BladeCLI();
 
@@ -108,13 +106,13 @@ public class BladeCLI implements Runnable {
 	}
 
 	public Path getBundleDir() {
-		Path userHomePath = USER_HOME_DIR.toPath();
+		Path userHomePath = getUserHomeDir().toPath();
 
 		return userHomePath.resolve(".liferay/bundles");
 	}
 
 	public File getCacheDir() throws IOException {
-		Path userHomePath = USER_HOME_DIR.toPath();
+		Path userHomePath = getUserHomeDir().toPath();
 
 		Path cacheDir = userHomePath.resolve(".blade/cache");
 
@@ -134,12 +132,20 @@ public class BladeCLI implements Runnable {
 			settingsFile = new File(workspaceDir, ".blade/settings.properties");
 		}
 		else {
-			File homeDir = USER_HOME_DIR;
+			File homeDir = getUserHomeDir();
 
 			settingsFile = new File(homeDir, ".blade/settings.properties");
 		}
 
-		return new BladeSettings(settingsFile);
+		return new BladeSettings(this, settingsFile);
+	}
+
+	public File getUserHomeDir() {
+		if (userHomeDir == null) {
+			userHomeDir = new File(System.getProperty("user.home"));
+		}
+
+		return userHomeDir;
 	}
 
 	public PrintStream out() {
@@ -298,6 +304,8 @@ public class BladeCLI implements Runnable {
 			_tracer.flush();
 		}
 	}
+
+	protected File userHomeDir;
 
 	private static String _extractBasePath(String[] args) {
 		String defaultBasePath = ".";

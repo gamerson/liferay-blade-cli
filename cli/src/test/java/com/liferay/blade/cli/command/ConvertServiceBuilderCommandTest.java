@@ -19,6 +19,7 @@ package com.liferay.blade.cli.command;
 import aQute.lib.io.IO;
 
 import com.liferay.blade.cli.BladeTest;
+import com.liferay.blade.cli.TestUtil;
 import com.liferay.blade.cli.util.BladeUtil;
 
 import java.io.File;
@@ -49,11 +50,11 @@ public class ConvertServiceBuilderCommandTest {
 
 		String[] args = {"--base", projectDir.getPath(), "init", "-u"};
 
-		new BladeTest().run(args);
+		TestUtil.runBlade(temporaryFolder.getRoot(), args);
 
 		args = new String[] {"--base", projectDir.getPath(), "convert", SB_PROJECT_NAME};
 
-		new BladeTest().run(args);
+		TestUtil.runBlade(temporaryFolder.getRoot(), args);
 
 		File sbWar = new File(projectDir, "wars/sample-service-builder-portlet");
 
@@ -108,7 +109,7 @@ public class ConvertServiceBuilderCommandTest {
 
 		String[] args = {"--base", testdir.getPath(), "init", "-u"};
 
-		new BladeTest().run(args);
+		TestUtil.runBlade(temporaryFolder.getRoot(), args);
 
 		File pluginsSdkDir = new File(testdir, "plugins-sdk");
 
@@ -129,7 +130,7 @@ public class ConvertServiceBuilderCommandTest {
 
 		String[] args = {"--base", testdir.getPath(), "init", "-u"};
 
-		new BladeTest().run(args);
+		TestUtil.runBlade(temporaryFolder.getRoot(), args);
 
 		File pluginsSdkDir = new File(testdir, "plugins-sdk");
 

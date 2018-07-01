@@ -19,7 +19,9 @@ package com.liferay.blade.cli.command;
 import com.liferay.blade.cli.TestUtil;
 
 import org.junit.Assert;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.TemporaryFolder;
 
 /**
  * @author Christopher Bryan Boyd
@@ -51,8 +53,11 @@ public class HelpCommandTest {
 		Assert.assertTrue(content, content.contains("Usage:"));
 	}
 
-	private static String _runBlade(String... args) throws Exception {
-		String content = TestUtil.runBlade(args);
+	@Rule
+	public final TemporaryFolder temporaryFolder = new TemporaryFolder();
+
+	private String _runBlade(String... args) throws Exception {
+		String content = TestUtil.runBlade(temporaryFolder.getRoot().toPath(), args);
 
 		Assert.assertFalse(content, content.contains("No such command"));
 

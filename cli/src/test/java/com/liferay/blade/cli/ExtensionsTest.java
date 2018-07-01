@@ -38,7 +38,6 @@ import org.junit.rules.TemporaryFolder;
 
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.rule.PowerMockRule;
-import org.powermock.reflect.Whitebox;
 
 /**
  * @author Christopher Bryan Boyd
@@ -49,7 +48,7 @@ public class ExtensionsTest {
 
 	@Before
 	public void setUp() throws Exception {
-		Whitebox.setInternalState(BladeCLI.class, "USER_HOME_DIR", temporaryFolder.getRoot());
+		//Whitebox.setInternalState(BladeCLI.class, "USER_HOME_DIR", temporaryFolder.getRoot());
 	}
 
 	@Test
@@ -57,6 +56,8 @@ public class ExtensionsTest {
 		String[] args = {"--base", "/foo/bar/dir/", "--flag1", "extension", "install", "/path/to/jar.jar", "--flag2"};
 
 		BladeTest bladeTest = new BladeTest();
+
+		bladeTest.setUserHomeDir(temporaryFolder.getRoot());
 
 		Map<String, BaseCommand<? extends BaseArgs>> commands;
 
@@ -81,6 +82,8 @@ public class ExtensionsTest {
 	public void testLoadCommandsBuiltIn() throws Exception {
 		BladeTest bladeTest = new BladeTest();
 
+		bladeTest.setUserHomeDir(temporaryFolder.getRoot());
+
 		Map<String, BaseCommand<? extends BaseArgs>> commands = new Extensions(bladeTest.getSettings()).getCommands();
 
 		Assert.assertNotNull(commands);
@@ -94,6 +97,8 @@ public class ExtensionsTest {
 
 		BladeTest bladeTest = new BladeTest();
 
+		bladeTest.setUserHomeDir(temporaryFolder.getRoot());
+
 		Map<String, BaseCommand<? extends BaseArgs>> commands = new Extensions(bladeTest.getSettings()).getCommands();
 
 		Assert.assertNotNull(commands);
@@ -103,7 +108,7 @@ public class ExtensionsTest {
 
 	@Test
 	public void testProjectTemplatesBuiltIn() throws Exception {
-		Map<String, String> templates = BladeUtil.getTemplates();
+		Map<String, String> templates = BladeUtil.getTemplates(temporaryFolder.getRoot().toPath());
 
 		Assert.assertNotNull(templates);
 
@@ -114,7 +119,7 @@ public class ExtensionsTest {
 	public void testProjectTemplatesWithCustom() throws Exception {
 		_setupTestExtensions();
 
-		Map<String, String> templates = BladeUtil.getTemplates();
+		Map<String, String> templates = BladeUtil.getTemplates(temporaryFolder.getRoot().toPath());
 
 		Assert.assertNotNull(templates);
 

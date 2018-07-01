@@ -61,6 +61,10 @@ public class GradleRunnerUtil {
 		return buildTask;
 	}
 
+	public static void verifyBuildOutput(Path projectPath, String fileName) throws IOException {
+		verifyBuildOutput(projectPath.toString(), fileName);
+	}
+
 	public static void verifyBuildOutput(String projectPath, String fileName) throws IOException {
 		final Path[] projectFilePath = new Path[1];
 

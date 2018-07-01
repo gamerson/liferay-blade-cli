@@ -19,6 +19,7 @@ package com.liferay.blade.cli.command;
 import aQute.lib.io.IO;
 
 import com.liferay.blade.cli.BladeTest;
+import com.liferay.blade.cli.TestUtil;
 import com.liferay.blade.cli.util.BladeUtil;
 
 import java.io.File;
@@ -79,11 +80,11 @@ public class ConvertCommandTest {
 
 		String[] args = {"--base", projectDir.getPath(), "init", "-u"};
 
-		new BladeTest().run(args);
+		TestUtil.runBlade(temporaryFolder.getRoot(), args);
 
 		args = new String[] {"--base", projectDir.getPath(), "convert", "1-2-1-columns-layouttpl"};
 
-		new BladeTest().run(args);
+		TestUtil.runBlade(temporaryFolder.getRoot(), args);
 
 		File layoutWar = new File(projectDir, "wars/1-2-1-columns-layouttpl");
 
@@ -108,7 +109,7 @@ public class ConvertCommandTest {
 
 		String[] args = {"--base", projectDir.getPath(), "init", "-u"};
 
-		new BladeTest().run(args);
+		TestUtil.runBlade(temporaryFolder.getRoot(), args);
 
 		args = new String[] {"--base", projectDir.getPath(), "convert", "sample-application-adapter-hook"};
 
@@ -143,7 +144,7 @@ public class ConvertCommandTest {
 
 		String[] args = {"--base", projectDir.getPath(), "init", "-u"};
 
-		new BladeTest().run(args);
+		TestUtil.runBlade(temporaryFolder.getRoot(), args);
 
 		File theme = new File(projectDir, "wars/sample-styled-minimal-theme");
 
@@ -201,7 +202,7 @@ public class ConvertCommandTest {
 
 		args = new String[] {"--base", projectDir.getPath(), "convert", "sample-tapestry-portlet"};
 
-		new BladeTest().run(args);
+		TestUtil.runBlade(temporaryFolder.getRoot(), args);
 
 		_contains(
 			new File(projectDir, "wars/sample-tapestry-portlet/build.gradle"),
@@ -220,7 +221,7 @@ public class ConvertCommandTest {
 
 		String[] args = {"--base", projectDir.getPath(), "convert", "-t", "sample-html4-theme"};
 
-		new BladeTest().run(args);
+		TestUtil.runBlade(temporaryFolder.getRoot(), args);
 
 		Assert.assertTrue(new File(projectDir, "wars/sample-html4-theme/docroot_backup/other/afile").exists());
 	}
