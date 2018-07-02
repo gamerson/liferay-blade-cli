@@ -16,19 +16,17 @@
 
 package com.liferay.blade.cli.gradle;
 
-import java.util.function.Supplier;
-
 /**
  * @author Christopher Bryan Boyd
  */
-public class ProcessResult implements Supplier<String> {
+public class ProcessResult {
 
-	public static String getProcessResultOutput(ProcessResult processResult) {
+	public String getFullOutput() {
 		StringBuilder sb = new StringBuilder();
 
-		sb.append(processResult.getError());
+		sb.append(_error);
 		sb.append(System.lineSeparator());
-		sb.append(processResult.getOutput());
+		sb.append(_output);
 		sb.append(System.lineSeparator());
 
 		return sb.toString();
@@ -38,11 +36,6 @@ public class ProcessResult implements Supplier<String> {
 		_returnCode = returnCode;
 		_output = output;
 		_error = error;
-	}
-
-	@Override
-	public String get() {
-		return getProcessResultOutput(this);
 	}
 
 	public String getError() {
@@ -59,7 +52,7 @@ public class ProcessResult implements Supplier<String> {
 
 	@Override
 	public String toString() {
-		return get();
+		return getFullOutput();
 	}
 
 	private final String _error;

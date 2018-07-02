@@ -18,32 +18,20 @@ package com.liferay.blade.cli;
 
 import java.io.ByteArrayOutputStream;
 import java.io.PrintStream;
-
 import java.nio.charset.Charset;
-
-import java.util.function.Supplier;
 
 /**
  * @author Christopher Bryan Boyd
  */
-public class StringPrintStream extends PrintStream implements Supplier<String> {
+public class StringPrintStream extends PrintStream {
 
 	public static StringPrintStream newInstance() {
-		return newInstance(Charset.defaultCharset());
-	}
-
-	public static StringPrintStream newInstance(Charset charset) {
-		return new StringPrintStream(new ByteArrayOutputStream(), charset);
-	}
-
-	@Override
-	public String get() {
-		return new String(_outputStream.toByteArray(), _charset);
+		return new StringPrintStream(new ByteArrayOutputStream(), Charset.defaultCharset());
 	}
 
 	@Override
 	public String toString() {
-		return get();
+		return new String(_outputStream.toByteArray(), _charset);
 	}
 
 	private StringPrintStream(ByteArrayOutputStream outputStream, Charset charset) {

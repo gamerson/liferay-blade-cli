@@ -28,16 +28,13 @@ import com.liferay.blade.cli.util.StringUtil;
 
 import java.io.File;
 import java.io.IOException;
-
 import java.net.URL;
-
 import java.nio.file.FileSystems;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.PathMatcher;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
-
 import java.util.Iterator;
 import java.util.Optional;
 import java.util.Set;
@@ -231,9 +228,8 @@ public class InstallExtensionCommand extends BaseCommand<InstallExtensionArgs> {
 		int resultCode = processResult.getResultCode();
 
 		if (resultCode > 0) {
-			String output = processResult.get();
-
-			throw new Exception("Gradle command returned error code " + resultCode + System.lineSeparator() + output);
+			throw new Exception(
+				"Gradle command returned error code " + resultCode + System.lineSeparator() + processResult.getFullOutput());
 		}
 
 		return _getExistingPaths(outputFiles);

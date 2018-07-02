@@ -22,6 +22,7 @@ import com.liferay.blade.cli.StringPrintStream;
 import com.liferay.blade.cli.util.BladeUtil;
 
 import java.io.File;
+import java.io.PrintStream;
 import java.util.NoSuchElementException;
 
 /**
@@ -36,9 +37,9 @@ public class GradleExec {
 	public ProcessResult executeCommand(String cmd, File dir) throws Exception {
 		String executable = _getGradleExecutable(dir);
 
-		StringPrintStream outputStream = StringPrintStream.newInstance();
+		PrintStream outputStream = StringPrintStream.newInstance();
 
-		StringPrintStream errorStream = StringPrintStream.newInstance();
+		PrintStream errorStream = StringPrintStream.newInstance();
 
 		Process process = BladeUtil.startProcess("\"" + executable + "\" " + cmd, dir, outputStream, errorStream);
 
