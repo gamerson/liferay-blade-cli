@@ -190,7 +190,7 @@ public class ServerStopCommand extends BaseCommand<ServerStopArgs> {
 
 		Path binPath = dir.resolve("bin");
 
-		Process process = BladeUtil.startProcess(_blade, executable + " stop 60 -force", binPath.toFile(), enviroment);
+		Process process = BladeUtil.startProcess(executable + " stop 60 -force", binPath.toFile(), enviroment);
 
 		process.waitFor();
 	}
