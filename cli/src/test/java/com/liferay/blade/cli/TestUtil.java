@@ -16,9 +16,7 @@
 
 package com.liferay.blade.cli;
 
-import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.io.PrintStream;
 
 import java.nio.file.FileVisitResult;
 import java.nio.file.Files;
@@ -64,15 +62,11 @@ public class TestUtil {
 	}
 
 	public static String runBlade(String... args) throws Exception {
-		ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+		StringPrintStream outputStream = StringPrintStream.newInstance();
 
-		PrintStream outputPrintStream = new PrintStream(outputStream);
+		StringPrintStream errorStream = StringPrintStream.newInstance();
 
-		ByteArrayOutputStream errorStream = new ByteArrayOutputStream();
-
-		PrintStream errorPrintStream = new PrintStream(errorStream);
-
-		new BladeTest(outputPrintStream, errorPrintStream).run(args);
+		new BladeTest(outputStream, errorStream).run(args);
 
 		String error = errorStream.toString();
 

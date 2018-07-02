@@ -51,9 +51,18 @@ public class GradleExecTest {
 
 		ProcessResult result = gradleExec.executeGradleCommand("tasks");
 
-		int errorCode = result.getResultCode();
+		int resultCode = result.getResultCode();
 
-		Assert.assertEquals(0, errorCode);
+		String fullOutput = result.getFullOutput();
+
+		if (resultCode > 0) {
+			Assert.assertEquals(
+				"Gradle returned error code " + resultCode + System.lineSeparator() + fullOutput, 0, resultCode);
+		}
+		else {
+			Assert.assertFalse(
+				"Gradle build failed " + System.lineSeparator() + fullOutput, fullOutput.contains("BUILD FAILED"));
+		}
 	}
 
 	@Rule

@@ -18,9 +18,11 @@ package com.liferay.blade.cli.gradle;
 
 import com.liferay.blade.cli.BladeCLI;
 import com.liferay.blade.cli.StringConverter;
+import com.liferay.blade.cli.StringPrintStream;
 import com.liferay.blade.cli.util.BladeUtil;
 
 import java.io.File;
+import java.io.PrintStream;
 
 import java.util.NoSuchElementException;
 
@@ -36,13 +38,17 @@ public class GradleExec {
 	public ProcessResult executeCommand(String cmd, File dir) throws Exception {
 		String executable = _getGradleExecutable(dir);
 
-		Process process = BladeUtil.startProcess(_blade, "\"" + executable + "\" " + cmd, dir, true);
+		PrintStream outputStream = StringPrintStream.newInstance();
+
+		PrintStream errorStream = StringPrintStream.newInstance();
+
+		Process process = BladeUtil.startProcess("\"" + executable + "\" " + cmd, dir, outputStream, errorStream);
 
 		int returnCode = process.waitFor();
 
-		String output = StringConverter.frommInputStream(process.getInputStream());
+		String output = StringConverter.fromInputStream(process.getInputStream());
 
-		String error = StringConverter.frommInputStream(process.getErrorStream());
+		String error = StringConverter.fromInputStream(process.getErrorStream());
 
 		return new ProcessResult(returnCode, output, error);
 	}
@@ -68,8 +74,8 @@ public class GradleExec {
 
 			StringBuilder output = new StringBuilder();
 
-			String stdOutString = StringConverter.frommInputStream(process.getInputStream());
-			String stdErrString = StringConverter.frommInputStream(process.getErrorStream());
+			String stdOutString = StringConverter.fromInputStream(process.getInputStream());
+			String stdErrString = StringConverter.fromInputStream(process.getErrorStream());
 
 			output.append(stdOutString);
 			output.append(System.lineSeparator());

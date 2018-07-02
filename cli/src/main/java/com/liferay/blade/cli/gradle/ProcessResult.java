@@ -31,12 +31,28 @@ public class ProcessResult {
 		return _error;
 	}
 
+	public String getFullOutput() {
+		StringBuilder sb = new StringBuilder();
+
+		sb.append(_error);
+		sb.append(System.lineSeparator());
+		sb.append(_output);
+		sb.append(System.lineSeparator());
+
+		return sb.toString();
+	}
+
 	public String getOutput() {
 		return _output;
 	}
 
 	public int getResultCode() {
 		return _returnCode;
+	}
+
+	@Override
+	public String toString() {
+		return getFullOutput();
 	}
 
 	private final String _error;
