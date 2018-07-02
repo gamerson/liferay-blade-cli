@@ -16,29 +16,18 @@
 
 package com.liferay.blade.cli.command;
 
-import com.liferay.blade.cli.Extensions;
 import com.liferay.blade.cli.TestUtil;
 
 import java.io.File;
-
-import java.nio.file.Path;
-
-import org.easymock.EasyMock;
-import org.easymock.IExpectationSetters;
 
 import org.junit.Assert;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
 
-import org.powermock.api.easymock.PowerMock;
-import org.powermock.core.classloader.annotations.PrepareForTest;
-import org.powermock.modules.junit4.rule.PowerMockRule;
-
 /**
  * @author Christopher Bryan Boyd
  */
-@PrepareForTest({Extensions.class, UninstallExtensionCommand.class})
 public class UninstallExtensionCommandTest {
 
 	@Test
@@ -47,7 +36,7 @@ public class UninstallExtensionCommandTest {
 
 		String[] args = {"extension", "uninstall", jarName};
 
-		File extensionsDir = new File(tempFolder.getRoot(), "extensions");
+		File extensionsDir = new File(tempFolder.getRoot(), ".blade/extensions");
 
 		extensionsDir.mkdirs();
 
@@ -55,27 +44,12 @@ public class UninstallExtensionCommandTest {
 
 		Assert.assertTrue(testJar.createNewFile());
 
-		PowerMock.mockStaticPartialNice(Extensions.class, "getDirectory");
-
-		IExpectationSetters<Path> extensionsDirMethod = EasyMock.expect(Extensions.getDirectory());
-
-		Path extensionsDirPath = extensionsDir.toPath();
-
-		extensionsDirMethod.andReturn(extensionsDirPath).atLeastOnce();
-
-		PowerMock.replay(Extensions.class);
-
-		String output = TestUtil.runBlade(args);
-
-		PowerMock.verifyAll();
+		String output = TestUtil.runBlade(tempFolder.getRoot().toPath(), args);
 
 		Assert.assertTrue(output.contains(" successful") && output.contains(jarName));
 
 		Assert.assertTrue(!testJar.exists());
 	}
-
-	@Rule
-	public final PowerMockRule rule = new PowerMockRule();
 
 	@Rule
 	public final TemporaryFolder tempFolder = new TemporaryFolder();

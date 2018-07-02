@@ -124,7 +124,7 @@ public class DeployCommandTest {
 
 		String[] args = {"--base", jar.getParentFile().getAbsolutePath(), "deploy"};
 
-		String content = TestUtil.runBlade(args);
+		String content = TestUtil.runBlade(temporaryFolder.getRoot(), args);
 
 		PowerMock.verifyAll();
 
@@ -189,7 +189,7 @@ public class DeployCommandTest {
 
 		String[] args = {"--base", jar.getParentFile().getAbsolutePath(), "deploy"};
 
-		String content = TestUtil.runBlade(args);
+		String content = TestUtil.runBlade(temporaryFolder.getRoot(), args);
 
 		PowerMock.verifyAll();
 
@@ -236,9 +236,7 @@ public class DeployCommandTest {
 
 		String[] args = {"--base", war.getParentFile().getAbsolutePath(), "deploy"};
 
-		BladeTest bl = new BladeTest();
-
-		bl.run(args);
+		TestUtil.runBlade(temporaryFolder.getRoot(), args);
 
 		PowerMock.verifyAll();
 	}

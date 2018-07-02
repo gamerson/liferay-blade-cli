@@ -16,7 +16,6 @@
 
 package com.liferay.blade.cli.command;
 
-import com.liferay.blade.cli.BladeCLI;
 import com.liferay.blade.cli.BladeTest;
 import com.liferay.blade.cli.TestUtil;
 import com.liferay.blade.cli.util.FileUtil;
@@ -33,8 +32,6 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
 
-import org.powermock.reflect.Whitebox;
-
 /**
  * @author Christopher Bryan Boyd
  * @author Gregory Amerson
@@ -43,9 +40,9 @@ public class InstallExtensionCommandTest {
 
 	@Before
 	public void setUp() throws Exception {
-		Whitebox.setInternalState(BladeCLI.class, "USER_HOME_DIR", temporaryFolder.getRoot());
-
 		BladeTest bladeTest = new BladeTest();
+
+		bladeTest.setUserHomeDir(temporaryFolder.getRoot());
 
 		File cacheDir = bladeTest.getCacheDir();
 
@@ -58,7 +55,7 @@ public class InstallExtensionCommandTest {
 	public void testInstallCustomExtension() throws Exception {
 		String[] args = {"extension install", _sampleCommandJarFile.getAbsolutePath()};
 
-		String output = TestUtil.runBlade(args);
+		String output = TestUtil.runBlade(temporaryFolder.getRoot(), args);
 
 		Assert.assertTrue("Expected output to contain \"successful\"\n" + output, output.contains(" successful"));
 
@@ -75,13 +72,13 @@ public class InstallExtensionCommandTest {
 	public void testInstallCustomExtensionTwice() throws Exception {
 		String[] args = {"extension install", _sampleCommandJarFile.getAbsolutePath()};
 
-		String output = TestUtil.runBlade(args);
+		String output = TestUtil.runBlade(temporaryFolder.getRoot(), args);
 
 		Assert.assertTrue("Expected output to contain \"successful\"\n" + output, output.contains(" successful"));
 
 		Assert.assertTrue(output.contains(_sampleCommandJarFile.getName()));
 
-		output = TestUtil.runBlade(args);
+		output = TestUtil.runBlade(temporaryFolder.getRoot(), args);
 
 		Assert.assertTrue(
 			"Expected output to contain \"already exists\"\n" + output, output.contains(" already exists"));
@@ -91,7 +88,7 @@ public class InstallExtensionCommandTest {
 	public void testInstallCustomGithubExtension() throws Exception {
 		String[] args = {"extension", "install", "https://github.com/gamerson/blade-sample-command"};
 
-		String output = TestUtil.runBlade(args);
+		String output = TestUtil.runBlade(temporaryFolder.getRoot(), args);
 
 		Assert.assertTrue("Expected output to contain \"successful\"\n" + output, output.contains(" successful"));
 
@@ -110,7 +107,7 @@ public class InstallExtensionCommandTest {
 	public void testInstallUninstallCustomExtension() throws Exception {
 		String[] args = {"extension install", _sampleCommandJarFile.getAbsolutePath()};
 
-		String output = TestUtil.runBlade(args);
+		String output = TestUtil.runBlade(temporaryFolder.getRoot(), args);
 
 		Assert.assertTrue("Expected output to contain \"successful\"\n" + output, output.contains(" successful"));
 
@@ -118,7 +115,7 @@ public class InstallExtensionCommandTest {
 
 		args = new String[] {"extension uninstall", _sampleCommandJarFile.getName()};
 
-		output = TestUtil.runBlade(args);
+		output = TestUtil.runBlade(temporaryFolder.getRoot(), args);
 
 		Assert.assertTrue("Expected output to contain \"successful\"\n" + output, output.contains(" successful"));
 

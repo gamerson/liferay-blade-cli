@@ -244,7 +244,7 @@ public class InstallExtensionCommand extends BaseCommand<InstallExtensionArgs> {
 
 	private void _installExtension(Path extensionPath) throws IOException {
 		if (_isExtension(extensionPath)) {
-			Path extensionsHome = Extensions.getDirectory();
+			Path extensionsHome = Extensions.getDirectory(getBladeCLI());
 
 			Path extensionName = extensionPath.getFileName();
 

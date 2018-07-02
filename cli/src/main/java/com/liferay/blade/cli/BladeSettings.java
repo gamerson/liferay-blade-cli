@@ -29,12 +29,17 @@ import java.util.Properties;
  */
 public class BladeSettings {
 
-	public BladeSettings(File settingsFile) throws IOException {
+	public BladeSettings(BladeCLI blade, File settingsFile) throws IOException {
+		_blade = blade;
 		_settingsFile = settingsFile;
 
 		if (_settingsFile.exists()) {
 			load();
 		}
+	}
+
+	public BladeCLI getBlade() {
+		return _blade;
 	}
 
 	public String getProfileName() {
@@ -63,6 +68,7 @@ public class BladeSettings {
 		_properties.setProperty("profile.name", profileName);
 	}
 
+	private final BladeCLI _blade;
 	private final Properties _properties = new Properties();
 	private final File _settingsFile;
 

@@ -24,6 +24,7 @@ import com.liferay.blade.cli.command.BaseCommand;
 import com.liferay.blade.cli.command.BladeProfile;
 import com.liferay.blade.cli.util.FileUtil;
 
+import java.io.File;
 import java.io.IOException;
 
 import java.lang.reflect.Field;
@@ -34,6 +35,7 @@ import java.net.URLClassLoader;
 
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -85,9 +87,19 @@ public class Extensions implements AutoCloseable {
 	}
 
 	public static Path getDirectory() {
-		try {
-			Path userHomePath = BladeCLI.USER_HOME_DIR.toPath();
+		return getDirectory(Paths.get(System.getProperty("user.home")));
+	}
 
+	public static Path getDirectory(BladeCLI blade) {
+		File userHomeDir = blade.getUserHomeDir();
+
+		Path userHomePath = userHomeDir.toPath();
+
+		return getDirectory(userHomePath);
+	}
+
+	public static Path getDirectory(Path userHomePath) {
+		try {
 			Path dotBladePath = userHomePath.resolve(".blade");
 
 			if (Files.notExists(dotBladePath)) {
@@ -389,7 +401,7 @@ public class Extensions implements AutoCloseable {
 		if (_serviceLoaderClassLoader == null) {
 			Path tempExtensionsDirectory = Files.createTempDirectory("extensions");
 
-			FileUtil.copyDir(getDirectory(), tempExtensionsDirectory);
+			FileUtil.copyDir(getDirectory(_bladeSettings.getBlade()), tempExtensionsDirectory);
 
 			URL[] jarUrls = _getJarUrls(tempExtensionsDirectory);
 
