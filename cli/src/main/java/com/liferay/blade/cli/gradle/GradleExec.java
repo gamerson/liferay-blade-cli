@@ -44,9 +44,9 @@ public class GradleExec {
 
 		int returnCode = process.waitFor();
 
-		String output = StringConverter.frommInputStream(process.getInputStream());
+		String output = StringConverter.fromInputStream(process.getInputStream());
 
-		String error = StringConverter.frommInputStream(process.getErrorStream());
+		String error = StringConverter.fromInputStream(process.getErrorStream());
 
 		return new ProcessResult(returnCode, output, error);
 	}
@@ -72,8 +72,8 @@ public class GradleExec {
 
 			StringBuilder output = new StringBuilder();
 
-			String stdOutString = StringConverter.frommInputStream(process.getInputStream());
-			String stdErrString = StringConverter.frommInputStream(process.getErrorStream());
+			String stdOutString = StringConverter.fromInputStream(process.getInputStream());
+			String stdErrString = StringConverter.fromInputStream(process.getErrorStream());
 
 			output.append(stdOutString);
 			output.append(System.lineSeparator());

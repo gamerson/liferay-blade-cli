@@ -37,7 +37,7 @@ public class StringConverter {
 		}
 	}
 
-	public static String frommInputStream(InputStream inputStream) throws IOException {
+	public static String fromInputStream(InputStream inputStream) throws IOException {
 		return fromInputStream(inputStream, Charset.defaultCharset());
 	}
 
