@@ -99,6 +99,11 @@ public class BladeCLI implements Runnable {
 		err(message);
 	}
 
+	public void error(Throwable error) {
+		err(error.getMessage());
+		error.printStackTrace(err());
+	}
+
 	public File getBase() {
 		return _basePath.toFile();
 	}
@@ -204,10 +209,8 @@ public class BladeCLI implements Runnable {
 		catch (ParameterException pe) {
 			throw pe;
 		}
-		catch (Exception e) {
-			error(e.getMessage());
-
-			e.printStackTrace(err());
+		catch (Throwable e) {
+			error(e);
 		}
 	}
 
@@ -337,6 +340,9 @@ public class BladeCLI implements Runnable {
 				thread.setContextClassLoader(command.getClassLoader());
 
 				command.execute();
+			}
+			catch (Throwable e) {
+				throw e;
 			}
 			finally {
 				thread.setContextClassLoader(currentClassLoader);

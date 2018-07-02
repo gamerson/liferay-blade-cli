@@ -14,47 +14,31 @@
  * limitations under the License.
  */
 
-package com.liferay.blade.cli.gradle;
+package com.liferay.blade.cli;
+
+import java.io.ByteArrayOutputStream;
+import java.io.PrintStream;
+
+import java.nio.charset.Charset;
 
 import java.util.function.Supplier;
 
 /**
  * @author Christopher Bryan Boyd
  */
-public class ProcessResult implements Supplier<String> {
+public class StringPrintStream extends PrintStream implements Supplier<String> {
 
-	public static String getProcessResultOutput(ProcessResult processResult) {
-		StringBuilder sb = new StringBuilder();
-
-		sb.append(processResult.getError());
-		sb.append(System.lineSeparator());
-		sb.append(processResult.getOutput());
-		sb.append(System.lineSeparator());
-
-		return sb.toString();
+	public static StringPrintStream newInstance() {
+		return newInstance(Charset.defaultCharset());
 	}
 
-	public ProcessResult(int returnCode, String output, String error) {
-		_returnCode = returnCode;
-		_output = output;
-		_error = error;
+	public static StringPrintStream newInstance(Charset charset) {
+		return new StringPrintStream(new ByteArrayOutputStream(), charset);
 	}
 
 	@Override
 	public String get() {
-		return getProcessResultOutput(this);
-	}
-
-	public String getError() {
-		return _error;
-	}
-
-	public String getOutput() {
-		return _output;
-	}
-
-	public int getResultCode() {
-		return _returnCode;
+		return new String(_outputStream.toByteArray(), _charset);
 	}
 
 	@Override
@@ -62,8 +46,14 @@ public class ProcessResult implements Supplier<String> {
 		return get();
 	}
 
-	private final String _error;
-	private final String _output;
-	private final int _returnCode;
+	private StringPrintStream(ByteArrayOutputStream outputStream, Charset charset) {
+		super(outputStream);
+
+		_outputStream = outputStream;
+		_charset = charset;
+	}
+
+	private Charset _charset;
+	private ByteArrayOutputStream _outputStream;
 
 }
