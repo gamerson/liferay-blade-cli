@@ -21,6 +21,16 @@ package com.liferay.blade.cli.gradle;
  */
 public class ProcessResult {
 
+	public ProcessResult(int returnCode, String output, String error) {
+		_returnCode = returnCode;
+		_output = output;
+		_error = error;
+	}
+
+	public String getError() {
+		return _error;
+	}
+
 	public String getFullOutput() {
 		StringBuilder sb = new StringBuilder();
 
@@ -30,16 +40,6 @@ public class ProcessResult {
 		sb.append(System.lineSeparator());
 
 		return sb.toString();
-	}
-
-	public ProcessResult(int returnCode, String output, String error) {
-		_returnCode = returnCode;
-		_output = output;
-		_error = error;
-	}
-
-	public String getError() {
-		return _error;
 	}
 
 	public String getOutput() {

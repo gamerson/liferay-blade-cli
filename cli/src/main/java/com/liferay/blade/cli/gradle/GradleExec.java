@@ -23,6 +23,7 @@ import com.liferay.blade.cli.util.BladeUtil;
 
 import java.io.File;
 import java.io.PrintStream;
+
 import java.util.NoSuchElementException;
 
 /**

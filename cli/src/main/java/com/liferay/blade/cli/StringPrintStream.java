@@ -18,6 +18,7 @@ package com.liferay.blade.cli;
 
 import java.io.ByteArrayOutputStream;
 import java.io.PrintStream;
+
 import java.nio.charset.Charset;
 
 /**

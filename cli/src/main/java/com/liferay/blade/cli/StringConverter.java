@@ -28,6 +28,10 @@ import java.nio.charset.Charset;
  */
 public class StringConverter {
 
+	public static String fromInputStream(InputStream inputStream) throws IOException {
+		return fromInputStream(inputStream, Charset.defaultCharset());
+	}
+
 	public static String fromInputStream(InputStream inputStream, Charset charset) throws IOException {
 		try (ByteArrayOutputStream outputStream = _getOutputStream(inputStream)) {
 			return new String(outputStream.toByteArray(), charset);
@@ -35,10 +39,6 @@ public class StringConverter {
 		finally {
 			inputStream.close();
 		}
-	}
-
-	public static String fromInputStream(InputStream inputStream) throws IOException {
-		return fromInputStream(inputStream, Charset.defaultCharset());
 	}
 
 	private static ByteArrayOutputStream _getOutputStream(InputStream inputStream) {
