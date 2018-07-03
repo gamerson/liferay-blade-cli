@@ -248,7 +248,7 @@ public class InstallExtensionCommand extends BaseCommand<InstallExtensionArgs> {
 		Path extensionName = extensionPath.getFileName();
 
 		if (_isExtension(extensionPath)) {
-			Path extensionsHome = Extensions.getDirectory();
+			Path extensionsHome = Extensions.getDirectory(getBladeCLI().getUserHomeDir());
 
 			Path extensionInstallPath = extensionsHome.resolve(extensionName);
 

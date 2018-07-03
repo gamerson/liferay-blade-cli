@@ -22,6 +22,8 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.InputStreamReader;
 
+import java.nio.file.Path;
+
 import org.codehaus.plexus.util.FileUtils;
 
 import org.junit.Assert;
@@ -30,6 +32,10 @@ import org.junit.Assert;
  * @author Andy Wu
  */
 public class MavenRunnerUtil {
+
+	public static void executeGoals(Path projectPath, String[] goals) {
+		executeGoals(projectPath.toString(), goals);
+	}
 
 	public static void executeGoals(String projectPath, String[] goals) {
 		Assert.assertNotNull(goals);
@@ -92,6 +98,10 @@ public class MavenRunnerUtil {
 
 		Assert.assertEquals("Maven process returned:\n" + output.toString(), 0, exitValue);
 		Assert.assertTrue(buildSuccess);
+	}
+
+	public static void verifyBuildOutput(Path projectPath, String fileName) {
+		verifyBuildOutput(projectPath.toString(), fileName);
 	}
 
 	public static void verifyBuildOutput(String projectPath, String fileName) {

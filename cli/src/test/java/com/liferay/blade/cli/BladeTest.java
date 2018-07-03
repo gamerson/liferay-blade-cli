@@ -19,6 +19,8 @@ package com.liferay.blade.cli;
 import java.io.File;
 import java.io.PrintStream;
 
+import java.nio.file.Path;
+
 /**
  * @author Gregory Amerson
  */
@@ -62,6 +64,14 @@ public class BladeTest extends BladeCLI {
 		else {
 			return super.getBase();
 		}
+	}
+
+	public void setUserHomeDir(File homeDir) {
+		super.setUserHomeDir(homeDir);
+	}
+
+	public void setUserHomeDir(Path homeDir) {
+		super.setUserHomeDir(homeDir.toFile());
 	}
 
 	private File _base;

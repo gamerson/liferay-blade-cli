@@ -45,6 +45,7 @@ import java.net.URL;
 import java.nio.file.DirectoryStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -230,7 +231,11 @@ public class BladeUtil {
 	}
 
 	public static Map<String, String> getTemplates() throws Exception {
-		Path extensions = Extensions.getDirectory();
+		return getTemplates(Paths.get(System.getProperty("user.home")));
+	}
+
+	public static Map<String, String> getTemplates(Path userHomePath) throws Exception {
+		Path extensions = Extensions.getDirectory(userHomePath);
 
 		Collection<File> templatesFiles = new HashSet<>();
 
@@ -374,6 +379,10 @@ public class BladeUtil {
 		catch (Exception e) {
 			return false;
 		}
+	}
+
+	public static boolean isWorkspace(Path dir) {
+		return isWorkspace(dir.toFile());
 	}
 
 	public static boolean isZipValid(File file) {
@@ -580,6 +589,10 @@ public class BladeUtil {
 				}
 			}
 		}
+	}
+
+	public static void unzip(Path srcFilePath, Path destDirPath) throws IOException {
+		unzip(srcFilePath.toFile(), destDirPath.toFile());
 	}
 
 	private static boolean _canConnect(InetSocketAddress localAddress, InetSocketAddress remoteAddress) {
