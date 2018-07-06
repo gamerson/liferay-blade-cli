@@ -17,6 +17,7 @@
 package com.liferay.blade.cli;
 
 import java.io.ByteArrayOutputStream;
+import java.io.InputStream;
 import java.io.PrintStream;
 
 import java.nio.charset.Charset;
@@ -27,6 +28,15 @@ import java.util.function.Supplier;
  * @author Christopher Bryan Boyd
  */
 public class StringPrintStream extends PrintStream implements Supplier<String> {
+
+	public static StringPrintStream fromInputStream(InputStream inputStream) {
+		StringPrintStream stringPrintStream = new StringPrintStream(
+			new ByteArrayOutputStream(), Charset.defaultCharset());
+
+		StringConverter.readInputStreamToPrintStream(inputStream, stringPrintStream);
+
+		return stringPrintStream;
+	}
 
 	public static StringPrintStream newInstance() {
 		return newInstance(Charset.defaultCharset());

@@ -17,8 +17,8 @@
 package com.liferay.blade.cli.command;
 
 import com.liferay.blade.cli.BladeCLI;
+import com.liferay.blade.cli.BladeIOTest;
 import com.liferay.blade.cli.BladeTest;
-import com.liferay.blade.cli.TestUtil;
 import com.liferay.blade.cli.gradle.GradleExec;
 import com.liferay.blade.cli.gradle.ProcessResult;
 import com.liferay.blade.cli.util.FileUtil;
@@ -63,12 +63,15 @@ public class GradlePrintErrorTest {
 	public void testGradleError() throws Exception {
 		String[] args = {"extension", "install", "https://github.com/gamerson/blade-sample-command"};
 
-		PowerMock.expectNew(
-			GradleExec.class, EasyMock.isA(BladeTest.class)).andReturn(new GradleExecSpecial(new BladeTest()));
+		BladeIOTest blade = BladeIOTest.getBlade();
+
+		PowerMock.expectNew(GradleExec.class, EasyMock.isA(BladeTest.class)).andReturn(new GradleExecSpecial(blade));
 
 		PowerMock.replay(GradleExec.class);
 
-		String output = TestUtil.runBlade(false, args);
+		Assert.assertTrue(blade.runBlade(args));
+
+		String output = blade.getOutput() + System.lineSeparator() + blade.getError();
 
 		boolean buildFailedBoolean = output.contains("BUILD FAILED");
 

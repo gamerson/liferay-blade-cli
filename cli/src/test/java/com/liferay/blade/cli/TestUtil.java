@@ -26,9 +26,6 @@ import java.nio.file.SimpleFileVisitor;
 import java.nio.file.StandardOpenOption;
 import java.nio.file.attribute.BasicFileAttributes;
 
-import java.util.Optional;
-import java.util.Scanner;
-
 import org.gradle.testkit.runner.BuildTask;
 
 import org.junit.Assert;
@@ -63,27 +60,32 @@ public class TestUtil {
 	}
 
 	public static String runBlade(boolean checkAssert, String... args) throws Exception {
-		StringPrintStream outputStream = StringPrintStream.newInstance();
+		BladeIOTest blade = BladeIOTest.getBlade();
 
-		StringPrintStream errorStream = StringPrintStream.newInstance();
+		boolean errors = blade.runBlade(args);
 
-		new BladeTest(outputStream, errorStream).run(args);
+		StringBuilder sb = new StringBuilder();
+		String output = blade.getOutput();
 
-		String error = errorStream.toString();
-
-		Optional<StringBuilder> errorStringBuilderOptional = _getErrorString(error);
-
-		if (checkAssert && errorStringBuilderOptional.isPresent()) {
-			Assert.fail(errorStringBuilderOptional.get().toString());
+		if (output != null) {
+			sb.append(output);
 		}
 
-		String content = outputStream.toString();
+		String error = blade.getError();
 
-		if (errorStringBuilderOptional.isPresent()) {
-			content = content + errorStringBuilderOptional.get();
+		if (error != null) {
+			if (errors && checkAssert) {
+				Assert.fail("Errors were encountered while running blade: " + System.lineSeparator() + error);
+			}
+
+			if (sb.length() > 0) {
+				sb.append(System.lineSeparator());
+			}
+
+			sb.append(error);
 		}
 
-		return content;
+		return sb.toString();
 	}
 
 	public static String runBlade(String... args) throws Exception {
@@ -116,37 +118,6 @@ public class TestUtil {
 		GradleRunnerUtil.verifyGradleRunnerOutput(buildTask);
 
 		GradleRunnerUtil.verifyBuildOutput(projectPath, outputFileName);
-	}
-
-	private static Optional<StringBuilder> _getErrorString(String error) {
-		Optional<StringBuilder> errorStringBuilderOptional = Optional.empty();
-
-		try (Scanner scanner = new Scanner(error)) {
-			while (scanner.hasNextLine()) {
-				String line = scanner.nextLine();
-
-				if (line.startsWith("SLF4J:")) {
-					continue;
-				}
-
-				StringBuilder sb;
-
-				if (!errorStringBuilderOptional.isPresent()) {
-					errorStringBuilderOptional = Optional.of(new StringBuilder());
-
-					sb = errorStringBuilderOptional.get();
-
-					sb.append("Encountered error at line: " + line + System.lineSeparator());
-				}
-				else {
-					sb = errorStringBuilderOptional.get();
-
-					sb.append(line + System.lineSeparator());
-				}
-			}
-		}
-
-		return errorStringBuilderOptional;
 	}
 
 }

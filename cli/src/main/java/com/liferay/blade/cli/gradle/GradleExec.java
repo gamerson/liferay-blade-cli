@@ -45,9 +45,9 @@ public class GradleExec {
 
 		int returnCode = process.waitFor();
 
-		String output = StringConverter.frommInputStream(process.getInputStream());
+		String output = outputStream.get();
 
-		String error = StringConverter.frommInputStream(process.getErrorStream());
+		String error = errorStream.get();
 
 		return new ProcessResult(returnCode, output, error);
 	}
