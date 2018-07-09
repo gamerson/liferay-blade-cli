@@ -46,6 +46,7 @@ import org.fusesource.jansi.AnsiConsole;
 
 /**
  * @author Gregory Amerson
+ * @author John Doe
  * @author David Truong
  */
 public class BladeCLI implements Runnable {
