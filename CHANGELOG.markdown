@@ -1,6 +1,19 @@
 # Liferay Blade CLI Change Log
 
-## 3.0.0 - _unreleased, scheduled for inclusion_
+## 3.1.1 - Unreleased -
+
+- [BLADE-211] : Add Changelog using changelog plugin
+
+## 3.1.0 - 2018-07-05 - 570a5b7ae626ee0e7bf8751656104c5e33f8512b
+
+- [BLADE-214] : Create a `blade-extension` blade sample project, demonstrating how blade may be extended with custom commands
+- [BLADE-231] : Blade Custom Project Template Support
+- [BLADE-244] : As a developer, I would like my tomcat logs to be colorized
+- [BLADE-246] : create project from service template doesn't show that -s <service> is required
+- [BLADE-250] : extension install fails if you install same extension twice
+- [BLADE-251] : `blade gw` sometimes has trouble finding gradlew
+
+## 3.0.0 - 2018-03-30 - 52ac672f21e8503f4371b6dbc403a9527582eff4
 
 ### Added
 - [BLADE-190]: As a developer, I would like blade to support deploying wars to Liferay
