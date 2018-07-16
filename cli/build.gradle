@@ -142,8 +142,8 @@ publishing {
 }
 
 task downloadPortal(type: Download) {
-	src 'https://releases-cdn.liferay.com/portal/7.0.3-ga4/liferay-ce-portal-tomcat-7.0-ga4-20170613175008905.zip'
-	dest new File("${System.getProperty('user.home')}/.liferay/bundles", 'liferay-ce-portal-tomcat-7.0-ga4-20170613175008905.zip')
+	src 'https://releases-cdn.liferay.com/portal/7.1.0-ga1/liferay-ce-portal-tomcat-7.1.0-ga1-20180703012531655.zip'
+	dest new File("${System.getProperty('user.home')}/.liferay/bundles", 'liferay-ce-portal-tomcat-7.1.0-ga1-20180703012531655.zip')
 	onlyIfNewer true
 }
 
@@ -176,7 +176,7 @@ test {
 	dependsOn createDepsZip, createWrapperZip, unzipPortal
 
 	systemProperty 'buildDir', "${buildDir}"
-	systemProperty 'liferay.home', "${buildDir}/liferay-ce-portal-7.0-ga4"
+	systemProperty 'liferay.home', "${buildDir}/liferay-ce-portal-tomcat-7.1.0-ga1"
 
 	project(':extensions:sample-command').afterEvaluate { project ->
 		dependsOn project.jar
