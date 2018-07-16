@@ -211,7 +211,8 @@ public class ServerStartCommand extends BaseCommand<ServerStartArgs> {
 
 		Path binPath = dir.resolve("bin");
 
-		Process process = BladeUtil.startProcess(bladeCLI, executable + debug, binPath.toFile(), enviroment, false);
+		Process process = BladeUtil.startProcess(
+			executable + debug, binPath.toFile(), enviroment, bladeCLI.out(), bladeCLI.err());
 
 		process.waitFor();
 	}
@@ -254,7 +255,7 @@ public class ServerStartCommand extends BaseCommand<ServerStartArgs> {
 		Path binPath = dir.resolve("bin");
 
 		final Process process = BladeUtil.startProcess(
-			bladeCLI, executable + startCommand, binPath.toFile(), enviroment, false);
+			executable + startCommand, binPath.toFile(), enviroment, bladeCLI.out(), bladeCLI.err());
 
 		Runtime runtime = Runtime.getRuntime();
 
@@ -274,8 +275,7 @@ public class ServerStartCommand extends BaseCommand<ServerStartArgs> {
 			});
 
 		if (serverStartArgs.isBackground() && serverStartArgs.isTail()) {
-			Process tailProcess = BladeUtil.startProcess(
-				bladeCLI, "tail -f catalina.out", logsPath.toFile(), enviroment);
+			Process tailProcess = BladeUtil.startProcess("tail -f catalina.out", logsPath.toFile(), enviroment);
 
 			tailProcess.waitFor();
 		}
