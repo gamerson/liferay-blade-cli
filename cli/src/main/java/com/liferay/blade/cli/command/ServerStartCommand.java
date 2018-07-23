@@ -155,19 +155,20 @@ public class ServerStartCommand extends BaseCommand<ServerStartArgs> {
 			return;
 		}
 
-		Stream<Path> stream = Files.find(
-			dir, Integer.MAX_VALUE,
-			(file, bbfa) -> {
-				Path fileName = file.getFileName();
+		Optional<Path> server = Optional.empty();
 
-				String fileNameString = String.valueOf(fileName);
+		try (Stream<Path> stream = Files.find(
+				dir, Integer.MAX_VALUE,
+				(file, bbfa) -> {
+					Path fileName = file.getFileName();
 
-				return fileNameString.startsWith(serverType) && Files.isDirectory(file);
-			});
+					String fileNameString = String.valueOf(fileName);
 
-		Optional<Path> server = stream.findFirst();
+					return fileNameString.startsWith(serverType) && Files.isDirectory(file);
+				})) {
 
-		stream.close();
+			server = stream.findFirst();
+		}
 
 		boolean success = false;
 
