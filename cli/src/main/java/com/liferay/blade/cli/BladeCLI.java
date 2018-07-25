@@ -98,6 +98,11 @@ public class BladeCLI implements Runnable {
 		err(message);
 	}
 
+	public void error(Throwable error) {
+		err(error.getMessage());
+		error.printStackTrace(err());
+	}
+
 	public File getBase() {
 		return _basePath.toFile();
 	}
