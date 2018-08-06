@@ -30,8 +30,8 @@ public class ServerCommandsTest {
 
 	@Test
 	public void testServerStartCommandExists() throws Exception {
-		Assert.assertTrue(_commandExists("server", "start"));
 		Assert.assertTrue(_commandExists("server start"));
+		Assert.assertTrue(_commandExists("server", "start"));
 		Assert.assertFalse(_commandExists("server", "startx"));
 		Assert.assertFalse(_commandExists("server startx"));
 		Assert.assertFalse(_commandExists("serverx", "start"));
