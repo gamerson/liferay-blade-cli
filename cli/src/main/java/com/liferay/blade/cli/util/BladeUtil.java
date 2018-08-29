@@ -320,6 +320,7 @@ public class BladeUtil {
 
 			});
 
+		t.setDaemon(true);
 		t.start();
 	}
 
@@ -349,13 +350,13 @@ public class BladeUtil {
 		return false;
 	}
 
-	public static void setShell(ProcessBuilder processBuilder, String cmd) {
+	public static void setShell(ProcessBuilder processBuilder, String cmd, boolean background) {
 		Map<String, String> env = processBuilder.environment();
 
 		List<String> commands = new ArrayList<>();
 
 		if (isWindows()) {
-			commands.add("cmd.exe");
+			commands.add("CMD");
 			commands.add("/c");
 		}
 		else {
@@ -365,7 +366,12 @@ public class BladeUtil {
 			commands.add("-c");
 		}
 
-		commands.add(cmd);
+		if (isWindows() && background) {
+			commands.add("START \"\" " + cmd);
+		}
+		else {
+			commands.add(cmd);
+		}
 
 		processBuilder.command(commands);
 	}
@@ -390,7 +396,15 @@ public class BladeUtil {
 			String command, File dir, Map<String, String> environment, PrintStream out, PrintStream err)
 		throws Exception {
 
-		ProcessBuilder processBuilder = _buildProcessBuilder(command, dir, environment, false);
+		return startProcess(command, dir, environment, out, err, false);
+	}
+
+	public static Process startProcess(
+			String command, File dir, Map<String, String> environment, PrintStream out, PrintStream err,
+			boolean background)
+		throws Exception {
+
+		ProcessBuilder processBuilder = _buildProcessBuilder(command, dir, environment, false, background);
 
 		Process process = processBuilder.start();
 
@@ -484,6 +498,12 @@ public class BladeUtil {
 	private static ProcessBuilder _buildProcessBuilder(
 		String command, File dir, Map<String, String> environment, boolean inheritIO) {
 
+		return _buildProcessBuilder(command, dir, environment, inheritIO, false);
+	}
+
+	private static ProcessBuilder _buildProcessBuilder(
+		String command, File dir, Map<String, String> environment, boolean inheritIO, boolean background) {
+
 		ProcessBuilder processBuilder = new ProcessBuilder();
 
 		Map<String, String> env = processBuilder.environment();
@@ -496,7 +516,7 @@ public class BladeUtil {
 			processBuilder.directory(dir);
 		}
 
-		setShell(processBuilder, command);
+		setShell(processBuilder, command, background);
 
 		if (inheritIO) {
 			processBuilder.inheritIO();
