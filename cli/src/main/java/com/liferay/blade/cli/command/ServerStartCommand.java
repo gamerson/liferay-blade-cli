@@ -261,8 +261,8 @@ public class ServerStartCommand extends BaseCommand<ServerStartArgs> {
 
 				tailProcess.waitFor();
 			}
-		} else
-		{
+		}
+		else {
 			try {
 				process.waitFor();
 			}
