@@ -248,33 +248,27 @@ public class ServerStartCommand extends BaseCommand<ServerStartArgs> {
 		Path binPath = dir.resolve("bin");
 
 		final Process process = BladeUtil.startProcess(
-			executable + startCommand, binPath.toFile(), enviroment, bladeCLI.out(), bladeCLI.err());
+			executable + startCommand, binPath.toFile(), enviroment, bladeCLI.out(), bladeCLI.err(),
+			serverStartArgs.isBackground());
 
 		_processes.add(process);
 
-		Runtime runtime = Runtime.getRuntime();
+		if (serverStartArgs.isBackground()) {
+			if (serverStartArgs.isTail()) {
+				Process tailProcess = BladeUtil.startProcess("tail -f catalina.out", logsPath.toFile(), enviroment);
 
-		runtime.addShutdownHook(
-			new Thread() {
+				_processes.add(tailProcess);
 
-				@Override
-				public void run() {
-					try {
-						process.waitFor();
-					}
-					catch (InterruptedException ie) {
-						bladeCLI.error("Could not wait for process to end before shutting down");
-					}
-				}
-
-			});
-
-		if (serverStartArgs.isBackground() && serverStartArgs.isTail()) {
-			Process tailProcess = BladeUtil.startProcess("tail -f catalina.out", logsPath.toFile(), enviroment);
-
-			_processes.add(tailProcess);
-
-			tailProcess.waitFor();
+				tailProcess.waitFor();
+			}
+		} else
+		{
+			try {
+				process.waitFor();
+			}
+			catch (InterruptedException ie) {
+				bladeCLI.error("Could not wait for process to end before shutting down");
+			}
 		}
 	}
 
