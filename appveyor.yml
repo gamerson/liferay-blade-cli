@@ -10,7 +10,7 @@ install:
   - gradlew.bat --version
 
 build_script:
-  - gradlew.bat -Dmaven.repo.local=mavenRepo --continue :build :publishToMavenLocal
+  - gradlew.bat -Dmaven.repo.local=mavenRepo --continue build publishToMavenLocal
 
 on_success:
   - git status
