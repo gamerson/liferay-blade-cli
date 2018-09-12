@@ -105,7 +105,9 @@ Private-Package:\
 	org.slf4j.event;-split-package:=merge-first,\
 	org.slf4j.helpers;-split-package:=merge-first,\
 	org.slf4j.impl,\
-	org.slf4j.spi;-split-package:=merge-first
+	org.slf4j.spi;-split-package:=merge-first,\
+	\
+	org.zeroturnaround.*
 #aether-deps:\
 	#org.apache.commons.logging,\
 	#org.apache.commons.logging.impl,\

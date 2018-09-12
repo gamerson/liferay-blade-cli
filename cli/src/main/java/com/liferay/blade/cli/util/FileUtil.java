@@ -18,7 +18,9 @@ package com.liferay.blade.cli.util;
 
 import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileFilter;
 import java.io.FileOutputStream;
+import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -35,6 +37,7 @@ import java.nio.charset.Charset;
 import java.nio.file.FileVisitResult;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.nio.file.SimpleFileVisitor;
 import java.nio.file.StandardCopyOption;
 import java.nio.file.StandardOpenOption;
@@ -103,6 +106,38 @@ public class FileUtil {
 		}
 	}
 
+	public static boolean exists(File file) {
+		if ((file != null) && file.exists()) {
+			return true;
+		}
+
+		return false;
+	}
+
+	public static boolean exists(Path path) {
+		if (path != null) {
+			File file = path.toFile();
+
+			if (file.exists()) {
+				return true;
+			}
+		}
+
+		return false;
+	}
+
+	public static File[] getDirectories(File directory) {
+		return directory.listFiles(
+			new FileFilter() {
+
+				@Override
+				public boolean accept(File file) {
+					return file.isDirectory();
+				}
+
+			});
+	}
+
 	public static String getManifestProperty(File file, String name) throws IOException {
 		try (JarFile jarFile = new JarFile(file)) {
 			Manifest manifest = jarFile.getManifest();
@@ -113,8 +148,56 @@ public class FileUtil {
 		}
 	}
 
+	public static boolean notExists(File file) {
+		if ((file == null) || !file.exists()) {
+			return true;
+		}
+
+		return false;
+	}
+
+	public static boolean notExists(Path filePath) {
+		if (filePath == null) {
+			return false;
+		}
+
+		File file = filePath.toFile();
+
+		if ((file == null) || !file.exists()) {
+			return true;
+		}
+
+		return false;
+	}
+
 	public static String read(File file) throws IOException {
 		return _collect(file.toPath(), _UTF_8);
+	}
+
+	public static String readContents(File file, boolean includeNewlines) {
+		if (notExists(file)) {
+			return null;
+		}
+
+		StringBuffer contents = new StringBuffer();
+
+		try (FileReader fileReader = new FileReader(file);
+			BufferedReader bufferedReader = new BufferedReader(fileReader)) {
+
+			String line;
+
+			while ((line = bufferedReader.readLine()) != null) {
+				contents.append(line);
+
+				if (includeNewlines) {
+					contents.append(System.getProperty("line.separator"));
+				}
+			}
+		}
+		catch (Exception e) {
+		}
+
+		return contents.toString();
 	}
 
 	public static void unzip(File srcFile, File destDir) throws IOException {
@@ -241,6 +324,22 @@ public class FileUtil {
 				zipInputStream.closeEntry();
 			}
 		}
+	}
+
+	public static boolean verifyPath(String verifyPath) {
+		if (verifyPath == null) {
+			return false;
+		}
+
+		Path verifyLocation = Paths.get(verifyPath);
+
+		File verifyFile = verifyLocation.toFile();
+
+		if (exists(verifyFile) && verifyFile.isDirectory()) {
+			return true;
+		}
+
+		return false;
 	}
 
 	private static String _collect(Path path, Charset encoding) throws IOException {

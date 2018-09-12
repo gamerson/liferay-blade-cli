@@ -24,8 +24,10 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.io.PrintStream;
+import java.io.Reader;
 
 import java.net.HttpURLConnection;
 import java.net.InetSocketAddress;
@@ -311,6 +313,19 @@ public class BladeUtil {
 		}
 	}
 
+	public static Properties loadProperties(File f) {
+		Properties p = new Properties();
+
+		try (InputStream stream = Files.newInputStream(f.toPath())) {
+			p.load(stream);
+
+			return p;
+		}
+		catch (IOException ioe) {
+			return null;
+		}
+	}
+
 	public static String read(File file) throws IOException {
 		return new String(Files.readAllBytes(file.toPath()));
 	}
@@ -335,6 +350,39 @@ public class BladeUtil {
 			});
 
 		t.start();
+	}
+
+	public static String readStreamToString(InputStream contents) throws IOException {
+		return readStreamToString(contents, true);
+	}
+
+	public static String readStreamToString(InputStream contents, boolean closeStream) throws IOException {
+		if (contents == null) {
+			return null;
+		}
+
+		char[] buffer = new char[0x10000];
+
+		StringBuilder out = new StringBuilder();
+
+		try (Reader in = new InputStreamReader(contents, "UTF-8")) {
+			int read;
+
+			do {
+				read = in.read(buffer, 0, buffer.length);
+
+				if (read > 0) {
+					out.append(buffer, 0, read);
+				}
+			}
+			while (read >= 0);
+		}
+
+		if (closeStream) {
+			contents.close();
+		}
+
+		return out.toString();
 	}
 
 	public static boolean searchZip(Path path, Predicate<String> test) {

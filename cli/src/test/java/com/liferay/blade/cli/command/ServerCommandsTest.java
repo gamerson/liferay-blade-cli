@@ -90,6 +90,21 @@ public class ServerCommandsTest {
 	}
 
 	@Test
+	public void testServerStatusCommands() throws Exception {
+		TestUtil.runBlade(new String[] {"--base", _workspaceDir.getPath(), "init", "-v", "7.1"});
+
+		TestUtil.runBlade(new String[] {"--base", _workspaceDir.getPath(), "gw", "initBundle"});
+
+		TestUtil.runBlade(new String[] {"--base", _workspaceDir.getPath(), "server", "start", "-b"});
+
+		_testServerStatus(true, "300");
+
+		TestUtil.runBlade(new String[] {"--base", _workspaceDir.getPath(), "server", "stop"});
+
+		_testServerStatus(false, "5");
+	}
+
+	@Test
 	public void testServerStopCommandExists() throws Exception {
 		Assert.assertTrue(_commandExists("server", "stop"));
 		Assert.assertTrue(_commandExists("server stop"));
@@ -175,6 +190,41 @@ public class ServerCommandsTest {
 		pidProcess.waitFor(5, TimeUnit.SECONDS);
 
 		Assert.assertFalse("Expected server start process to be destroyed.", pidProcess.isAlive());
+	}
+
+	private void _testServerStatus(boolean expectedServerStatus, String timeout) throws Exception {
+		String[] args = {"--base", _workspaceDir.getPath(), "server", "status", "-t", timeout};
+
+		StringPrintStream outputPrintStream = StringPrintStream.newInstance();
+
+		StringPrintStream errorPrintStream = StringPrintStream.newInstance();
+
+		BladeTest bladeTest = new BladeTest(outputPrintStream, errorPrintStream);
+
+		Thread thread = new Thread() {
+
+			@Override
+			public void run() {
+				try {
+					bladeTest.run(args);
+				}
+				catch (Exception e) {
+				}
+			}
+
+		};
+
+		thread.setDaemon(true);
+
+		thread.run();
+
+		Thread.sleep(1);
+
+		ServerStatusCommand serverStatusCommand = (ServerStatusCommand)bladeTest.getCommand();
+
+		boolean serverStatus = serverStatusCommand.getServerStatus();
+
+		Assert.assertEquals("Expected server status matched.", expectedServerStatus, serverStatus);
 	}
 
 	private File _workspaceDir = null;
