@@ -18,6 +18,7 @@ Private-Package:\
 	org.apache.commons.lang3,\
 	org.apache.commons.lang3.exception,\
 	org.apache.commons.lang3.text,\
+	org.apache.commons.lang3.math,\
 	\
 	org.gradle,\
 	org.gradle.api,\
@@ -105,7 +106,9 @@ Private-Package:\
 	org.slf4j.event;-split-package:=merge-first,\
 	org.slf4j.helpers;-split-package:=merge-first,\
 	org.slf4j.impl,\
-	org.slf4j.spi;-split-package:=merge-first
+	org.slf4j.spi;-split-package:=merge-first,\
+	\
+	org.zeroturnaround.*
 #aether-deps:\
 	#org.apache.commons.logging,\
 	#org.apache.commons.logging.impl,\

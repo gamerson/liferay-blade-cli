@@ -18,12 +18,22 @@ package com.liferay.blade.cli.util;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.List;
 
 /**
  * @author Gregory Amerson
+ * @author Simon Jiang
  */
 public class ListUtil {
+
+	public static boolean contains(Collection<?> collection, Object o) {
+		if ((collection == null) || (o == null)) {
+			return false;
+		}
+
+		return collection.contains(o);
+	}
 
 	public static <E> List<E> fromArray(E[] array) {
 		if (ArrayUtil.isEmpty(array)) {
@@ -31,6 +41,34 @@ public class ListUtil {
 		}
 
 		return new ArrayList<>(Arrays.asList(array));
+	}
+
+	public static boolean isEmpty(Collection<?> collection) {
+		if ((collection == null) || collection.isEmpty()) {
+			return true;
+		}
+
+		return false;
+	}
+
+	public static boolean isEmpty(Object[] array) {
+		if ((array == null) || (array.length == 0)) {
+			return true;
+		}
+
+		return false;
+	}
+
+	public static boolean isNotEmpty(Collection<?> collection) {
+		return !isEmpty(collection);
+	}
+
+	public static boolean isNotEmpty(Object[] array) {
+		return !isEmpty(array);
+	}
+
+	public static boolean notContains(Collection<?> collection, Object o) {
+		return !contains(collection, o);
 	}
 
 }
