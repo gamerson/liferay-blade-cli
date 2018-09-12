@@ -16,6 +16,13 @@
 
 package com.liferay.blade.cli.util;
 
+import com.liferay.blade.server.PortalBundle;
+import com.liferay.blade.server.PortalBundleFactory;
+import com.liferay.blade.server.PortalJBossBundleFactory;
+import com.liferay.blade.server.PortalJBossEapBundleFactory;
+import com.liferay.blade.server.PortalTomcatBundleFactory;
+import com.liferay.blade.server.PortalWildFlyBundleFactory;
+
 import java.io.IOException;
 
 import java.nio.file.Files;
@@ -51,7 +58,7 @@ public class ServerUtil {
 					match = Files.exists(executable);
 				}
 				else if ("jboss".equals(serverType) || "wildfly".equals(serverType)) {
-					Path executable = path.resolve(Paths.get("bin", getJBossWildflyExecutable()));
+					Path executable = path.resolve(Paths.get("bin", getJBossWildflyStartExecutable()));
 
 					match = Files.exists(executable);
 				}
@@ -65,7 +72,7 @@ public class ServerUtil {
 		}
 	}
 
-	public static String getJBossWildflyExecutable() {
+	public static String getJBossWildflyStartExecutable() {
 		String executable = "./standalone.sh";
 
 		if (BladeUtil.isWindows()) {
@@ -73,6 +80,28 @@ public class ServerUtil {
 		}
 
 		return executable;
+	}
+
+	public static String getJBossWildflyStopExecutable() {
+		String executable = "./jboss-cli.sh";
+
+		if (BladeUtil.isWindows()) {
+			executable = "jboss-cli.bat";
+		}
+
+		return executable;
+	}
+
+	public static PortalBundle getPortalBundle(Path bundleLocation) {
+		for (PortalBundleFactory factory : _bundleFactories) {
+			Path canCreateFromPath = factory.canCreateFromPath(bundleLocation);
+
+			if (canCreateFromPath != null) {
+				return factory.create(canCreateFromPath);
+			}
+		}
+
+		return null;
 	}
 
 	public static String getTomcatExecutable() {
@@ -84,5 +113,10 @@ public class ServerUtil {
 
 		return executable;
 	}
+
+	private static PortalBundleFactory[] _bundleFactories = {
+		new PortalTomcatBundleFactory(), new PortalWildFlyBundleFactory(), new PortalJBossBundleFactory(),
+		new PortalJBossEapBundleFactory()
+	};
 
 }
