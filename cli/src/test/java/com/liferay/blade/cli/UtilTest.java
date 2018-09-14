@@ -24,10 +24,16 @@ import com.liferay.blade.cli.util.WorkspaceUtil;
 
 import java.io.File;
 
+import java.nio.file.FileSystem;
+import java.nio.file.FileSystems;
 import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 
+import java.util.Iterator;
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.Properties;
 
 import org.junit.Assert;
@@ -105,6 +111,27 @@ public class UtilTest {
 				IO.delete(tempTestFile);
 			}
 		}
+	}
+
+	@Test
+	public void testFindServerPathByType() throws Exception {
+		FileSystem defaultFileSystem = FileSystems.getDefault();
+
+		Iterator<Path> fileSystemRoots = defaultFileSystem.getRootDirectories().iterator();
+
+		Path rootPath = fileSystemRoots.next();
+
+		Path fakePath = rootPath.resolve(Paths.get("foo", "bar", "tomcat-9.0.10", "bin"));
+
+		Optional<Path> serverPath = BladeUtil.getServerPathByType(fakePath, "tomcat");
+
+		Assert.assertNotNull(serverPath);
+
+		Assert.assertTrue(serverPath.isPresent());
+
+		Path realTomcatDir = rootPath.resolve(Paths.get("foo", "bar", "tomcat-9.0.10"));
+
+		Assert.assertTrue(realTomcatDir.equals(serverPath.get()));
 	}
 
 	@Test

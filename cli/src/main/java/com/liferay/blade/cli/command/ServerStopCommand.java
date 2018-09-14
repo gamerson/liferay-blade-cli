@@ -29,9 +29,8 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
-import java.util.NoSuchElementException;
+import java.util.Map.Entry;
 import java.util.Optional;
 import java.util.Properties;
 
@@ -53,19 +52,36 @@ public class ServerStopCommand extends BaseCommand<ServerStopArgs> {
 
 		File gradleWrapperFile = BladeUtil.getGradleWrapper(baseDir);
 
-		if (gradleWrapperFile == null) {
-			throw new NoSuchElementException("Unable to locate Gradle Wrapper, cannot process command");
-		}
+		File rootDir = null;
 
-		Path gradleWrapperPath = gradleWrapperFile.toPath();
-
-		Path parent = gradleWrapperPath.getParent();
-
-		File rootDir = parent.toFile();
+		Path rootDirPath = null;
 
 		String serverType = null;
 
-		Path rootDirPath = rootDir.toPath();
+		if (gradleWrapperFile != null) {
+			Path gradleWrapperPath = gradleWrapperFile.toPath();
+
+			Path parent = gradleWrapperPath.getParent();
+
+			rootDir = parent.toFile();
+
+			rootDirPath = rootDir.toPath();
+		}
+		else {
+			rootDir = baseDir;
+
+			rootDirPath = rootDir.toPath();
+
+			Optional<Path> serverPath = BladeUtil.getServerPathByType(rootDirPath, _SERVER_TYPES);
+
+			if (serverPath.isPresent()) {
+				rootDirPath = serverPath.get();
+
+				rootDirPath = rootDirPath.getParent();
+
+				rootDir = rootDirPath.toFile();
+			}
+		}
 
 		if (WorkspaceUtil.isWorkspace(rootDir)) {
 			Properties properties = WorkspaceUtil.getGradleProperties(rootDir);
@@ -108,17 +124,25 @@ public class ServerStopCommand extends BaseCommand<ServerStopArgs> {
 		}
 		else {
 			try {
-				List<Properties> propertiesList = BladeUtil.getAppServerProperties(rootDir);
+				Map<File, Properties> propertiesList = BladeUtil.getAppServerPropertiesMap(rootDir);
 
 				String appServerParentDir = "";
 
-				for (Properties properties : propertiesList) {
+				for (Entry<File, Properties> propertiesEntry : propertiesList.entrySet()) {
+					File propertiesFile = propertiesEntry.getKey();
+
+					Properties properties = propertiesEntry.getValue();
+
 					if (appServerParentDir.equals("")) {
 						String appServerParentDirTemp = properties.getProperty(
 							BladeUtil.APP_SERVER_PARENT_DIR_PROPERTY);
 
 						if ((appServerParentDirTemp != null) && !appServerParentDirTemp.equals("")) {
-							Path rootDirRealPath = rootDirPath.toRealPath();
+							Path rootDirRealPath = propertiesFile.toPath();
+
+							rootDirRealPath = rootDirRealPath.normalize();
+
+							rootDirRealPath = rootDirRealPath.getParent();
 
 							appServerParentDirTemp = appServerParentDirTemp.replace(
 								"${project.dir}", rootDirRealPath.toString());
@@ -206,5 +230,7 @@ public class ServerStopCommand extends BaseCommand<ServerStopArgs> {
 
 		process.waitFor();
 	}
+
+	private static final String[] _SERVER_TYPES = {"jboss", "tomcat", "wildfly"};
 
 }

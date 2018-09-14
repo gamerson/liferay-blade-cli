@@ -66,7 +66,7 @@ public class WorkspaceUtil {
 
 	public static File getWorkspaceDir(File dir) {
 		File gradleParent = BladeUtil.findParentFile(
-			dir, new String[] {_SETTINGS_GRADLE_FILE_NAME, _GRADLE_PROPERTIES_FILE_NAME}, true);
+			dir, new String[] {_SETTINGS_GRADLE_FILE_NAME, _GRADLE_PROPERTIES_FILE_NAME}, true, 8);
 
 		if ((gradleParent != null) && gradleParent.exists()) {
 			return gradleParent;

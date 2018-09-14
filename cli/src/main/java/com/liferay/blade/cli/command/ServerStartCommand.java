@@ -31,8 +31,8 @@ import java.nio.file.Paths;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Optional;
 import java.util.Properties;
 
@@ -55,15 +55,36 @@ public class ServerStartCommand extends BaseCommand<ServerStartArgs> {
 
 		File gradleWrapperFile = BladeUtil.getGradleWrapper(baseDir);
 
-		Path gradleWrapperPath = gradleWrapperFile.toPath();
+		File rootDir = null;
 
-		Path parent = gradleWrapperPath.getParent();
-
-		File rootDir = parent.toFile();
+		Path rootDirPath = null;
 
 		String serverType = null;
 
-		Path rootDirPath = rootDir.toPath();
+		if (gradleWrapperFile != null) {
+			Path gradleWrapperPath = gradleWrapperFile.toPath();
+
+			Path parent = gradleWrapperPath.getParent();
+
+			rootDir = parent.toFile();
+
+			rootDirPath = rootDir.toPath();
+		}
+		else {
+			rootDir = baseDir;
+
+			rootDirPath = rootDir.toPath();
+
+			Optional<Path> serverPath = BladeUtil.getServerPathByType(rootDirPath, _SERVER_TYPES);
+
+			if (serverPath.isPresent()) {
+				rootDirPath = serverPath.get();
+
+				rootDirPath = rootDirPath.getParent();
+
+				rootDir = rootDirPath.toFile();
+			}
+		}
 
 		if (WorkspaceUtil.isWorkspace(rootDir)) {
 			Properties properties = WorkspaceUtil.getGradleProperties(rootDir);
@@ -106,17 +127,25 @@ public class ServerStartCommand extends BaseCommand<ServerStartArgs> {
 		}
 		else {
 			try {
-				List<Properties> propertiesList = BladeUtil.getAppServerProperties(rootDir);
+				Map<File, Properties> propertiesList = BladeUtil.getAppServerPropertiesMap(rootDir);
 
 				String appServerParentDir = "";
 
-				for (Properties properties : propertiesList) {
+				for (Entry<File, Properties> propertiesEntry : propertiesList.entrySet()) {
+					File propertiesFile = propertiesEntry.getKey();
+
+					Properties properties = propertiesEntry.getValue();
+
 					if (appServerParentDir.equals("")) {
 						String appServerParentDirTemp = properties.getProperty(
 							BladeUtil.APP_SERVER_PARENT_DIR_PROPERTY);
 
 						if ((appServerParentDirTemp != null) && !appServerParentDirTemp.equals("")) {
-							Path rootDirRealPath = rootDirPath.toRealPath();
+							Path rootDirRealPath = propertiesFile.toPath();
+
+							rootDirRealPath = rootDirRealPath.normalize();
+
+							rootDirRealPath = rootDirRealPath.getParent();
 
 							appServerParentDirTemp = appServerParentDirTemp.replace(
 								"${project.dir}", rootDirRealPath.toString());
@@ -135,10 +164,18 @@ public class ServerStartCommand extends BaseCommand<ServerStartArgs> {
 				}
 
 				if (appServerParentDir.startsWith("/") || appServerParentDir.contains(":")) {
-					_commandServer(Paths.get(appServerParentDir), serverType);
+					Path appServerParentPath = Paths.get(appServerParentDir);
+
+					appServerParentPath = appServerParentPath.normalize();
+
+					_commandServer(appServerParentPath, serverType);
 				}
 				else {
-					_commandServer(rootDirPath.resolve(appServerParentDir), serverType);
+					Path appServerParentPath = rootDirPath.resolve(appServerParentDir);
+
+					appServerParentPath = appServerParentPath.normalize();
+
+					_commandServer(appServerParentPath, serverType);
 				}
 			}
 			catch (Exception e) {
@@ -279,6 +316,8 @@ public class ServerStartCommand extends BaseCommand<ServerStartArgs> {
 			tailProcess.waitFor();
 		}
 	}
+
+	private static final String[] _SERVER_TYPES = {"jboss", "tomcat", "wildfly"};
 
 	private Collection<Process> _processes = new HashSet<>();
 

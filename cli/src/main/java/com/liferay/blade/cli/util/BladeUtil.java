@@ -39,17 +39,22 @@ import java.net.Socket;
 import java.net.URL;
 
 import java.nio.file.DirectoryStream;
+import java.nio.file.FileSystem;
+import java.nio.file.FileSystems;
 import java.nio.file.Files;
 import java.nio.file.Path;
 
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Enumeration;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Objects;
+import java.util.Optional;
 import java.util.Properties;
 import java.util.Scanner;
 import java.util.function.Predicate;
@@ -121,43 +126,35 @@ public class BladeUtil {
 	}
 
 	public static File findParentFile(File dir, String[] fileNames, boolean checkParents) {
-		if (dir == null) {
-			return null;
-		}
-		else if (".".equals(dir.toString()) || !dir.isAbsolute()) {
-			try {
-				dir = dir.getCanonicalFile();
-			}
-			catch (Exception e) {
-				dir = dir.getAbsoluteFile();
-			}
-		}
+		return _findParentFile(dir, fileNames, checkParents, false, 1, 0);
+	}
 
-		for (String fileName : fileNames) {
-			File file = new File(dir, fileName);
+	public static File findParentFile(File dir, String[] fileNames, boolean checkParents, int maxDepth) {
+		return _findParentFile(dir, fileNames, checkParents, false, maxDepth, 0);
+	}
 
-			if (file.exists()) {
-				return dir;
-			}
-		}
+	public static File findParentFileRecursive(File dir, String[] fileNames, boolean checkParents) {
+		return _findParentFile(dir, fileNames, checkParents, true, 1, 0);
+	}
 
-		if (checkParents) {
-			return findParentFile(dir.getParentFile(), fileNames, checkParents);
-		}
-
-		return null;
+	public static File findParentFileRecursive(File dir, String[] fileNames, boolean checkParents, int maxDepth) {
+		return _findParentFile(dir, fileNames, checkParents, true, maxDepth, 0);
 	}
 
 	public static List<Properties> getAppServerProperties(File dir) {
-		File projectRoot = findParentFile(dir, _APP_SERVER_PROPERTIES_FILE_NAMES, true);
+		return new ArrayList<>(getAppServerPropertiesMap(dir).values());
+	}
 
-		List<Properties> properties = new ArrayList<>();
+	public static Map<File, Properties> getAppServerPropertiesMap(File dir) {
+		File projectRoot = findParentFileRecursive(dir, _APP_SERVER_PROPERTIES_FILE_NAMES, true, 2);
+
+		Map<File, Properties> properties = new HashMap<>();
 
 		for (String fileName : _APP_SERVER_PROPERTIES_FILE_NAMES) {
 			File file = new File(projectRoot, fileName);
 
 			if (file.exists()) {
-				properties.add(getProperties(file));
+				properties.put(file, getProperties(file));
 			}
 		}
 
@@ -169,7 +166,8 @@ public class BladeUtil {
 	}
 
 	public static File getGradleWrapper(File dir) {
-		File gradleRoot = findParentFile(dir, new String[] {_GRADLEW_UNIX_FILE_NAME, _GRADLEW_WINDOWS_FILE_NAME}, true);
+		File gradleRoot = findParentFile(
+			dir, new String[] {_GRADLEW_UNIX_FILE_NAME, _GRADLEW_WINDOWS_FILE_NAME}, true, Integer.MAX_VALUE);
 
 		if (gradleRoot != null) {
 			if (isWindows()) {
@@ -206,6 +204,55 @@ public class BladeUtil {
 		catch (Exception e) {
 			return null;
 		}
+	}
+
+	public static Optional<Path> getServerPathByType(Path path, String... types) {
+		Optional<Path> serverPath;
+		Iterator<Path> i = path.iterator();
+		int serverPathIndex = -1;
+		int x = 0;
+		boolean absolutePath = path.isAbsolute();
+		Optional<Path> rootPathOptional;
+
+		if (absolutePath) {
+			rootPathOptional = Optional.of(path.getRoot());
+		}
+		else {
+			rootPathOptional = Optional.empty();
+		}
+		while (i.hasNext() && (serverPathIndex == -1)) {
+			Path pathPart = i.next();
+
+			String pathPartString = String.valueOf(pathPart);
+
+			for (String type : types) {
+				if (pathPartString.startsWith(type)) {
+					serverPathIndex = x;
+
+					break;
+				}
+			}
+
+			x++;
+		}
+
+		if (serverPathIndex > -1) {
+			Path subpath = path.subpath(0, x);
+
+			if (absolutePath) {
+				Path rootPath = rootPathOptional.get();
+
+				serverPath = Optional.of(rootPath.resolve(subpath));
+			}
+			else {
+				serverPath = Optional.of(subpath);
+			}
+		}
+		else {
+			serverPath = Optional.empty();
+		}
+
+		return serverPath;
 	}
 
 	public static Collection<String> getTemplateNames(BladeCLI blade) throws Exception {
@@ -523,6 +570,77 @@ public class BladeUtil {
 		}
 
 		return false;
+	}
+
+	private static boolean _fileNamesMatch(String[] fileNames, Path path) {
+		try (Stream<String> stream = Stream.of(fileNames)) {
+			String pathString = String.valueOf(path);
+
+			return stream.anyMatch(pathString::equals);
+		}
+	}
+
+	private static File _findParentFile(
+		File dir, String[] fileNames, boolean checkParents, boolean recursive, int maxDepth, int curDepth) {
+
+		if ((dir == null) || !dir.exists() || _isRoot(dir.toPath())) {
+			return null;
+		}
+		else if (".".equals(dir.toString()) || !dir.isAbsolute()) {
+			try {
+				dir = dir.getCanonicalFile();
+			}
+			catch (Exception e) {
+				dir = dir.getAbsoluteFile();
+			}
+		}
+
+		Path dirPath = dir.toPath();
+
+		for (String fileName : fileNames) {
+			File file = new File(dir, fileName);
+
+			if (file.exists()) {
+				return dir;
+			}
+		}
+
+		try (Stream<Path> filePaths = Files.find(
+				dirPath, recursive ? maxDepth : 1,
+				(p, b) ->
+					!Files.isDirectory(p) &&
+					_fileNamesMatch(fileNames, p.getFileName()))) {
+
+			Optional<Path> filePathOptional = filePaths.findFirst();
+
+			if (filePathOptional.isPresent()) {
+				Path filePath = filePathOptional.get();
+
+				filePath = filePath.getParent();
+
+				return filePath.toFile();
+			}
+		}
+		catch (Throwable th) {
+		}
+
+		if (checkParents && (maxDepth > curDepth)) {
+			return _findParentFile(dir.getParentFile(), fileNames, checkParents, recursive, maxDepth, curDepth++);
+		}
+
+		return null;
+	}
+
+	private static boolean _isRoot(Path path) {
+		FileSystem fileSystem = FileSystems.getDefault();
+
+		Iterable<Path> rootDirectoriesIterable = fileSystem.getRootDirectories();
+
+		Iterator<Path> rootDirectories = rootDirectoriesIterable.iterator();
+
+		Path root = rootDirectories.next();
+
+		return Objects.equals(path, root);
 	}
 
 	private static boolean _isSafelyRelative(File file, File destDir) {

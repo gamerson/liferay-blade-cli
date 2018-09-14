@@ -198,17 +198,6 @@ test {
 
 	int forks = 1
 
-	if (!debug) {
-		if (availableProcessors > 4) {
-
-			forks = availableProcessors - 2
-		}
-		else if (availableProcessors > 2) {
-
-			forks = availableProcessors - 1
-		}
-	}
-
 	maxParallelForks = forks
 }
 
