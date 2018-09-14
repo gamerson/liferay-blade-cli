@@ -22,6 +22,7 @@ import java.io.PrintStream;
 
 import java.nio.charset.Charset;
 
+import java.util.Optional;
 import java.util.function.Supplier;
 
 /**
@@ -30,25 +31,33 @@ import java.util.function.Supplier;
 public class StringPrintStream extends PrintStream implements Supplier<String> {
 
 	public static StringPrintStream fromInputStream(InputStream inputStream) {
-		StringPrintStream stringPrintStream = new StringPrintStream(
-			new ByteArrayOutputStream(), Charset.defaultCharset());
-
-		StringConverter.readInputStreamToPrintStream(inputStream, stringPrintStream);
+		StringPrintStream stringPrintStream = new StringPrintStream(new ByteArrayOutputStream(), Optional.empty());
 
 		return stringPrintStream;
 	}
 
 	public static StringPrintStream newInstance() {
-		return newInstance(Charset.defaultCharset());
+		return new StringPrintStream(new ByteArrayOutputStream(), Optional.empty());
 	}
 
-	public static StringPrintStream newInstance(Charset charset) {
-		return new StringPrintStream(new ByteArrayOutputStream(), charset);
+	public static StringPrintStream newInstance(PrintStream printStream) {
+		return new StringPrintStream(new ByteArrayOutputStream(), Optional.ofNullable(printStream));
+	}
+
+	@Override
+	public void flush() {
+		if (_optionalPrintStream.isPresent()) {
+			PrintStream stream = _optionalPrintStream.get();
+
+			stream.flush();
+		}
+
+		super.flush();
 	}
 
 	@Override
 	public String get() {
-		return new String(_outputStream.toByteArray(), _charset);
+		return new String(_outputStream.toByteArray(), Charset.defaultCharset());
 	}
 
 	@Override
@@ -56,14 +65,25 @@ public class StringPrintStream extends PrintStream implements Supplier<String> {
 		return get();
 	}
 
-	private StringPrintStream(ByteArrayOutputStream outputStream, Charset charset) {
+	@Override
+	public void write(byte[] buf, int off, int len) {
+		if (_optionalPrintStream.isPresent()) {
+			PrintStream stream = _optionalPrintStream.get();
+
+			stream.write(buf, off, len);
+		}
+
+		super.write(buf, off, len);
+	}
+
+	private StringPrintStream(ByteArrayOutputStream outputStream, Optional<PrintStream> optionalPrintStream) {
 		super(outputStream);
 
 		_outputStream = outputStream;
-		_charset = charset;
+		_optionalPrintStream = optionalPrintStream;
 	}
 
-	private Charset _charset;
+	private Optional<PrintStream> _optionalPrintStream = Optional.empty();
 	private ByteArrayOutputStream _outputStream;
 
 }

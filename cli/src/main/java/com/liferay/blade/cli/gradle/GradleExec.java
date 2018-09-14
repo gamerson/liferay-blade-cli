@@ -38,9 +38,9 @@ public class GradleExec {
 	public ProcessResult executeCommand(String cmd, File dir) throws Exception {
 		String executable = _getGradleExecutable(dir);
 
-		StringPrintStream outputStream = StringPrintStream.newInstance();
+		StringPrintStream outputStream = StringPrintStream.newInstance(System.out);
 
-		StringPrintStream errorStream = StringPrintStream.newInstance();
+		StringPrintStream errorStream = StringPrintStream.newInstance(System.err);
 
 		Process process = BladeUtil.startProcess("\"" + executable + "\" " + cmd, dir, outputStream, errorStream);
 
