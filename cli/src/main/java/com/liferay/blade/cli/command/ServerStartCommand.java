@@ -229,7 +229,8 @@ public class ServerStartCommand extends BaseCommand<ServerStartArgs> {
 		if (serverStartArgs.isBackground()) {
 			startCommand = " start";
 		}
-		else if (serverStartArgs.isDebug()) {
+
+		if (serverStartArgs.isDebug()) {
 			startCommand = " jpda " + startCommand;
 		}
 
