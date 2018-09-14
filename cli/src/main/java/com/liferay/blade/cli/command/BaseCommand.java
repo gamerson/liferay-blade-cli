@@ -20,6 +20,7 @@ import com.liferay.blade.cli.BladeCLI;
 
 /**
  * @author Christopher Bryan Boyd
+ * @author Nobody
  */
 public abstract class BaseCommand<T extends BaseArgs> {
 
