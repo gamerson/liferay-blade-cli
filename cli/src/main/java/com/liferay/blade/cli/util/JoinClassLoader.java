@@ -137,4 +137,4 @@ public class JoinClassLoader extends ClassLoader {
 
 	private ClassLoader[] delegateClassLoaders;
 
-} // end class JoinClassLoader
+}
