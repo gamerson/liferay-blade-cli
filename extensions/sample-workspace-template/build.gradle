@@ -8,6 +8,7 @@ buildscript {
 		maven {
 			url "https://repository-cdn.liferay.com/nexus/content/groups/public"
 		}
+		mavenLocal()
 	}
 }
 
@@ -35,6 +36,9 @@ eclipse {
 	}
 }
 
+repositories {
+	mavenLocal()
+}
 formatSource {
 	maxLineLength = 120
 }
