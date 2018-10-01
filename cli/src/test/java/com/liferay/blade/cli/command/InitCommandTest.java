@@ -261,7 +261,7 @@ public class InitCommandTest {
 		String properties = new String(
 			Files.readAllBytes(new File(_workspaceDir, ".blade/settings.properties").toPath()));
 
-		Assert.assertTrue(properties, properties.contains("default.liferay.version=7.0"));
+		Assert.assertTrue(properties, properties.contains("liferay.version.default=7.0"));
 	}
 
 	@Test
@@ -279,7 +279,7 @@ public class InitCommandTest {
 		String properties = new String(
 			Files.readAllBytes(new File(_workspaceDir, ".blade/settings.properties").toPath()));
 
-		Assert.assertTrue(properties, properties.contains("default.liferay.version=7.1"));
+		Assert.assertTrue(properties, properties.contains("liferay.version.default=7.1"));
 	}
 
 	@Test
@@ -297,7 +297,7 @@ public class InitCommandTest {
 		String properties = new String(
 			Files.readAllBytes(new File(_workspaceDir, ".blade/settings.properties").toPath()));
 
-		Assert.assertTrue(properties, properties.contains("default.liferay.version=7.1"));
+		Assert.assertTrue(properties, properties.contains("liferay.version.default=7.1"));
 	}
 
 	@Test
