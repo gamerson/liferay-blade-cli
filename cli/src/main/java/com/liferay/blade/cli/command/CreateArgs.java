@@ -87,6 +87,10 @@ public class CreateArgs extends BaseArgs {
 		return _listTemplates;
 	}
 
+	public void setLiferayVersion(String liferayVersion) {
+		_liferayVersion = liferayVersion;
+	}
+
 	public void setName(String name) {
 		_name = name;
 	}
