@@ -17,6 +17,7 @@
 package com.liferay.blade.cli.command;
 
 import com.liferay.blade.cli.BladeCLI;
+import com.liferay.blade.cli.BladeSettings;
 import com.liferay.blade.cli.WorkspaceConstants;
 import com.liferay.blade.cli.util.BladeUtil;
 import com.liferay.blade.cli.util.WorkspaceUtil;
@@ -59,6 +60,8 @@ public class CreateCommand extends BaseCommand<CreateArgs> {
 	public void execute() throws Exception {
 		CreateArgs createArgs = getArgs();
 		BladeCLI bladeCLI = getBladeCLI();
+
+		BladeSettings bladeSettings = bladeCLI.getBladeSettings();
 
 		if (createArgs.isListTemplates()) {
 			_printTemplates();
@@ -201,10 +204,24 @@ public class CreateCommand extends BaseCommand<CreateArgs> {
 		projectTemplatesArgs.setDestinationDir(dir.getAbsoluteFile());
 		projectTemplatesArgs.setDependencyManagementEnabled(WorkspaceUtil.isDependencyManagementEnabled(dir));
 		projectTemplatesArgs.setHostBundleSymbolicName(createArgs.getHostBundleBSN());
+
+		String liferayVersion;
+
+		if (createArgs.getLiferayVersion() != null) {
+			liferayVersion = createArgs.getLiferayVersion();
+
+			bladeSettings.setLiferayVersion(liferayVersion);
+
+			bladeSettings.save();
+		}
+		else {
+			liferayVersion = bladeSettings.getLiferayVersion();
+		}
+
+		projectTemplatesArgs.setLiferayVersion(liferayVersion);
 		projectTemplatesArgs.setOriginalModuleName(createArgs.getOriginalModuleName());
 		projectTemplatesArgs.setOriginalModuleVersion(createArgs.getOriginalModuleVersion());
 		projectTemplatesArgs.setHostBundleVersion(createArgs.getHostBundleVersion());
-		projectTemplatesArgs.setLiferayVersion(createArgs.getLiferayVersion());
 		projectTemplatesArgs.setName(name);
 		projectTemplatesArgs.setPackageName(createArgs.getPackageName());
 		projectTemplatesArgs.setService(createArgs.getService());
