@@ -16,11 +16,16 @@
 
 package com.liferay.blade.cli.util;
 
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileFilter;
+import java.io.FileReader;
 import java.io.IOException;
 
 import java.nio.file.FileVisitResult;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.nio.file.SimpleFileVisitor;
 import java.nio.file.StandardCopyOption;
 import java.nio.file.attribute.BasicFileAttributes;
@@ -60,6 +65,102 @@ public class FileUtil {
 				}
 
 			});
+	}
+
+	public static boolean exists(File file) {
+		if ((file != null) && file.exists()) {
+			return true;
+		}
+
+		return false;
+	}
+
+	public static boolean exists(Path path) {
+		if (path != null) {
+			File file = path.toFile();
+
+			if (file.exists()) {
+				return true;
+			}
+		}
+
+		return false;
+	}
+
+	public static File[] getDirectories(File directory) {
+		return directory.listFiles(
+			new FileFilter() {
+
+				@Override
+				public boolean accept(File file) {
+					return file.isDirectory();
+				}
+
+			});
+	}
+
+	public static boolean notExists(File file) {
+		if ((file == null) || !file.exists()) {
+			return true;
+		}
+
+		return false;
+	}
+
+	public static boolean notExists(Path filePath) {
+		if (filePath == null) {
+			return false;
+		}
+
+		File file = filePath.toFile();
+
+		if ((file == null) || !file.exists()) {
+			return true;
+		}
+
+		return false;
+	}
+
+	public static String readContents(File file, boolean includeNewlines) {
+		if (notExists(file)) {
+			return null;
+		}
+
+		StringBuffer contents = new StringBuffer();
+
+		try (FileReader fileReader = new FileReader(file);
+			BufferedReader bufferedReader = new BufferedReader(fileReader)) {
+
+			String line;
+
+			while ((line = bufferedReader.readLine()) != null) {
+				contents.append(line);
+
+				if (includeNewlines) {
+					contents.append(System.getProperty("line.separator"));
+				}
+			}
+		}
+		catch (Exception e) {
+		}
+
+		return contents.toString();
+	}
+
+	public static boolean verifyPath(String verifyPath) {
+		if (verifyPath == null) {
+			return false;
+		}
+
+		Path verifyLocation = Paths.get(verifyPath);
+
+		File verifyFile = verifyLocation.toFile();
+
+		if (exists(verifyFile) && verifyFile.isDirectory()) {
+			return true;
+		}
+
+		return false;
 	}
 
 }

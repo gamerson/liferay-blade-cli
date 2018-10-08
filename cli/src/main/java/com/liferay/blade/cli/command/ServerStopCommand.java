@@ -17,141 +17,43 @@
 package com.liferay.blade.cli.command;
 
 import com.liferay.blade.cli.BladeCLI;
-import com.liferay.blade.cli.WorkspaceConstants;
 import com.liferay.blade.cli.util.BladeUtil;
+import com.liferay.blade.cli.util.FileUtil;
 import com.liferay.blade.cli.util.ServerUtil;
-import com.liferay.blade.cli.util.WorkspaceUtil;
-
-import java.io.File;
+import com.liferay.blade.server.PortalBundle;
 
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
-import java.util.NoSuchElementException;
 import java.util.Optional;
-import java.util.Properties;
+import java.util.concurrent.TimeUnit;
+
+import org.zeroturnaround.process.PidProcess;
+import org.zeroturnaround.process.Processes;
 
 /**
  * @author David Truong
+ * @author Simon Jiang
  */
-public class ServerStopCommand extends BaseCommand<ServerStopArgs> {
+public class ServerStopCommand extends AbstractServerCommand<ServerStopArgs> {
 
 	public ServerStopCommand() {
 	}
 
 	@Override
-	public void execute() throws Exception {
-		BladeCLI bladeCLI = getBladeCLI();
-
-		BaseArgs args = bladeCLI.getBladeArgs();
-
-		File baseDir = new File(args.getBase());
-
-		File gradleWrapperFile = BladeUtil.getGradleWrapper(baseDir);
-
-		if (gradleWrapperFile == null) {
-			throw new NoSuchElementException("Unable to locate Gradle Wrapper, cannot process command");
-		}
-
-		Path gradleWrapperPath = gradleWrapperFile.toPath();
-
-		Path parent = gradleWrapperPath.getParent();
-
-		File rootDir = parent.toFile();
-
-		String serverType = null;
-
-		Path rootDirPath = rootDir.toPath();
-
-		if (WorkspaceUtil.isWorkspace(rootDir)) {
-			Properties properties = WorkspaceUtil.getGradleProperties(rootDir);
-
-			String liferayHomePath = properties.getProperty(WorkspaceConstants.DEFAULT_LIFERAY_HOME_DIR_PROPERTY);
-
-			if ((liferayHomePath == null) || liferayHomePath.equals("")) {
-				liferayHomePath = WorkspaceConstants.DEFAULT_LIFERAY_HOME_DIR;
-			}
-
-			serverType = properties.getProperty(WorkspaceConstants.DEFAULT_BUNDLE_ARTIFACT_NAME_PROPERTY);
-
-			if (serverType == null) {
-				serverType = WorkspaceConstants.DEFAULT_BUNDLE_ARTIFACT_NAME;
-			}
-
-			if (serverType.contains("jboss")) {
-				serverType = "jboss";
-			}
-			else if (serverType.contains("wildfly")) {
-				serverType = "wildfly";
-			}
-			else if (serverType.contains("tomcat")) {
-				serverType = "tomcat";
-			}
-
-			Path tempLiferayHome = Paths.get(liferayHomePath);
-			Path liferayHomeDir = null;
-
-			if (tempLiferayHome.isAbsolute()) {
-				liferayHomeDir = tempLiferayHome.normalize();
-			}
-			else {
-				Path tempFile = rootDirPath.resolve(tempLiferayHome);
-
-				liferayHomeDir = tempFile.normalize();
-			}
-
-			_commandServer(liferayHomeDir, serverType);
-		}
-		else {
-			try {
-				List<Properties> propertiesList = BladeUtil.getAppServerProperties(rootDir);
-
-				String appServerParentDir = "";
-
-				for (Properties properties : propertiesList) {
-					if (appServerParentDir.equals("")) {
-						String appServerParentDirTemp = properties.getProperty(
-							BladeUtil.APP_SERVER_PARENT_DIR_PROPERTY);
-
-						if ((appServerParentDirTemp != null) && !appServerParentDirTemp.equals("")) {
-							Path rootDirRealPath = rootDirPath.toRealPath();
-
-							appServerParentDirTemp = appServerParentDirTemp.replace(
-								"${project.dir}", rootDirRealPath.toString());
-
-							appServerParentDir = appServerParentDirTemp;
-						}
-					}
-
-					if ((serverType == null) || serverType.equals("")) {
-						String serverTypeTemp = properties.getProperty(BladeUtil.APP_SERVER_TYPE_PROPERTY);
-
-						if ((serverTypeTemp != null) && !serverTypeTemp.equals("")) {
-							serverType = serverTypeTemp;
-						}
-					}
-				}
-
-				if (appServerParentDir.startsWith("/") || appServerParentDir.contains(":")) {
-					_commandServer(Paths.get(appServerParentDir), serverType);
-				}
-				else {
-					_commandServer(rootDirPath.resolve(appServerParentDir), serverType);
-				}
-			}
-			catch (Exception e) {
-				bladeCLI.error("Please execute this command from a Liferay project");
-			}
-		}
+	public Class<ServerStopArgs> getArgsClass() {
+		return ServerStopArgs.class;
 	}
 
 	@Override
-	public Class<ServerStopArgs> getArgsClass() {
-		return ServerStopArgs.class;
+	protected void doServerCommand(PortalBundle portalBundle) throws Exception {
+		if (portalBundle != null) {
+			String serverType = portalBundle.getType();
+
+			_commandServer(portalBundle.getBundleHome(), serverType);
+		}
 	}
 
 	private void _commandServer(Path dir, String serverType) throws Exception {
@@ -178,7 +80,9 @@ public class ServerStopCommand extends BaseCommand<ServerStopArgs> {
 				success = true;
 			}
 			else if (serverType.equals("jboss") || serverType.equals("wildfly")) {
-				_commmandJBossWildfly();
+				_commmandJBossWildfly(file);
+
+				success = true;
 			}
 		}
 
@@ -187,10 +91,42 @@ public class ServerStopCommand extends BaseCommand<ServerStopArgs> {
 		}
 	}
 
-	private void _commmandJBossWildfly() throws Exception {
+	private void _commmandJBossWildfly(Path dir) throws Exception {
+		Map<String, String> enviroment = new HashMap<>();
 		BladeCLI bladeCLI = getBladeCLI();
 
-		bladeCLI.error("JBoss/Wildfly supports start command and debug flag");
+		Path binPath = dir.resolve("bin");
+
+		String executable = ServerUtil.getJBossWildflyStopExecutable();
+
+		String stopCommand = " --connect --command=shutdown";
+
+		Process process = BladeUtil.startProcess(executable + stopCommand, binPath.toFile(), enviroment);
+
+		process.waitFor();
+
+		try {
+			Path pidPath = binPath.resolve("jboss.pid");
+
+			if (FileUtil.exists(pidPath)) {
+				String pidString = FileUtil.readContents(pidPath.toFile(), false);
+
+				int pid = Integer.parseInt(pidString);
+
+				PidProcess pidProcess = Processes.newPidProcess(pid);
+
+				pidProcess.waitFor(60, TimeUnit.SECONDS);
+
+				pidProcess.destroyForcefully();
+			}
+		}
+		catch (NumberFormatException nfe) {
+			nfe.printStackTrace();
+			bladeCLI.error("JBoss/Wildfly failed to stop server, please check process pid");
+		}
+		catch (Exception e) {
+			bladeCLI.error("JBoss/Wildfly failed to stop server.");
+		}
 	}
 
 	private void _commmandTomcat(Path dir) throws Exception {
