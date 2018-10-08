@@ -12,6 +12,7 @@ com.liferay.blade.cli.command.SamplesCommand
 com.liferay.blade.cli.command.ServerInitCommand
 com.liferay.blade.cli.command.ServerStartCommand
 com.liferay.blade.cli.command.ServerStopCommand
+com.liferay.blade.cli.command.ServerStatusCommand
 com.liferay.blade.cli.command.ShellCommand
 com.liferay.blade.cli.command.UpdateCommand
 com.liferay.blade.cli.command.UpgradePropsCommand
