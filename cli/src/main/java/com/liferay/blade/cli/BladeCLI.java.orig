@@ -23,7 +23,11 @@ import com.beust.jcommander.ParameterException;
 
 import com.liferay.blade.cli.command.BaseArgs;
 import com.liferay.blade.cli.command.BaseCommand;
-import com.liferay.blade.cli.util.CombinedClassLoader;
+<<<<<<< HEAD
+import com.liferay.blade.cli.util.JoinClassLoader;
+=======
+import com.liferay.blade.cli.util.ClassLoaderCombiner;
+>>>>>>> combine classloaders
 import com.liferay.blade.cli.util.WorkspaceUtil;
 
 import java.io.File;
@@ -242,14 +246,6 @@ public class BladeCLI implements Runnable {
 			if (getBladeArgs().isTrace()) {
 				e.printStackTrace(err());
 			}
-
-			StringBuilder sb = new StringBuilder();
-
-			for (StackTraceElement ste : e.getStackTrace()) {
-				sb.append(ste.toString() + System.lineSeparator());
-			}
-
-			System.out.println(sb.toString());
 		}
 	}
 
@@ -376,10 +372,15 @@ public class BladeCLI implements Runnable {
 
 			ClassLoader currentClassLoader = thread.getContextClassLoader();
 
-			ClassLoader combinedClassLoader = new CombinedClassLoader(currentClassLoader, command.getClassLoader());
+			ClassLoader combinedClassLoader = ClassLoaderCombiner.newInstance(
+				currentClassLoader, command.getClassLoader());
 
 			try {
+<<<<<<< HEAD
+				thread.setContextClassLoader(new JoinClassLoader(currentClassLoader, command.getClassLoader()));
+=======
 				thread.setContextClassLoader(combinedClassLoader);
+>>>>>>> combine classloaders
 
 				command.execute();
 			}

@@ -18,6 +18,7 @@ buildscript {
 apply plugin: "biz.aQute.bnd.builder"
 apply plugin: "com.liferay.change.log.builder"
 apply plugin: "com.liferay.source.formatter"
+apply plugin: "eclipse"
 apply plugin: "java"
 apply plugin: "maven-publish"
 
@@ -70,7 +71,7 @@ dependencies {
 	compile group: "biz.aQute.bnd", name: "aQute.libg", version: "3.5.0"
 	compile group: "biz.aQute.bnd", name: "biz.aQute.bndlib", version: "3.5.0"
 	compile group: "com.liferay", name: "com.liferay.gogo.shell.client", version: "1.0.0"
-	compile group: "com.liferay", name: "com.liferay.project.templates", version: "4.1.7"
+	compile group: "com.liferay", name: "com.liferay.project.templates", version: "4.1.8"
 	compile group: "org.apache.commons", name: "commons-lang3", version: "3.4"
 	compile group: "org.apache.maven", name: "maven-aether-provider", version: "3.3.9"
 	compile group: "org.apache.maven", name: "maven-settings", version: "3.3.9"
@@ -125,6 +126,7 @@ repositories {
 	maven {
 		url "https://repo.gradle.org/gradle/libs-releases"
 	}
+	mavenLocal()
 }
 
 publishing {

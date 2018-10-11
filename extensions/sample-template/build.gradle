@@ -39,6 +39,9 @@ formatSource {
 	maxLineLength = 120
 }
 
+repositories {
+	mavenLocal()
+}
 jar.baseName = "com.liferay.project.templates.sample-1.0.0"
 
 test {
