@@ -26,8 +26,20 @@ import com.beust.jcommander.Parameters;
 @Parameters(commandDescription = "Start server defined by your Liferay project", commandNames = "server start")
 public class ServerStartArgs extends BaseArgs {
 
+	public String getPort() {
+		return _port;
+	}
+
+	public String getType() {
+		return _type;
+	}
+
 	public boolean isBackground() {
 		return _background;
+	}
+
+	public boolean isCommandLine() {
+		return _commandLine;
 	}
 
 	public boolean isDebug() {
@@ -42,17 +54,37 @@ public class ServerStartArgs extends BaseArgs {
 		_background = background;
 	}
 
+	public void setCommandLine(boolean commandLine) {
+		_commandLine = commandLine;
+	}
+
 	public void setDebug(boolean debug) {
 		_debug = debug;
+	}
+
+	public void setPort(String port) {
+		_port = port;
+	}
+
+	public void setType(String type) {
+		_type = type;
 	}
 
 	@Parameter(description = "Start server in background", names = {"-b", "--background"})
 	private boolean _background;
 
+	private boolean _commandLine = true;
+
 	@Parameter(description = "Start server in debug mode", names = {"-d", "--debug"})
 	private boolean _debug;
 
+	@Parameter(description = "Set server debug port", names = {"-p", "--port"})
+	private String _port;
+
 	@Parameter(description = "Tail a running server", names = {"-t", "--tail"})
 	private boolean _tail;
+
+	@Parameter(description = "Set server type", names = {"-y", "--type"})
+	private String _type;
 
 }
