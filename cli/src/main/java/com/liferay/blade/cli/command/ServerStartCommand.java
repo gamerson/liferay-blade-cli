@@ -17,136 +17,28 @@
 package com.liferay.blade.cli.command;
 
 import com.liferay.blade.cli.BladeCLI;
-import com.liferay.blade.cli.WorkspaceConstants;
 import com.liferay.blade.cli.util.BladeUtil;
 import com.liferay.blade.cli.util.ServerUtil;
-import com.liferay.blade.cli.util.WorkspaceUtil;
+import com.liferay.blade.server.PortalBundle;
 
-import java.io.File;
+import java.io.PrintStream;
 
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 
-import java.util.Collection;
 import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.Properties;
+
+import org.apache.commons.io.output.NullOutputStream;
 
 /**
  * @author David Truong
  * @author Simon Jiang
  */
-public class ServerStartCommand extends BaseCommand<ServerStartArgs> {
+public class ServerStartCommand extends AbstractServerCommand<ServerStartArgs> {
 
 	public ServerStartCommand() {
-	}
-
-	@Override
-	public void execute() throws Exception {
-		BladeCLI bladeCLI = getBladeCLI();
-
-		BaseArgs baseArgs = bladeCLI.getBladeArgs();
-
-		File baseDir = new File(baseArgs.getBase());
-
-		String serverType = null;
-
-		if (WorkspaceUtil.isWorkspace(baseDir)) {
-			Properties properties = getProperties();
-
-			String liferayHomePath = properties.getProperty(WorkspaceConstants.DEFAULT_LIFERAY_HOME_DIR_PROPERTY);
-
-			if ((liferayHomePath == null) || liferayHomePath.equals("")) {
-				liferayHomePath = WorkspaceConstants.DEFAULT_LIFERAY_HOME_DIR;
-			}
-
-			serverType = properties.getProperty(WorkspaceConstants.DEFAULT_BUNDLE_ARTIFACT_NAME_PROPERTY);
-
-			if (serverType == null) {
-				serverType = WorkspaceConstants.DEFAULT_BUNDLE_ARTIFACT_NAME;
-			}
-
-			if (serverType.contains("jboss")) {
-				serverType = "jboss";
-			}
-			else if (serverType.contains("wildfly")) {
-				serverType = "wildfly";
-			}
-			else if (serverType.contains("tomcat")) {
-				serverType = "tomcat";
-			}
-
-			Path liferayHomeDir = null;
-			Path tempLiferayHome = Paths.get(liferayHomePath);
-
-			if (tempLiferayHome.isAbsolute()) {
-				liferayHomeDir = tempLiferayHome.normalize();
-			}
-			else {
-				File workspaceRootDir = WorkspaceUtil.getWorkspaceDir(baseDir);
-
-				Path workspaceRootDirPath = workspaceRootDir.toPath();
-
-				Path tempFile = workspaceRootDirPath.resolve(liferayHomePath);
-
-				liferayHomeDir = tempFile.normalize();
-			}
-
-			_commandServer(liferayHomeDir, serverType);
-		}
-		else {
-			try {
-				List<Properties> propertiesList = BladeUtil.getAppServerProperties(baseDir);
-
-				String appServerParentDir = "";
-
-				for (Properties properties : propertiesList) {
-					if (appServerParentDir.equals("")) {
-						String appServerParentDirTemp = properties.getProperty(
-							BladeUtil.APP_SERVER_PARENT_DIR_PROPERTY);
-
-						if ((appServerParentDirTemp != null) && !appServerParentDirTemp.equals("")) {
-							Path rootDirRealPath = baseDir.toPath();
-
-							rootDirRealPath = rootDirRealPath.toRealPath();
-
-							appServerParentDirTemp = appServerParentDirTemp.replace(
-								"${project.dir}", rootDirRealPath.toString());
-
-							appServerParentDir = appServerParentDirTemp;
-						}
-					}
-
-					if ((serverType == null) || serverType.equals("")) {
-						String serverTypeTemp = properties.getProperty(BladeUtil.APP_SERVER_TYPE_PROPERTY);
-
-						if ((serverTypeTemp != null) && !serverTypeTemp.equals("")) {
-							serverType = serverTypeTemp;
-						}
-					}
-				}
-
-				if (appServerParentDir.startsWith("/") || appServerParentDir.contains(":")) {
-					_commandServer(Paths.get(appServerParentDir), serverType);
-				}
-				else {
-					Path rootDirRealPath = baseDir.toPath();
-
-					rootDirRealPath = rootDirRealPath.toRealPath();
-
-					_commandServer(rootDirRealPath.resolve(appServerParentDir), serverType);
-				}
-			}
-			catch (Exception e) {
-				bladeCLI.error("Please execute this command from a Liferay Workspace project.");
-
-				e.printStackTrace(bladeCLI.err());
-			}
-		}
 	}
 
 	@Override
@@ -154,18 +46,13 @@ public class ServerStartCommand extends BaseCommand<ServerStartArgs> {
 		return ServerStartArgs.class;
 	}
 
-	public Collection<Process> getProcesses() {
-		return _processes;
-	}
+	@Override
+	protected void doServerCommand(PortalBundle portalBundle) throws Exception {
+		if (portalBundle != null) {
+			String serverType = portalBundle.getType();
 
-	protected Properties getProperties() {
-		BladeCLI bladeCLI = getBladeCLI();
-
-		BaseArgs baseArgs = bladeCLI.getBladeArgs();
-
-		File baseDir = new File(baseArgs.getBase());
-
-		return WorkspaceUtil.getGradleProperties(baseDir);
+			_commandServer(portalBundle.getBundleHome(), serverType);
+		}
 	}
 
 	private void _commandServer(Path dir, String serverType) throws Exception {
@@ -209,22 +96,58 @@ public class ServerStartCommand extends BaseCommand<ServerStartArgs> {
 
 		Map<String, String> enviroment = new HashMap<>();
 
-		String executable = ServerUtil.getJBossWildflyExecutable();
-
-		String debug = "";
-
-		if (serverStartArgs.isDebug()) {
-			debug = " --debug";
-		}
+		String executable = ServerUtil.getJBossWildflyStartExecutable();
 
 		Path binPath = dir.resolve("bin");
 
+		final StringBuilder startCommand = new StringBuilder("");
+
+		if (serverStartArgs.isDebug()) {
+			startCommand.append(" --debug");
+
+			if (!BladeUtil.isEmpty(serverStartArgs.getPort())) {
+				startCommand.append(" " + serverStartArgs.getPort());
+			}
+		}
+
+		PrintStream out = bladeCLI.out();
+		PrintStream err = bladeCLI.err();
+
+		if (serverStartArgs.isBackground()) {
+			enviroment.put("JBOSS_PIDFILE", "jboss.pid");
+			enviroment.put("LAUNCH_JBOSS_IN_BACKGROUND", "1");
+
+			if (!serverStartArgs.isCommandLine()) {
+				out = new PrintStream(NullOutputStream.NULL_OUTPUT_STREAM);
+				err = new PrintStream(NullOutputStream.NULL_OUTPUT_STREAM);
+			}
+		}
+
+		if (serverStartArgs.isCommandLine() && serverStartArgs.isBackground()) {
+			bladeCLI.error("JBoss does not support run backroud mode in command line");
+		}
+
 		Process process = BladeUtil.startProcess(
-			executable + debug, binPath.toFile(), enviroment, bladeCLI.out(), bladeCLI.err());
+			executable + startCommand.toString(), binPath.toFile(), enviroment, out, err);
 
-		_processes.add(process);
+		processes.add(process);
 
-		process.waitFor();
+		Runtime runtime = Runtime.getRuntime();
+
+		runtime.addShutdownHook(
+			new Thread() {
+
+				@Override
+				public void run() {
+					try {
+						process.waitFor();
+					}
+					catch (InterruptedException ie) {
+						bladeCLI.error("Could not wait for process to end before shutting down");
+					}
+				}
+
+			});
 	}
 
 	private void _commmandTomcat(Path dir) throws Exception {
@@ -239,12 +162,22 @@ public class ServerStartCommand extends BaseCommand<ServerStartArgs> {
 
 		String startCommand = " run";
 
+		PrintStream out = bladeCLI.out();
+		PrintStream err = bladeCLI.err();
+
 		if (serverStartArgs.isBackground()) {
 			startCommand = " start";
+
+			out = new PrintStream(NullOutputStream.NULL_OUTPUT_STREAM);
+			err = new PrintStream(NullOutputStream.NULL_OUTPUT_STREAM);
 		}
 
 		if (serverStartArgs.isDebug()) {
 			startCommand = " jpda " + startCommand;
+
+			if (!BladeUtil.isEmpty(serverStartArgs.getPort())) {
+				enviroment.put("JPDA_ADDRESS", "localhost:" + serverStartArgs.getPort());
+			}
 		}
 
 		Path logsPath = dir.resolve("logs");
@@ -262,9 +195,9 @@ public class ServerStartCommand extends BaseCommand<ServerStartArgs> {
 		Path binPath = dir.resolve("bin");
 
 		final Process process = BladeUtil.startProcess(
-			executable + startCommand, binPath.toFile(), enviroment, bladeCLI.out(), bladeCLI.err());
+			executable + startCommand, binPath.toFile(), enviroment, out, err);
 
-		_processes.add(process);
+		processes.add(process);
 
 		Runtime runtime = Runtime.getRuntime();
 
@@ -286,12 +219,10 @@ public class ServerStartCommand extends BaseCommand<ServerStartArgs> {
 		if (serverStartArgs.isBackground() && serverStartArgs.isTail()) {
 			Process tailProcess = BladeUtil.startProcess("tail -f catalina.out", logsPath.toFile(), enviroment);
 
-			_processes.add(tailProcess);
+			processes.add(tailProcess);
 
 			tailProcess.waitFor();
 		}
 	}
-
-	private Collection<Process> _processes = new HashSet<>();
 
 }
