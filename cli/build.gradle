@@ -19,6 +19,7 @@ apply plugin: "com.liferay.change.log.builder"
 apply plugin: "java"
 apply plugin: "maven-publish"
 
+task cliSourcesJar(type: Jar)
 task cliTestJar(type: Jar)
 task createDepsZip(type:Zip)
 task createWrapperZip(type:Zip)
@@ -46,6 +47,11 @@ check {
 
 clean.doFirst {
 	delete "${projectDir}/deps.zip", "${projectDir}/wrapper.zip"
+}
+
+cliSourcesJar {
+	classifier = 'sources'
+	from sourceSets.main.allJava
 }
 
 cliTestJar {
@@ -136,9 +142,11 @@ project(":gradle-tooling:plugin").afterEvaluate { plugin ->
 	createDepsZip.from plugin.jar.archivePath
 }
 
+version = "3.3.0-SNAPSHOT"
+
 publishing {
 	publications {
-		bladeJar(MavenPublication) {
+		cliJar(MavenPublication) {
 			artifactId = "com.liferay.blade.cli"
 
 			pom.withXml {
@@ -147,6 +155,8 @@ publishing {
 			}
 
 			from components.java
+
+			artifact cliSourcesJar
 		}
 	}
 }
@@ -230,5 +240,3 @@ unzipPortal {
 	from zipTree(downloadPortal.dest)
 	into buildDir
 }
-
-version = "3.3.0"
