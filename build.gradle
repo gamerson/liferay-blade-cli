@@ -51,6 +51,8 @@ subprojects {
 		maxLineLength = 120
 	}
 
+	group = "com.liferay.blade"
+
 	plugins.withId("java") {
 		repositories {
 			flatDir {

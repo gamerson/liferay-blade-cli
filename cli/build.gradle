@@ -139,7 +139,6 @@ project(":gradle-tooling:plugin").afterEvaluate { plugin ->
 publishing {
 	publications {
 		bladeJar(MavenPublication) {
-			groupId = "com.liferay.blade"
 			artifactId = "com.liferay.blade.cli"
 
 			pom.withXml {
