@@ -19,6 +19,7 @@ package com.liferay.blade.extensions.maven.profile;
 import com.liferay.blade.cli.BladeTest;
 import com.liferay.blade.cli.command.JavaProcess;
 import com.liferay.blade.cli.command.JavaProcesses;
+import com.liferay.blade.cli.util.BladeUtil;
 
 import java.io.File;
 
@@ -63,7 +64,9 @@ public class ServerStartCommandMavenTest {
 
 		Assert.assertTrue(bladeSettings.exists());
 
-		ProcessBuilder processBuilder = new ProcessBuilder("./mvnw", "bundle-support:init");
+		String mvnw = BladeUtil.isWindows() ? "./mvnw.bat" : "./mvnw";
+
+		ProcessBuilder processBuilder = new ProcessBuilder(mvnw, "bundle-support:init");
 
 		processBuilder.directory(_testWorkspaceDir);
 
