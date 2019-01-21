@@ -84,13 +84,9 @@ subprojects {
 		publishing {
 			String liferayNexusUsername = credentials.liferayNexusUsername
 			String liferayNexusPassword = credentials.liferayNexusPassword
-			String repoName = project.hasProperty("release") ? "liferay-public-releases" : "liferay-public-snapshots"
+			String repoName = project.hasProperty("release") ? "liferay-public-releases/" : "liferay-public-snapshots/"
 
 			repositories {
-				maven {
-					url "$rootProject.projectDir/mavenRepo"
-				}
-
 				maven {
 					credentials {
 						username liferayNexusUsername
