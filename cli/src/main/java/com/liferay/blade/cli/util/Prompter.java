@@ -107,6 +107,9 @@ public class Prompter {
 							break;
 					}
 				}
+				else {
+					answer = defaultAnswer;
+				}
 			}
 		}
 		catch (IllegalStateException ise) {
