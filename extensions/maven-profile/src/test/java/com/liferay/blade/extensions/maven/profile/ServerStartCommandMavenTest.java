@@ -64,7 +64,7 @@ public class ServerStartCommandMavenTest {
 
 		Assert.assertTrue(pomXml.exists());
 
-		File bladeSettings = new File(_testWorkspaceDir, ".blade/settings.properties");
+		File bladeSettings = new File(_testWorkspaceDir, ".blade.properties");
 
 		Assert.assertTrue(bladeSettings.exists());
 
