@@ -43,6 +43,7 @@ public class TargetPlatformTest {
 
 	@Before
 	public void setUp() throws Exception {
+		Assume.assumeFalse(_windows);
 		_extensionsDir = temporaryFolder.newFolder(".blade", "extensions");
 
 		_gradleWorkspaceDir = temporaryFolder.newFolder("gradle-workspace");

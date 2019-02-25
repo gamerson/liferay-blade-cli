@@ -22,6 +22,7 @@ import com.liferay.blade.cli.BladeTestResults;
 import com.liferay.blade.cli.GradleRunnerUtil;
 import com.liferay.blade.cli.TestUtil;
 import com.liferay.blade.cli.WorkspaceProvider;
+import com.liferay.blade.cli.util.BladeUtil;
 import com.liferay.blade.cli.util.FileUtil;
 
 import java.io.File;
@@ -35,6 +36,7 @@ import java.util.Properties;
 import org.gradle.testkit.runner.BuildTask;
 
 import org.junit.Assert;
+import org.junit.Assume;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -47,6 +49,7 @@ public class InitCommandTest {
 
 	@Before
 	public void setUp() throws Exception {
+		Assume.assumeFalse(_windows);
 		_workspaceDir = temporaryFolder.newFolder("build", "test", "workspace");
 
 		_extensionsDir = temporaryFolder.newFolder(".blade", "extensions");
@@ -54,6 +57,7 @@ public class InitCommandTest {
 
 	@Test
 	public void testBladeInitDontLoseGitDirectory() throws Exception {
+		Assume.assumeFalse(_windows);
 		File testdir = new File(temporaryFolder.getRoot(), "build/testBladeInitDontLoseGitDirectory");
 
 		testdir.mkdirs();
@@ -83,6 +87,7 @@ public class InitCommandTest {
 
 	@Test
 	public void testBladeInitEmptyDirectory() throws Exception {
+		Assume.assumeFalse(_windows);
 		File emptyDir = temporaryFolder.newFolder();
 
 		String[] args = {"--base", emptyDir.getPath(), "init"};
@@ -98,6 +103,7 @@ public class InitCommandTest {
 
 	@Test
 	public void testBladeInitEmptyDirectoryHandleDot() throws Exception {
+		Assume.assumeFalse(_windows);
 		File emptyDir = temporaryFolder.newFolder();
 
 		String pathStringToTest = new File(emptyDir.getPath(), ".").getAbsolutePath();
@@ -115,6 +121,7 @@ public class InitCommandTest {
 
 	@Test
 	public void testBladeInitEmptyDirectoryHandleTwoDots() throws Exception {
+		Assume.assumeFalse(_windows);
 		File emptyDir = temporaryFolder.newFolder();
 
 		String pathStringToTest = new File(emptyDir.getPath(), ".").getAbsolutePath();
@@ -132,6 +139,7 @@ public class InitCommandTest {
 
 	@Test
 	public void testBladeInitUpgradePluginsSDKTo70() throws Exception {
+		Assume.assumeFalse(_windows);
 		File testdir = new File(temporaryFolder.getRoot(), "build/testUpgradePluginsSDKTo70");
 
 		testdir.mkdirs();
@@ -165,6 +173,7 @@ public class InitCommandTest {
 
 	@Test
 	public void testBladeInitWithCustomProfile() throws Exception {
+		Assume.assumeFalse(_windows);
 		File tempDir = temporaryFolder.newFolder();
 
 		String basePath = new File(tempDir.getPath()).getAbsolutePath();
@@ -188,6 +197,7 @@ public class InitCommandTest {
 
 	@Test
 	public void testDefaultInitWorkspaceDirectoryEmpty() throws Exception {
+		Assume.assumeFalse(_windows);
 		String[] args = {"--base", _workspaceDir.getPath(), "init"};
 
 		TestUtil.runBlade(_workspaceDir, _extensionsDir, args);
@@ -205,6 +215,7 @@ public class InitCommandTest {
 
 	@Test
 	public void testDefaultInitWorkspaceDirectoryHasFiles() throws Exception {
+		Assume.assumeFalse(_windows);
 		String[] args = {"--base", _workspaceDir.getPath(), "init"};
 
 		Assert.assertTrue(new File(_workspaceDir, "foo").createNewFile());
@@ -216,6 +227,7 @@ public class InitCommandTest {
 
 	@Test
 	public void testDefaultInitWorkspaceDirectoryHasFilesForce() throws Exception {
+		Assume.assumeFalse(_windows);
 		String[] args = {"--base", _workspaceDir.getPath(), "init", "-f"};
 
 		TestUtil.runBlade(_workspaceDir, _extensionsDir, args);
@@ -231,6 +243,7 @@ public class InitCommandTest {
 
 	@Test
 	public void testDefaultInitWorkspaceDirectoryIsWorkspace() throws Exception {
+		Assume.assumeFalse(_windows);
 		String[] args = {"--base", _workspaceDir.getPath(), "init", "firstWorkspace"};
 
 		TestUtil.runBlade(_workspaceDir, _extensionsDir, args);
@@ -263,6 +276,7 @@ public class InitCommandTest {
 
 	@Test
 	public void testInitCommandGradleOption() throws Exception {
+		Assume.assumeFalse(_windows);
 		String[] args = {"--base", _workspaceDir.getPath(), "init", "-b", "gradle", "gradleworkspace"};
 
 		TestUtil.runBlade(_workspaceDir, _extensionsDir, args);
@@ -278,6 +292,7 @@ public class InitCommandTest {
 
 	@Test
 	public void testInitInPluginsSDKDirectory() throws Exception {
+		Assume.assumeFalse(_windows);
 		String[] args = {"--base", _workspaceDir.getPath(), "init", "-u"};
 
 		_makeSDK(_workspaceDir);
@@ -305,6 +320,7 @@ public class InitCommandTest {
 
 	@Test
 	public void testInitWithLiferayVersion70() throws Exception {
+		Assume.assumeFalse(_windows);
 		String[] args = {"--base", _workspaceDir.getPath(), "init", "-v", "7.0"};
 
 		TestUtil.runBlade(_workspaceDir, _extensionsDir, args);
@@ -321,6 +337,7 @@ public class InitCommandTest {
 
 	@Test
 	public void testInitWithLiferayVersion71() throws Exception {
+		Assume.assumeFalse(_windows);
 		String[] args = {"--base", _workspaceDir.getPath(), "init", "-v", "7.1"};
 
 		TestUtil.runBlade(_workspaceDir, _extensionsDir, args);
@@ -337,6 +354,7 @@ public class InitCommandTest {
 
 	@Test
 	public void testInitWithLiferayVersionDefault() throws Exception {
+		Assume.assumeFalse(_windows);
 		String[] args = {"--base", _workspaceDir.getPath(), "init"};
 
 		TestUtil.runBlade(_workspaceDir, _extensionsDir, args);
@@ -353,6 +371,7 @@ public class InitCommandTest {
 
 	@Test
 	public void testInitWithNameWorkspaceDirectoryEmpty() throws Exception {
+		Assume.assumeFalse(_windows);
 		String[] args = {"--base", _workspaceDir.getPath(), "init", "newproject"};
 
 		File newproject = new File(_workspaceDir, "newproject");
@@ -372,6 +391,7 @@ public class InitCommandTest {
 
 	@Test
 	public void testInitWithNameWorkspaceDirectoryHasFiles() throws Exception {
+		Assume.assumeFalse(_windows);
 		String[] args = {"--base", _workspaceDir.getPath(), "init", "newproject"};
 
 		Assert.assertTrue(new File(_workspaceDir, "newproject").mkdirs());
@@ -385,6 +405,7 @@ public class InitCommandTest {
 
 	@Test
 	public void testInitWithNameWorkspaceNotExists() throws Exception {
+		Assume.assumeFalse(_windows);
 		String[] args = {"--base", _workspaceDir.getPath(), "init", "newproject"};
 
 		TestUtil.runBlade(_workspaceDir, _extensionsDir, args);
@@ -443,6 +464,8 @@ public class InitCommandTest {
 
 		GradleRunnerUtil.verifyBuildOutput(projectPath + "/foo", "foo-1.0.0.jar");
 	}
+
+	private static boolean _windows = BladeUtil.isWindows();
 
 	private File _extensionsDir = null;
 	private File _workspaceDir = null;

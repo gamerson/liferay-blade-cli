@@ -30,6 +30,7 @@ import java.nio.file.StandardCopyOption;
 import java.util.Map;
 
 import org.junit.Assert;
+import org.junit.Assume;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -43,6 +44,7 @@ public class TemplatesTest {
 
 	@Before
 	public void setUp() throws Exception {
+		Assume.assumeFalse(_windows);
 		File extensionsDir = _getExtensionsDir();
 
 		Path extensionsDirPath = extensionsDir.toPath();
@@ -62,6 +64,7 @@ public class TemplatesTest {
 
 	@Test
 	public void testProjectTemplatesBuiltIn() throws Exception {
+		Assume.assumeFalse(_windows);
 		Map<String, String> templates = BladeUtil.getTemplates(_bladeTest);
 
 		Assert.assertNotNull(templates);
@@ -71,6 +74,7 @@ public class TemplatesTest {
 
 	@Test
 	public void testProjectTemplatesWithCustom() throws Exception {
+		Assume.assumeFalse(_windows);
 		_setupTestExtensions();
 
 		Map<String, String> templates = BladeUtil.getTemplates(_bladeTest);
@@ -114,6 +118,8 @@ public class TemplatesTest {
 	}
 
 	private static final int _NUM_BUILTIN_TEMPLATES = 33;
+
+	private static boolean _windows = BladeUtil.isWindows();
 
 	private BladeTest _bladeTest;
 
