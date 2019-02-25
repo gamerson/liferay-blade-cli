@@ -17,6 +17,7 @@
 package com.liferay.blade.cli.command;
 
 import com.liferay.blade.cli.TestUtil;
+import com.liferay.blade.cli.util.BladeUtil;
 
 import java.io.File;
 
@@ -29,6 +30,7 @@ import java.util.Arrays;
 import java.util.List;
 
 import org.junit.Assert;
+import org.junit.Assume;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -48,6 +50,7 @@ public class DeployCommandTest {
 
 	@Test
 	public void testInstallJar() throws Exception {
+		Assume.assumeFalse(_windows);
 		File workspaceDir = temporaryFolder.newFolder();
 
 		String[] args = {"--base", workspaceDir.getPath(), "init"};
@@ -97,6 +100,7 @@ public class DeployCommandTest {
 
 	@Test
 	public void testInstallJarStandalone() throws Exception {
+		Assume.assumeFalse(_windows);
 		File workspaceDir = temporaryFolder.newFolder();
 
 		File standaloneDir = temporaryFolder.newFolder();
@@ -147,6 +151,7 @@ public class DeployCommandTest {
 
 	@Test
 	public void testInstallWar() throws Exception {
+		Assume.assumeFalse(_windows);
 		File workspaceDir = temporaryFolder.newFolder();
 
 		String[] args = {"--base", workspaceDir.getPath(), "init"};
@@ -192,6 +197,8 @@ public class DeployCommandTest {
 
 	@Rule
 	public final TemporaryFolder temporaryFolder = new TemporaryFolder();
+
+	private static boolean _windows = BladeUtil.isWindows();
 
 	private File _extensionsDir = null;
 	private File _rootDir = null;
