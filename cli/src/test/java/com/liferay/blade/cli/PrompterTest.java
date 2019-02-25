@@ -16,6 +16,7 @@
 
 package com.liferay.blade.cli;
 
+import com.liferay.blade.cli.util.BladeUtil;
 import com.liferay.blade.cli.util.Prompter;
 
 import java.io.ByteArrayInputStream;
@@ -32,6 +33,7 @@ import java.util.Objects;
 import java.util.Optional;
 
 import org.junit.Assert;
+import org.junit.Assume;
 import org.junit.Test;
 
 /**
@@ -41,6 +43,7 @@ public class PrompterTest {
 
 	@Test
 	public void testConfirmDefaultQuestions() throws Exception {
+		Assume.assumeFalse(_windows);
 		Map<String, Boolean> correctAnswerDefaultTrueTests = new HashMap<>();
 
 		correctAnswerDefaultTrueTests.put("foobar", true);
@@ -68,6 +71,7 @@ public class PrompterTest {
 
 	@Test
 	public void testConfirmQuestions() throws Exception {
+		Assume.assumeFalse(_windows);
 		Map<String, Boolean> correctAnswerTests = new HashMap<>();
 
 		correctAnswerTests.put(" n ", false);
@@ -90,6 +94,7 @@ public class PrompterTest {
 
 	@Test
 	public void testConfirmQuestionsOutput() throws Exception {
+		Assume.assumeFalse(_windows);
 		String answer = "y";
 
 		String correctResult = _question + " (y/n)";
@@ -164,6 +169,8 @@ public class PrompterTest {
 			_testAnswer(answerString, correctAnswerValue, defaultAnswer);
 		}
 	}
+
+	private static boolean _windows = BladeUtil.isWindows();
 
 	private String _question = "Hello world?";
 
