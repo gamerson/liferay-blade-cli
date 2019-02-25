@@ -22,6 +22,7 @@ import com.liferay.blade.cli.BladeTest.BladeTestBuilder;
 import com.liferay.blade.cli.StringPrintStream;
 import com.liferay.blade.cli.gradle.GradleExec;
 import com.liferay.blade.cli.gradle.ProcessResult;
+import com.liferay.blade.cli.util.BladeUtil;
 
 import java.io.File;
 
@@ -32,6 +33,7 @@ import org.easymock.EasyMock;
 import org.easymock.IExpectationSetters;
 
 import org.junit.Assert;
+import org.junit.Assume;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -56,12 +58,14 @@ public class GradlePrintErrorTest {
 
 	@Before
 	public void setUp() throws Exception {
+		Assume.assumeFalse(_windows);
 		_rootDir = temporaryFolder.getRoot();
 		_extensionsDir = temporaryFolder.newFolder(".blade", "extensions");
 	}
 
 	@Test
 	public void testGradleError() throws Exception {
+		Assume.assumeFalse(_windows);
 		String[] args = {"extension", "install", "https://github.com/gamerson/blade-sample-command"};
 
 		BladeTestBuilder bladeTestBuilder = BladeTest.builder();
@@ -110,8 +114,7 @@ public class GradlePrintErrorTest {
 	@Rule
 	public final PowerMockRule rule = new PowerMockRule();
 
-	@Rule
-	public final TemporaryFolder temporaryFolder = new TemporaryFolder();
+	private static boolean _windows = BladeUtil.isWindows();
 
 	private File _extensionsDir = null;
 	private File _rootDir = null;
@@ -130,5 +133,6 @@ public class GradlePrintErrorTest {
 		}
 
 	}
+	public final TemporaryFolder temporaryFolder = new TemporaryFolder();
 
 }

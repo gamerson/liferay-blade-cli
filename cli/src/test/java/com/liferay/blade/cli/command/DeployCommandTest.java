@@ -43,6 +43,7 @@ public class DeployCommandTest {
 
 	@Before
 	public void setUp() throws Exception {
+		Assume.assumeFalse(_windows);
 		_rootDir = temporaryFolder.getRoot();
 
 		_extensionsDir = temporaryFolder.newFolder(".blade", "extensions");

@@ -29,6 +29,7 @@ import java.util.Properties;
 import java.util.regex.Matcher;
 
 import org.junit.Assert;
+import org.junit.Assume;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -60,6 +61,7 @@ public class TargetPlatformTest {
 
 	@Test
 	public void testCreateProjectWithoutWorkspace() throws Exception {
+		Assume.assumeFalse(_windows);
 		String[] args =
 			{"--base", _nonGradleWorkspaceDir.getAbsolutePath(), "create", "-t", "activator", "test-project"};
 
@@ -79,6 +81,7 @@ public class TargetPlatformTest {
 
 	@Test
 	public void testTargetPlatformEnabled() throws Exception {
+		Assume.assumeFalse(_windows);
 		_setTargetPlatformVersionProperty("7.1.0");
 		_setWorkspacePluginVersion("1.10.2");
 
@@ -103,6 +106,7 @@ public class TargetPlatformTest {
 
 	@Test
 	public void testWorkspacePluginVersionIncompatibleVersion() throws Exception {
+		Assume.assumeFalse(_windows);
 		_setTargetPlatformVersionProperty("7.1.0");
 		_setWorkspacePluginVersion("1.8.0");
 
@@ -126,6 +130,7 @@ public class TargetPlatformTest {
 
 	@Test
 	public void testWorkspaceTargetPlatformDisabled() throws Exception {
+		Assume.assumeFalse(_windows);
 		_setWorkspacePluginVersion("1.10.2");
 
 		String[] args = {"--base", _gradleWorkspaceDir.getAbsolutePath(), "create", "-t", "activator", "test-project"};
@@ -146,6 +151,7 @@ public class TargetPlatformTest {
 		Assert.assertTrue("Expected osgi.core dependencies to have a version", containsVersion);
 	}
 
+	private static boolean _windows = BladeUtil.isWindows();
 	@Rule
 	public final TemporaryFolder temporaryFolder = new TemporaryFolder();
 

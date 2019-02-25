@@ -64,6 +64,7 @@ public class ServerStartCommandTest {
 
 	@Before
 	public void setUp() throws Exception {
+		Assume.assumeFalse(_windows);
 		File testWorkspaceFile = temporaryFolder.newFolder("testWorkspaceDir");
 
 		_testWorkspacePath = testWorkspaceFile.toPath();
@@ -80,6 +81,7 @@ public class ServerStartCommandTest {
 
 	@After
 	public void tearDown() throws Exception {
+		Assume.assumeFalse(_windows);
 		_killTomcat();
 
 		_killWildfly();
