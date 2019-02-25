@@ -17,6 +17,7 @@
 package com.liferay.blade.cli.command;
 
 import com.liferay.blade.cli.TestUtil;
+import com.liferay.blade.cli.util.BladeUtil;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -44,7 +45,9 @@ import java.util.concurrent.TimeUnit;
 import java.util.function.Predicate;
 import java.util.stream.Stream;
 
+import org.junit.After;
 import org.junit.Assert;
+import org.junit.Assume;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -69,10 +72,23 @@ public class ServerStartCommandTest {
 
 		_extensionsPath = extensionsFile.toPath();
 
+		_killTomcat();
+
+		_killWildfly();
+
+	}
+
+	@After
+	public void tearDown() throws Exception {
+		_killTomcat();
+
+		_killWildfly();
 	}
 
 	@Test
 	public void testServerInitCustomEnvironment() throws Exception {
+		Assume.assumeFalse(_windows);
+
 		_initBladeWorkspace();
 
 		_customizeProdProperties();
@@ -86,6 +102,7 @@ public class ServerStartCommandTest {
 
 	@Test
 	public void testServerRunCommandTomcat() throws Exception {
+		Assume.assumeFalse(_windows);
 		_initBladeWorkspace();
 
 		_addTomcatBundleToGradle();
@@ -101,6 +118,7 @@ public class ServerStartCommandTest {
 
 	@Test
 	public void testServerRunCommandTomcatDebug() throws Exception {
+		Assume.assumeFalse(_windows);
 		_debugPort = _DEFAULT_DEBUG_PORT_TOMCAT;
 
 		_initBladeWorkspace();
@@ -118,6 +136,7 @@ public class ServerStartCommandTest {
 
 	@Test
 	public void testServerRunCommandTomcatDebugCustomPort() throws Exception {
+		Assume.assumeFalse(_windows);
 		_debugPort = _getAvailablePort();
 
 		_initBladeWorkspace();
@@ -135,6 +154,7 @@ public class ServerStartCommandTest {
 
 	@Test
 	public void testServerRunCommandWildfly() throws Exception {
+		Assume.assumeFalse(_windows);
 		_initBladeWorkspace();
 
 		_addWildflyBundleToGradle();
@@ -150,6 +170,7 @@ public class ServerStartCommandTest {
 
 	@Test
 	public void testServerRunCommandWildflyDebug() throws Exception {
+		Assume.assumeFalse(_windows);
 		_debugPort = _DEFAULT_DEBUG_PORT_WILDFLY;
 
 		_initBladeWorkspace();
@@ -167,6 +188,7 @@ public class ServerStartCommandTest {
 
 	@Test
 	public void testServerRunCommandWildflyDebugCustomPort() throws Exception {
+		Assume.assumeFalse(_windows);
 		_debugPort = _getAvailablePort();
 
 		_initBladeWorkspace();
@@ -184,6 +206,7 @@ public class ServerStartCommandTest {
 
 	@Test
 	public void testServerStartCommandExists() throws Exception {
+		Assume.assumeFalse(_windows);
 		Assert.assertTrue(_commandExists("server", "start"));
 		Assert.assertTrue(_commandExists("server start"));
 		Assert.assertFalse(_commandExists("server", "startx"));
@@ -194,6 +217,7 @@ public class ServerStartCommandTest {
 
 	@Test
 	public void testServerStartCommandTomcat() throws Exception {
+		Assume.assumeFalse(_windows);
 		_initBladeWorkspace();
 
 		_addTomcatBundleToGradle();
@@ -209,6 +233,7 @@ public class ServerStartCommandTest {
 
 	@Test
 	public void testServerStartCommandTomcatDebug() throws Exception {
+		Assume.assumeFalse(_windows);
 		_debugPort = _DEFAULT_DEBUG_PORT_TOMCAT;
 
 		_initBladeWorkspace();
@@ -226,6 +251,7 @@ public class ServerStartCommandTest {
 
 	@Test
 	public void testServerStartCommandTomcatDebugCustomPort() throws Exception {
+		Assume.assumeFalse(_windows);
 		_debugPort = _getAvailablePort();
 
 		_initBladeWorkspace();
@@ -243,6 +269,7 @@ public class ServerStartCommandTest {
 
 	@Test
 	public void testServerStartCommandWildfly() throws Exception {
+		Assume.assumeFalse(_windows);
 		_initBladeWorkspace();
 
 		_addWildflyBundleToGradle();
@@ -258,6 +285,7 @@ public class ServerStartCommandTest {
 
 	@Test
 	public void testServerStartCommandWildflyDebug() throws Exception {
+		Assume.assumeFalse(_windows);
 		_debugPort = _DEFAULT_DEBUG_PORT_WILDFLY;
 
 		_initBladeWorkspace();
@@ -275,6 +303,7 @@ public class ServerStartCommandTest {
 
 	@Test
 	public void testServerStartCommandWildflyDebugCustomPort() throws Exception {
+		Assume.assumeFalse(_windows);
 		_debugPort = _getAvailablePort();
 
 		_initBladeWorkspace();
@@ -292,6 +321,7 @@ public class ServerStartCommandTest {
 
 	@Test
 	public void testServerStopCommandExists() throws Exception {
+		Assume.assumeFalse(_windows);
 		Assert.assertTrue(_commandExists("server", "stop"));
 		Assert.assertTrue(_commandExists("server stop"));
 		Assert.assertFalse(_commandExists("server", "stopx"));
@@ -511,6 +541,46 @@ public class ServerStartCommandTest {
 		TestUtil.runBlade(_testWorkspacePath, _extensionsPath, serverInitArgs);
 	}
 
+	private void _killTomcat() throws Exception {
+		Collection<JavaProcess> javaProcesses = JavaProcesses.list();
+
+		Optional<JavaProcess> tomcatProcess = _findProcess(javaProcesses, _FILTER_TOMCAT);
+
+		if (tomcatProcess.isPresent()) {
+			JavaProcess javaProcess = tomcatProcess.get();
+
+			PidProcess tomcatPidProcess = Processes.newPidProcess(javaProcess.getId());
+
+			Assert.assertTrue("Expected tomcat process to be alive", tomcatPidProcess.isAlive());
+
+			tomcatPidProcess.destroyForcefully();
+
+			tomcatPidProcess.waitFor(1, TimeUnit.SECONDS);
+
+			Assert.assertFalse("Expected tomcat process to be destroyed.", tomcatPidProcess.isAlive());
+		}
+	}
+
+	private void _killWildfly() throws Exception {
+		Collection<JavaProcess> javaProcesses = JavaProcesses.list();
+
+		Optional<JavaProcess> wildflyProcess = _findProcess(javaProcesses, _FILTER_WILDFLY);
+
+		if (wildflyProcess.isPresent()) {
+			JavaProcess javaProcess = wildflyProcess.get();
+
+			PidProcess wildflyPidProcess = Processes.newPidProcess(javaProcess.getId());
+
+			Assert.assertTrue("Expected wildfly process to be alive", wildflyPidProcess.isAlive());
+
+			wildflyPidProcess.destroyForcefully();
+
+			wildflyPidProcess.waitFor(1, TimeUnit.SECONDS);
+
+			Assert.assertFalse("Expected wildfly proces to be destroyed.", wildflyPidProcess.isAlive());
+		}
+	}
+
 	private String _printDisplayNames(Collection<JavaProcess> javaProcesses) {
 		StringBuilder sb = new StringBuilder();
 
@@ -618,6 +688,8 @@ public class ServerStartCommandTest {
 
 	private static final String _LIFERAY_WORKSPACE_BUNDLE_WILDFLY =
 		"liferay-ce-portal-wildfly-7.1.1-ga2-20181112144637000.tar.gz";
+
+	private static boolean _windows = BladeUtil.isWindows();
 
 	private int _debugPort = -1;
 	private Path _extensionsPath = null;
