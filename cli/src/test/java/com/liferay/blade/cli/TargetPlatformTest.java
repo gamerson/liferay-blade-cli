@@ -151,7 +151,6 @@ public class TargetPlatformTest {
 		Assert.assertTrue("Expected osgi.core dependencies to have a version", containsVersion);
 	}
 
-	private static boolean _windows = BladeUtil.isWindows();
 	@Rule
 	public final TemporaryFolder temporaryFolder = new TemporaryFolder();
 
@@ -184,6 +183,8 @@ public class TargetPlatformTest {
 			outputStream.write(bytes);
 		}
 	}
+
+	private static boolean _windows = BladeUtil.isWindows();
 
 	private File _extensionsDir = null;
 	private File _gradlePropertiesFile = null;

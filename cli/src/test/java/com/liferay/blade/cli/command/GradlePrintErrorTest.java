@@ -114,6 +114,8 @@ public class GradlePrintErrorTest {
 	@Rule
 	public final PowerMockRule rule = new PowerMockRule();
 
+	public final TemporaryFolder temporaryFolder = new TemporaryFolder();
+
 	private static boolean _windows = BladeUtil.isWindows();
 
 	private File _extensionsDir = null;
@@ -133,6 +135,5 @@ public class GradlePrintErrorTest {
 		}
 
 	}
-	public final TemporaryFolder temporaryFolder = new TemporaryFolder();
 
 }
