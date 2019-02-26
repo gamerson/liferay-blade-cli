@@ -17,6 +17,7 @@
 package com.liferay.blade.cli.command;
 
 import com.liferay.blade.cli.TestUtil;
+import com.liferay.blade.cli.util.BladeUtil;
 import com.liferay.blade.cli.util.FileUtil;
 
 import java.io.File;
@@ -24,6 +25,7 @@ import java.io.File;
 import java.nio.file.Files;
 
 import org.junit.Assert;
+import org.junit.Assume;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -38,12 +40,14 @@ public class ConvertServiceBuilderCommandTest {
 
 	@Before
 	public void setUp() throws Exception {
+		Assume.assumeFalse(_windows);
 		_rootDir = temporaryFolder.getRoot();
 		_extensionsDir = temporaryFolder.newFolder(".blade", "extensions");
 	}
 
 	@Test
 	public void testConvertServiceBuilder() throws Exception {
+		Assume.assumeFalse(_windows);
 		File testdir = new File(temporaryFolder.getRoot(), "build/testMigrateServiceBuilder");
 
 		FileUtil.unzip(new File("test-resources/projects/plugins-sdk-with-git.zip"), testdir);
@@ -109,6 +113,7 @@ public class ConvertServiceBuilderCommandTest {
 
 	@Test
 	public void testConvertServiceBuilderTasksPortletCustomName() throws Exception {
+		Assume.assumeFalse(_windows);
 		File testdir = new File(temporaryFolder.getRoot(), "build/test-tasks-portlet-conversion");
 
 		String[] args = {"--base", testdir.getPath(), "init", "-u"};
@@ -130,6 +135,7 @@ public class ConvertServiceBuilderCommandTest {
 
 	@Test
 	public void testConvertServiceBuilderTasksPortletDefaultName() throws Exception {
+		Assume.assumeFalse(_windows);
 		File testdir = new File(temporaryFolder.getRoot(), "build/test-tasks-portlet-conversion");
 
 		String[] args = {"--base", testdir.getPath(), "init", "-u"};
@@ -179,6 +185,8 @@ public class ConvertServiceBuilderCommandTest {
 
 	@Rule
 	public final TemporaryFolder temporaryFolder = new TemporaryFolder();
+
+	private static boolean _windows = BladeUtil.isWindows();
 
 	private File _extensionsDir = null;
 	private File _rootDir = null;

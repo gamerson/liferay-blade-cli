@@ -28,6 +28,7 @@ import java.util.Objects;
 import java.util.Properties;
 
 import org.junit.Assert;
+import org.junit.Assume;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
@@ -40,6 +41,7 @@ public class UtilTest {
 
 	@Test
 	public void testAppServerProperties() throws Exception {
+		Assume.assumeFalse(_windows);
 		File dir = temporaryFolder.getRoot();
 
 		File appServerProperty1 = new File(dir, "app.server." + System.getProperty("user.name") + ".properties");
@@ -57,6 +59,7 @@ public class UtilTest {
 
 	@Test
 	public void testCopyEntireDirectory() throws Exception {
+		Assume.assumeFalse(_windows);
 		File testDir1 = temporaryFolder.newFolder("dir1");
 
 		File testFile1 = new File(testDir1, "1");
@@ -77,6 +80,7 @@ public class UtilTest {
 
 	@Test
 	public void testFindParentFile() throws Exception {
+		Assume.assumeFalse(_windows);
 		File tempTestFile = null;
 
 		try {
@@ -107,5 +111,7 @@ public class UtilTest {
 
 	@Rule
 	public final TemporaryFolder temporaryFolder = new TemporaryFolder();
+
+	private static boolean _windows = BladeUtil.isWindows();
 
 }

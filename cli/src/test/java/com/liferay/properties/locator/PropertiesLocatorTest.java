@@ -16,6 +16,8 @@
 
 package com.liferay.properties.locator;
 
+import com.liferay.blade.cli.util.BladeUtil;
+
 import java.io.File;
 
 import java.nio.file.Files;
@@ -23,6 +25,7 @@ import java.nio.file.Files;
 import java.util.SortedSet;
 
 import org.junit.Assert;
+import org.junit.Assume;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
@@ -33,11 +36,13 @@ public class PropertiesLocatorTest {
 
 	@BeforeClass
 	public static void readSystemProperties() throws Exception {
+		Assume.assumeFalse(_windows);
 		Assert.assertNotNull("Expecting liferay.home system property to not be null", _liferayHome);
 	}
 
 	@Test
 	public void testPropertiesLocatorAPI() throws Exception {
+		Assume.assumeFalse(_windows);
 		PropertiesLocatorArgs args = new PropertiesLocatorArgs();
 
 		args.setBundleDir(_liferayHome);
@@ -55,6 +60,7 @@ public class PropertiesLocatorTest {
 
 	@Test
 	public void testPropertiesLocatorOutputFile() throws Exception {
+		Assume.assumeFalse(_windows);
 		File outputFile = new File(_buildDir, "testProperties.out");
 
 		String[] args = {
@@ -72,5 +78,6 @@ public class PropertiesLocatorTest {
 
 	private static final File _buildDir = new File(System.getProperty("buildDir"));
 	private static final File _liferayHome = new File(System.getProperty("liferay.home"));
+	private static boolean _windows = BladeUtil.isWindows();
 
 }

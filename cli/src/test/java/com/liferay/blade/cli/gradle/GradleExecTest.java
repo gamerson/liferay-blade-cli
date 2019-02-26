@@ -19,12 +19,14 @@ package com.liferay.blade.cli.gradle;
 import com.liferay.blade.cli.BladeCLI;
 import com.liferay.blade.cli.BladeTest;
 import com.liferay.blade.cli.BladeTest.BladeTestBuilder;
+import com.liferay.blade.cli.util.BladeUtil;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.PrintStream;
 
 import org.junit.Assert;
+import org.junit.Assume;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -37,6 +39,7 @@ public class GradleExecTest {
 
 	@Before
 	public void setUp() throws Exception {
+		Assume.assumeFalse(_windows);
 		_rootDir = temporaryFolder.getRoot();
 
 		_extensionsDir = temporaryFolder.newFolder(".blade", "extensions");
@@ -44,6 +47,7 @@ public class GradleExecTest {
 
 	@Test
 	public void testGradleWrapper() throws Exception {
+		Assume.assumeFalse(_windows);
 		File temporaryDir = temporaryFolder.getRoot();
 
 		String[] args = {"--base", temporaryDir.getAbsolutePath(), "create", "-t", "api", "foo"};
@@ -91,6 +95,8 @@ public class GradleExecTest {
 
 		return bladeTestBuilder.build();
 	}
+
+	private static boolean _windows = BladeUtil.isWindows();
 
 	private File _extensionsDir = null;
 	private File _rootDir = null;

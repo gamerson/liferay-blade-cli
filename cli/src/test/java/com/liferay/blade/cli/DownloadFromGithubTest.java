@@ -24,6 +24,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 
 import org.junit.Assert;
+import org.junit.Assume;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
@@ -35,6 +36,7 @@ public class DownloadFromGithubTest {
 
 	@Test
 	public void testDownloadFromGithub() throws IOException {
+		Assume.assumeFalse(_windows);
 		Path testDir = tempFolder.newFolder().toPath();
 
 		Path zip = testDir.resolve("master.zip");
@@ -46,5 +48,7 @@ public class DownloadFromGithubTest {
 
 	@Rule
 	public final TemporaryFolder tempFolder = new TemporaryFolder();
+
+	private static boolean _windows = BladeUtil.isWindows();
 
 }

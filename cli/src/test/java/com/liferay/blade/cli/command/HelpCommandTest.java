@@ -18,10 +18,12 @@ package com.liferay.blade.cli.command;
 
 import com.liferay.blade.cli.BladeTestResults;
 import com.liferay.blade.cli.TestUtil;
+import com.liferay.blade.cli.util.BladeUtil;
 
 import java.io.File;
 
 import org.junit.Assert;
+import org.junit.Assume;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -34,6 +36,7 @@ public class HelpCommandTest {
 
 	@Before
 	public void setUpTestExtensions() throws Exception {
+		Assume.assumeFalse(_windows);
 		_rootDir = temporaryFolder.getRoot();
 
 		_extensionsDir = temporaryFolder.newFolder(".blade", "extensions");
@@ -41,6 +44,7 @@ public class HelpCommandTest {
 
 	@Test
 	public void testHelpCommand() throws Exception {
+		Assume.assumeFalse(_windows);
 		String content = _runBlade("help");
 
 		Assert.assertTrue(content, content.contains("Usage:"));
@@ -50,6 +54,7 @@ public class HelpCommandTest {
 
 	@Test
 	public void testHelpCommandSpecific() throws Exception {
+		Assume.assumeFalse(_windows);
 		String content = _runBlade("help", "create");
 
 		Assert.assertTrue(content, content.contains("Usage:"));
@@ -59,6 +64,7 @@ public class HelpCommandTest {
 
 	@Test
 	public void testHelpFlag() throws Exception {
+		Assume.assumeFalse(_windows);
 		String content = _runBlade("--help");
 
 		Assert.assertTrue(content, content.contains("Usage:"));
@@ -76,6 +82,8 @@ public class HelpCommandTest {
 
 		return output;
 	}
+
+	private static boolean _windows = BladeUtil.isWindows();
 
 	private File _extensionsDir = null;
 	private File _rootDir = null;

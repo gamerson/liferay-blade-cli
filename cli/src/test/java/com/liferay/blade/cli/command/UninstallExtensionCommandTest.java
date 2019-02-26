@@ -18,6 +18,7 @@ package com.liferay.blade.cli.command;
 
 import com.liferay.blade.cli.BladeTestResults;
 import com.liferay.blade.cli.TestUtil;
+import com.liferay.blade.cli.util.BladeUtil;
 
 import java.io.File;
 import java.io.IOException;
@@ -27,6 +28,7 @@ import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
 
 import org.junit.Assert;
+import org.junit.Assume;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -40,6 +42,7 @@ public class UninstallExtensionCommandTest {
 
 	@Before
 	public void setUpTestExtensions() throws Exception {
+		Assume.assumeFalse(_windows);
 		_rootDir = temporaryFolder.getRoot();
 
 		_extensionsDir = temporaryFolder.newFolder(".blade", "extensions");
@@ -51,6 +54,7 @@ public class UninstallExtensionCommandTest {
 
 	@Test
 	public void testUninstallCustomExtension() throws Exception {
+		Assume.assumeFalse(_windows);
 		File sampleCommandJarFile = new File(System.getProperty("sampleCommandJarFile"));
 
 		String jarName = sampleCommandJarFile.getName();
@@ -86,6 +90,8 @@ public class UninstallExtensionCommandTest {
 
 		Assert.assertTrue(Files.exists(sampleJarPath));
 	}
+
+	private static boolean _windows = BladeUtil.isWindows();
 
 	private File _extensionsDir = null;
 	private File _rootDir = null;

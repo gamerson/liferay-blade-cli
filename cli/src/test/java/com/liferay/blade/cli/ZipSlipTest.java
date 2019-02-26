@@ -16,6 +16,7 @@
 
 package com.liferay.blade.cli;
 
+import com.liferay.blade.cli.util.BladeUtil;
 import com.liferay.blade.cli.util.FileUtil;
 
 import java.io.File;
@@ -26,6 +27,7 @@ import java.nio.file.Path;
 import java.util.zip.ZipException;
 
 import org.junit.Assert;
+import org.junit.Assume;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
@@ -37,6 +39,7 @@ public class ZipSlipTest {
 
 	@Test
 	public void testNoZipSlipZip() throws Exception {
+		Assume.assumeFalse(_windows);
 		_testZip("no-zip-slip.zip");
 
 		File tempDir = temporaryFolder.getRoot();
@@ -56,6 +59,7 @@ public class ZipSlipTest {
 
 	@Test(expected = ZipException.class)
 	public void testZipSlipZip() throws Exception {
+		Assume.assumeFalse(_windows);
 		_testZip("zip-slip.zip");
 	}
 
@@ -73,5 +77,7 @@ public class ZipSlipTest {
 
 		FileUtil.unzip(zipPath.toFile(), tempDir);
 	}
+
+	private static boolean _windows = BladeUtil.isWindows();
 
 }

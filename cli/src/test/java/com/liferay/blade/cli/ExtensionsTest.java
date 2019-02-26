@@ -19,6 +19,7 @@ package com.liferay.blade.cli;
 import com.liferay.blade.cli.BladeTest.BladeTestBuilder;
 import com.liferay.blade.cli.command.BaseArgs;
 import com.liferay.blade.cli.command.BaseCommand;
+import com.liferay.blade.cli.util.BladeUtil;
 
 import java.io.File;
 import java.io.IOException;
@@ -34,6 +35,7 @@ import java.util.Scanner;
 
 import org.junit.After;
 import org.junit.Assert;
+import org.junit.Assume;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -47,6 +49,7 @@ public class ExtensionsTest {
 
 	@Before
 	public void setUp() throws Exception {
+		Assume.assumeFalse(_windows);
 		BladeTestBuilder bladeTestBuilder = BladeTest.builder();
 
 		_rootDir = temporaryFolder.getRoot();
@@ -64,11 +67,13 @@ public class ExtensionsTest {
 
 	@After
 	public void tearDown() throws Exception {
+		Assume.assumeFalse(_windows);
 		_extensionsClassLoaderSupplier.close();
 	}
 
 	@Test
 	public void testArgsSort() throws Exception {
+		Assume.assumeFalse(_windows);
 		String[] args = {"--base", "/foo/bar/dir/", "--flag1", "extension", "install", "/path/to/jar.jar", "--flag2"};
 
 		ClassLoader classLoader = _extensionsClassLoaderSupplier.get();
@@ -92,6 +97,7 @@ public class ExtensionsTest {
 
 	@Test
 	public void testBadJar() throws Exception {
+		Assume.assumeFalse(_windows);
 		_setupBadExtension();
 
 		String[] args = {"create", "-l"};
@@ -115,6 +121,7 @@ public class ExtensionsTest {
 
 	@Test
 	public void testLoadCommandsBuiltIn() throws Exception {
+		Assume.assumeFalse(_windows);
 		ClassLoader classLoader = _extensionsClassLoaderSupplier.get();
 
 		Extensions extensions = new Extensions(classLoader);
@@ -128,6 +135,7 @@ public class ExtensionsTest {
 
 	@Test
 	public void testLoadCommandsWithCustomExtension() throws Exception {
+		Assume.assumeFalse(_windows);
 		_setupTestExtensions();
 
 		ClassLoader classLoader = _extensionsClassLoaderSupplier.get();
@@ -143,6 +151,7 @@ public class ExtensionsTest {
 
 	@Test
 	public void testLoadCommandsWithCustomExtensionInWorkspace() throws Exception {
+		Assume.assumeFalse(_windows);
 		_setupTestExtensions();
 
 		File workspaceDir = temporaryFolder.newFolder("build", "test", "workspace");
@@ -214,6 +223,8 @@ public class ExtensionsTest {
 	}
 
 	private static final int _BUILT_IN_COMMANDS_COUNT = _getBuiltInCommandsCount();
+
+	private static boolean _windows = BladeUtil.isWindows();
 
 	private BladeTest _bladeTest;
 	private ExtensionsClassLoaderSupplier _extensionsClassLoaderSupplier = null;

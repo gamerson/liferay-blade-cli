@@ -18,11 +18,13 @@ package com.liferay.blade.cli.command;
 
 import com.liferay.blade.cli.BladeTestResults;
 import com.liferay.blade.cli.TestUtil;
+import com.liferay.blade.cli.util.BladeUtil;
 
 import java.io.File;
 import java.io.IOException;
 
 import org.junit.Assert;
+import org.junit.Assume;
 import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Rule;
@@ -37,6 +39,7 @@ public class UpdateCommandTest {
 
 	@Before
 	public void setUp() throws Exception {
+		Assume.assumeFalse(_windows);
 		_rootDir = temporaryFolder.getRoot();
 
 		_extensionsDir = temporaryFolder.newFolder(".blade", "extensions");
@@ -44,6 +47,7 @@ public class UpdateCommandTest {
 
 	@Test
 	public void testCurrentMajorLessThanUpdatedMajor() {
+		Assume.assumeFalse(_windows);
 		String currentVersion = "1.5.9.1.2.3.4.5.6.7.8.9";
 		String updatedVersion = "2.1.1.4.5.6-snapshot";
 
@@ -54,6 +58,7 @@ public class UpdateCommandTest {
 
 	@Test
 	public void testCurrentMajorMoreThanUpdatedMajor() {
+		Assume.assumeFalse(_windows);
 		String currentVersion = "3.0.0.2018.10.23.1234";
 		String updatedVersion = "2.5.9-SNAPSHOT";
 
@@ -64,6 +69,7 @@ public class UpdateCommandTest {
 
 	@Test
 	public void testCurrentMinorLessThanUpdatedMinor() {
+		Assume.assumeFalse(_windows);
 		String currentVersion = "12.1.9.SCHWIBBY";
 		String updatedVersion = "12.2.1-snapshot";
 
@@ -74,6 +80,7 @@ public class UpdateCommandTest {
 
 	@Test
 	public void testCurrentMinorMoreThanUpdatedMinor() {
+		Assume.assumeFalse(_windows);
 		String currentVersion = "3.6.0.001810231234";
 		String updatedVersion = "3.5.9-SCHNAPS";
 
@@ -84,6 +91,7 @@ public class UpdateCommandTest {
 
 	@Test
 	public void testCurrentPatchLessThanUpdatedPatch() {
+		Assume.assumeFalse(_windows);
 		String currentVersion = "123.10.10.SCHOOBY";
 		String updatedVersion = "123.10.20-whiff";
 
@@ -94,6 +102,7 @@ public class UpdateCommandTest {
 
 	@Test
 	public void testCurrentPatchMoreThanUpdatedPatch() {
+		Assume.assumeFalse(_windows);
 		String currentVersion = "3.5.9.001810231234";
 		String updatedVersion = "3.5.8.999999";
 
@@ -104,6 +113,7 @@ public class UpdateCommandTest {
 
 	@Test
 	public void testCurrentSnapshot() {
+		Assume.assumeFalse(_windows);
 		String currentVersion = "3.4.0.SNAPSHOT201812060746";
 		String updatedVersion = "3.4.0-20181206.074623-13";
 
@@ -115,6 +125,7 @@ public class UpdateCommandTest {
 
 	@Test
 	public void testCurrentVersionWithNoManifest() throws Exception {
+		Assume.assumeFalse(_windows);
 		BladeTestResults bladeTestResults = TestUtil.runBlade(_rootDir, _extensionsDir, false, "version");
 
 		String errors = bladeTestResults.getErrors();
@@ -156,6 +167,7 @@ public class UpdateCommandTest {
 
 	@Test
 	public void testTargetSnapshots() throws IOException {
+		Assume.assumeFalse(_windows);
 
 		// assuming target is in snapshots and available
 
@@ -175,6 +187,7 @@ public class UpdateCommandTest {
 
 	@Test
 	public void testTwoSnapshotVersions() {
+		Assume.assumeFalse(_windows);
 		String currentVersion = "3.3.1.SNAPSHOT201811211846";
 		String updateVersion = "3.3.1-20181128.214621-308";
 
@@ -185,6 +198,8 @@ public class UpdateCommandTest {
 
 	@Rule
 	public final TemporaryFolder temporaryFolder = new TemporaryFolder();
+
+	private static boolean _windows = BladeUtil.isWindows();
 
 	private File _extensionsDir = null;
 	private File _rootDir = null;

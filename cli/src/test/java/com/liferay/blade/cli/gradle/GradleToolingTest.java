@@ -16,6 +16,7 @@
 
 package com.liferay.blade.cli.gradle;
 
+import com.liferay.blade.cli.util.BladeUtil;
 import com.liferay.blade.cli.util.FileUtil;
 import com.liferay.blade.gradle.tooling.ProjectInfo;
 
@@ -31,6 +32,7 @@ import java.util.Set;
 
 import org.junit.AfterClass;
 import org.junit.Assert;
+import org.junit.Assume;
 import org.junit.BeforeClass;
 import org.junit.ClassRule;
 import org.junit.Test;
@@ -46,6 +48,7 @@ public class GradleToolingTest {
 
 	@BeforeClass
 	public static void setUpClass() throws Exception {
+		Assume.assumeFalse(_windows);
 		File wsDir = temporaryFolder.newFolder("build", "testws1");
 
 		Path toolingZipPath = Paths.get("build/tooling.zip");
@@ -59,11 +62,13 @@ public class GradleToolingTest {
 
 	@AfterClass
 	public static void tearDownClass() throws Exception {
+		Assume.assumeFalse(_windows);
 		Files.delete(_TOOLING_ZIP.toPath());
 	}
 
 	@Test
 	public void testGetOutputFiles() throws Exception {
+		Assume.assumeFalse(_windows);
 		ProjectInfo projectInfo = GradleTooling.loadProjectInfo(
 			new File(temporaryFolder.getRoot(), "build/testws1").toPath());
 
@@ -81,6 +86,7 @@ public class GradleToolingTest {
 
 	@Test
 	public void testGetPluginClassNames() throws Exception {
+		Assume.assumeFalse(_windows);
 		ProjectInfo projectInfo = GradleTooling.loadProjectInfo(
 			new File(temporaryFolder.getRoot(), "build/testws1/modules/testportlet").toPath());
 
@@ -92,6 +98,7 @@ public class GradleToolingTest {
 
 	@Test
 	public void testIsLiferayModule() throws Exception {
+		Assume.assumeFalse(_windows);
 		ProjectInfo projectInfo = GradleTooling.loadProjectInfo(
 			new File(temporaryFolder.getRoot(), "build/testws1/modules/testportlet").toPath());
 
@@ -100,6 +107,7 @@ public class GradleToolingTest {
 
 	@Test
 	public void testIsNotLiferayModule() throws Exception {
+		Assume.assumeFalse(_windows);
 		ProjectInfo projectInfo = GradleTooling.loadProjectInfo(
 			new File(temporaryFolder.getRoot(), "build/testws1/modules").toPath());
 
@@ -109,5 +117,7 @@ public class GradleToolingTest {
 	private static final String _TEST_OUTPUT_PATH = System.getProperty("testOutputPath");
 
 	private static final File _TOOLING_ZIP = new File(_TEST_OUTPUT_PATH + "/tooling.zip");
+
+	private static boolean _windows = BladeUtil.isWindows();
 
 }

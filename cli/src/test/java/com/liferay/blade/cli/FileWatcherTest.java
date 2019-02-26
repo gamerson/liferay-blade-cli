@@ -16,6 +16,7 @@
 
 package com.liferay.blade.cli;
 
+import com.liferay.blade.cli.util.BladeUtil;
 import com.liferay.blade.cli.util.FileUtil;
 import com.liferay.blade.cli.util.FileWatcher;
 import com.liferay.blade.cli.util.FileWatcher.Consumer;
@@ -32,6 +33,7 @@ import java.util.concurrent.CountDownLatch;
 
 import org.junit.After;
 import org.junit.Assert;
+import org.junit.Assume;
 import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Rule;
@@ -45,6 +47,8 @@ public class FileWatcherTest {
 
 	@After
 	public void cleanUp() throws Exception {
+		Assume.assumeFalse(_windows);
+
 		if (_testDir.exists()) {
 			FileUtil.deleteDir(_testDir.toPath());
 
@@ -54,6 +58,7 @@ public class FileWatcherTest {
 
 	@Before
 	public void setUp() throws Exception {
+		Assume.assumeFalse(_windows);
 		_testDir = temporaryFolder.newFolder("build", "watch");
 
 		_testfile = new File(_testDir, "file.txt");
@@ -164,6 +169,8 @@ public class FileWatcherTest {
 
 	@Rule
 	public final TemporaryFolder temporaryFolder = new TemporaryFolder();
+
+	private static boolean _windows = BladeUtil.isWindows();
 
 	private File _testDir = null;
 	private File _testfile = null;

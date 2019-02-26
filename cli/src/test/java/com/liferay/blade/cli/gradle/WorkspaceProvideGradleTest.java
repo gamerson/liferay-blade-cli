@@ -16,11 +16,14 @@
 
 package com.liferay.blade.cli.gradle;
 
+import com.liferay.blade.cli.util.BladeUtil;
+
 import java.io.File;
 
 import java.nio.file.Files;
 
 import org.junit.Assert;
+import org.junit.Assume;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
@@ -32,6 +35,7 @@ public class WorkspaceProvideGradleTest {
 
 	@Test
 	public void testIsWorkspace1() throws Exception {
+		Assume.assumeFalse(_windows);
 		File workspace = new File(temporaryFolder.getRoot(), "workspace");
 
 		workspace.mkdirs();
@@ -49,6 +53,7 @@ public class WorkspaceProvideGradleTest {
 
 	@Test
 	public void testIsWorkspace2() throws Exception {
+		Assume.assumeFalse(_windows);
 		File workspace = new File(temporaryFolder.getRoot(), "workspace");
 
 		workspace.mkdirs();
@@ -66,6 +71,7 @@ public class WorkspaceProvideGradleTest {
 
 	@Test
 	public void testIsWorkspace3() throws Exception {
+		Assume.assumeFalse(_windows);
 		File workspace = new File(temporaryFolder.getRoot(), "workspace");
 
 		workspace.mkdirs();
@@ -87,5 +93,7 @@ public class WorkspaceProvideGradleTest {
 
 	@Rule
 	public final TemporaryFolder temporaryFolder = new TemporaryFolder();
+
+	private static boolean _windows = BladeUtil.isWindows();
 
 }

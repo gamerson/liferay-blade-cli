@@ -18,12 +18,14 @@ package com.liferay.blade.cli.command;
 
 import com.liferay.blade.cli.BladeTestResults;
 import com.liferay.blade.cli.TestUtil;
+import com.liferay.blade.cli.util.BladeUtil;
 
 import java.io.File;
 
 import java.nio.file.Files;
 
 import org.junit.Assert;
+import org.junit.Assume;
 import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Rule;
@@ -37,6 +39,7 @@ public class ConvertThemeCommandTest {
 
 	@Before
 	public void setUpTestExtensions() throws Exception {
+		Assume.assumeFalse(_windows);
 		_rootDir = temporaryFolder.getRoot();
 
 		_extensionsDir = temporaryFolder.newFolder(".blade", "extensions");
@@ -44,6 +47,7 @@ public class ConvertThemeCommandTest {
 
 	@Test
 	public void testListThemes() throws Exception {
+		Assume.assumeFalse(_windows);
 		File workspace = _createWorkspace();
 
 		String[] args = {"--base", workspace.getAbsolutePath(), "convert", "-l"};
@@ -145,6 +149,8 @@ public class ConvertThemeCommandTest {
 
 		return workspace;
 	}
+
+	private static boolean _windows = BladeUtil.isWindows();
 
 	private File _extensionsDir = null;
 	private File _rootDir = null;

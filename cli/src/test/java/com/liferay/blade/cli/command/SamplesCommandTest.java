@@ -21,6 +21,7 @@ import com.liferay.blade.cli.BladeTest.BladeTestBuilder;
 import com.liferay.blade.cli.BladeTestResults;
 import com.liferay.blade.cli.GradleRunnerUtil;
 import com.liferay.blade.cli.TestUtil;
+import com.liferay.blade.cli.util.BladeUtil;
 import com.liferay.blade.cli.util.FileUtil;
 
 import java.io.File;
@@ -33,6 +34,7 @@ import java.nio.file.Path;
 import org.gradle.testkit.runner.BuildTask;
 
 import org.junit.Assert;
+import org.junit.Assume;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Rule;
@@ -47,6 +49,7 @@ public class SamplesCommandTest {
 
 	@BeforeClass
 	public static void setUpClass() throws Exception {
+		Assume.assumeFalse(_windows);
 		File wrapperZipFile = new File("build/wrapper.zip");
 
 		Files.copy(wrapperZipFile.toPath(), new FileOutputStream(new File("build/classes/java/test/wrapper.zip")));
@@ -56,6 +59,7 @@ public class SamplesCommandTest {
 
 	@Before
 	public void setUp() throws Exception {
+		Assume.assumeFalse(_windows);
 		_rootDir = temporaryFolder.getRoot();
 
 		_extensionsDir = temporaryFolder.newFolder(".blade", "extensions");
@@ -63,6 +67,7 @@ public class SamplesCommandTest {
 
 	@Test
 	public void testGetSample() throws Exception {
+		Assume.assumeFalse(_windows);
 		File root = temporaryFolder.newFolder("samplesroot");
 
 		String[] args = {"samples", "-d", root.getPath() + "/test", "friendly-url"};
@@ -86,6 +91,7 @@ public class SamplesCommandTest {
 
 	@Test
 	public void testGetSampleMaven70() throws Exception {
+		Assume.assumeFalse(_windows);
 		File root = temporaryFolder.getRoot();
 
 		String[] args = {"samples", "-d", root.getPath() + "/test", "-b", "maven", "-v", "7.0", "friendly-url"};
@@ -113,6 +119,7 @@ public class SamplesCommandTest {
 
 	@Test
 	public void testGetSampleMaven71() throws Exception {
+		Assume.assumeFalse(_windows);
 		File root = temporaryFolder.getRoot();
 
 		String[] args = {"samples", "-d", root.getPath() + "/test", "-b", "maven", "-v", "7.1", "friendly-url"};
@@ -140,6 +147,7 @@ public class SamplesCommandTest {
 
 	@Test
 	public void testGetSampleWithDependencies() throws Exception {
+		Assume.assumeFalse(_windows);
 		File root = temporaryFolder.getRoot();
 
 		String[] args = {"samples", "-d", root.getPath() + "/test", "rest"};
@@ -163,6 +171,7 @@ public class SamplesCommandTest {
 
 	@Test
 	public void testGetSampleWithGradleWrapper() throws Exception {
+		Assume.assumeFalse(_windows);
 		File root = temporaryFolder.getRoot();
 
 		String[] args = {"samples", "-d", root.getPath() + "/test", "authenticator-shiro"};
@@ -195,6 +204,7 @@ public class SamplesCommandTest {
 
 	@Test
 	public void testGetSampleWithGradleWrapperExisting() throws Exception {
+		Assume.assumeFalse(_windows);
 		String[] initArgs = {"--base", _rootDir.getPath() + "/test/workspace", "init"};
 
 		BladeTestResults bladeTestResults = TestUtil.runBlade(_rootDir, _extensionsDir, initArgs);
@@ -239,6 +249,7 @@ public class SamplesCommandTest {
 
 	@Test
 	public void testGetSampleWithVersion70() throws Exception {
+		Assume.assumeFalse(_windows);
 		File root = temporaryFolder.getRoot();
 
 		String[] args = {"samples", "-d", root.getPath() + "/test", "-v", "7.0", "jsp-portlet"};
@@ -266,6 +277,7 @@ public class SamplesCommandTest {
 
 	@Test
 	public void testGetSampleWithVersion71() throws Exception {
+		Assume.assumeFalse(_windows);
 		File root = temporaryFolder.getRoot();
 
 		String[] args = {"samples", "-d", root.getPath() + "/test71", "-v", "7.1", "jsp-portlet"};
@@ -293,6 +305,7 @@ public class SamplesCommandTest {
 
 	@Test
 	public void testListSamples() throws Exception {
+		Assume.assumeFalse(_windows);
 		BladeTestResults bladeTestResults = TestUtil.runBlade(_rootDir, _extensionsDir, "samples");
 
 		String output = bladeTestResults.getOutput();
@@ -322,6 +335,8 @@ public class SamplesCommandTest {
 	}
 
 	private static final File _USER_HOME_DIR = new File(System.getProperty("user.home"));
+
+	private static boolean _windows = BladeUtil.isWindows();
 
 	private File _extensionsDir = null;
 	private File _rootDir = null;
