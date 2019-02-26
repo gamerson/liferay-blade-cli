@@ -3,5 +3,5 @@ CALL rmdir /s/q "%userprofile%\.m2\repository\com\liferay\blade\com.liferay.blad
 CALL gradlew.bat --stop
 CALL gradlew.bat --no-daemon clean
 CALL gradlew.bat --no-daemon :extensions:maven-profile:publishToMavenLocal
-CALL gradlew.bat --debug --no-daemon -PmavenLocal -continue check smokeTests --scan
+CALL gradlew.bat --info --no-daemon -PmavenLocal -continue check smokeTests --scan
 CALL gradlew.bat --stop
