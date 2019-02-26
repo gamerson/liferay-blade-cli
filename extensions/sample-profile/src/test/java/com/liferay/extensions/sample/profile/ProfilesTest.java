@@ -18,10 +18,12 @@ package com.liferay.extensions.sample.profile;
 
 import com.liferay.blade.cli.BladeTestResults;
 import com.liferay.blade.cli.TestUtil;
+import com.liferay.blade.cli.util.BladeUtil;
 
 import java.io.File;
 
 import org.junit.Assert;
+import org.junit.Assume;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -35,6 +37,7 @@ public class ProfilesTest {
 
 	@Before
 	public void setUp() throws Exception {
+		Assume.assumeFalse(_windows);
 		_rootDir = temporaryFolder.getRoot();
 
 		_extensionsDir = temporaryFolder.newFolder(".blade", "extensions");
@@ -42,6 +45,7 @@ public class ProfilesTest {
 
 	@Test
 	public void testProfileExtension() throws Exception {
+		Assume.assumeFalse(_windows);
 		File workspaceDir = temporaryFolder.newFolder("build", "test", "workspace");
 
 		String[] args = {"--base", workspaceDir.getPath(), "init", "-b", "foo"};
@@ -67,6 +71,8 @@ public class ProfilesTest {
 
 	@Rule
 	public final TemporaryFolder temporaryFolder = new TemporaryFolder();
+
+	private static boolean _windows = BladeUtil.isWindows();
 
 	private File _extensionsDir = null;
 	private File _rootDir = null;

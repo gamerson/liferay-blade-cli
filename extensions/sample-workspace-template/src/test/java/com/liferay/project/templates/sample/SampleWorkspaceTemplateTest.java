@@ -17,6 +17,7 @@
 package com.liferay.project.templates.sample;
 
 import com.liferay.blade.cli.TestUtil;
+import com.liferay.blade.cli.util.BladeUtil;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -29,6 +30,7 @@ import java.nio.file.StandardCopyOption;
 import java.util.Properties;
 
 import org.junit.Assert;
+import org.junit.Assume;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -42,6 +44,7 @@ public class SampleWorkspaceTemplateTest {
 
 	@Before
 	public void setUp() throws Exception {
+		Assume.assumeFalse(_windows);
 		_rootDir = temporaryFolder.getRoot();
 
 		_extensionsDir = temporaryFolder.newFolder(".blade", "extensions");
@@ -49,6 +52,7 @@ public class SampleWorkspaceTemplateTest {
 
 	@Test
 	public void testProjectTemplatesWithCustom() throws Exception {
+		Assume.assumeFalse(_windows);
 		_setupTestExtensions();
 
 		File tempDir = temporaryFolder.newFolder();
@@ -114,6 +118,8 @@ public class SampleWorkspaceTemplateTest {
 
 		_setupTestExtension(extensionsPath, System.getProperty("sampleTemplateJarFile"));
 	}
+
+	private static boolean _windows = BladeUtil.isWindows();
 
 	private File _extensionsDir = null;
 	private File _rootDir = null;

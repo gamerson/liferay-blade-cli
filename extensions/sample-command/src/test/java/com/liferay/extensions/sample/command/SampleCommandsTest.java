@@ -19,6 +19,7 @@ package com.liferay.extensions.sample.command;
 import com.liferay.blade.cli.BladeTest;
 import com.liferay.blade.cli.BladeTest.BladeTestBuilder;
 import com.liferay.blade.cli.StringPrintStream;
+import com.liferay.blade.cli.util.BladeUtil;
 
 import java.io.File;
 import java.io.IOException;
@@ -28,6 +29,7 @@ import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
 
 import org.junit.Assert;
+import org.junit.Assume;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -41,12 +43,14 @@ public class SampleCommandsTest {
 
 	@Before
 	public void setUp() throws Exception {
+		Assume.assumeFalse(_windows);
 		_rootDir = temporaryFolder.getRoot();
 		_extensionsDir = temporaryFolder.newFolder(".blade", "extensions");
 	}
 
 	@Test
 	public void testCommandExtension() throws Exception {
+		Assume.assumeFalse(_windows);
 		_setupTestExtensions();
 
 		String rootPathString = _rootDir.getAbsolutePath();
@@ -119,6 +123,8 @@ public class SampleCommandsTest {
 
 		_setupTestExtension(extensionsPath, System.getProperty("sampleCommandJarFile"));
 	}
+
+	private static boolean _windows = BladeUtil.isWindows();
 
 	private File _extensionsDir = null;
 	private File _rootDir = null;
