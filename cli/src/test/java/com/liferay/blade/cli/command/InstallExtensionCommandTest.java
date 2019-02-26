@@ -21,6 +21,7 @@ import com.liferay.blade.cli.BladeTest.BladeTestBuilder;
 import com.liferay.blade.cli.BladeTestResults;
 import com.liferay.blade.cli.StringTestUtil;
 import com.liferay.blade.cli.TestUtil;
+import com.liferay.blade.cli.util.BladeUtil;
 
 import difflib.Delta;
 import difflib.DiffUtils;
@@ -61,6 +62,7 @@ public class InstallExtensionCommandTest {
 
 	@Before
 	public void setUp() throws Exception {
+		Assume.assumeFalse(_windows);
 		_rootDir = temporaryFolder.getRoot();
 
 		_extensionsDir = temporaryFolder.newFolder(".blade", "extensions");
@@ -68,6 +70,7 @@ public class InstallExtensionCommandTest {
 
 	@Test
 	public void testInstallCustomExtension() throws Exception {
+		Assume.assumeFalse(_windows);
 		String[] args = {"extension install", _sampleCommandJarFile.getAbsolutePath()};
 
 		File root = temporaryFolder.getRoot();
@@ -87,6 +90,7 @@ public class InstallExtensionCommandTest {
 
 	@Test
 	public void testInstallCustomExtensionTwiceDontOverwrite() throws Exception {
+		Assume.assumeFalse(_windows);
 		String jarName = _sampleCommandJarFile.getName();
 
 		File extensionJar = new File(_extensionsDir, jarName);
@@ -144,6 +148,7 @@ public class InstallExtensionCommandTest {
 
 	@Test
 	public void testInstallCustomExtensionTwiceOverwrite() throws Exception {
+		Assume.assumeFalse(_windows);
 		String jarName = _sampleCommandJarFile.getName();
 
 		File extensionJar = new File(_extensionsDir, jarName);
@@ -193,7 +198,7 @@ public class InstallExtensionCommandTest {
 
 	@Test
 	public void testInstallCustomGithubExtension() throws Exception {
-		Assume.assumeFalse(_isWindows());
+		Assume.assumeFalse(_windows);
 
 		String[] args = {"extension", "install", "https://github.com/gamerson/blade-sample-command"};
 
@@ -214,6 +219,7 @@ public class InstallExtensionCommandTest {
 
 	@Test
 	public void testInstallExtensionPathRequired() throws Exception {
+		Assume.assumeFalse(_windows);
 		String[] args = {"extension install"};
 
 		BladeTestBuilder bladeTestBuilder = BladeTest.builder();
@@ -237,6 +243,7 @@ public class InstallExtensionCommandTest {
 
 	@Test
 	public void testInstallUninstallCustomExtension() throws Exception {
+		Assume.assumeFalse(_windows);
 		String[] args = {"extension install", _sampleCommandJarFile.getAbsolutePath()};
 
 		BladeTestResults bladeTestResults = TestUtil.runBlade(_rootDir, _extensionsDir, args);
@@ -386,6 +393,7 @@ public class InstallExtensionCommandTest {
 	}
 
 	private static final File _sampleCommandJarFile = new File(System.getProperty("sampleCommandJarFile"));
+	private static boolean _windows = BladeUtil.isWindows();
 
 	private File _extensionsDir = null;
 	private File _rootDir = null;
