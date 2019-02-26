@@ -23,6 +23,7 @@ import aQute.bnd.osgi.Jar;
 import com.liferay.blade.cli.BladeTestResults;
 import com.liferay.blade.cli.GradleRunnerUtil;
 import com.liferay.blade.cli.TestUtil;
+import com.liferay.blade.cli.util.BladeUtil;
 import com.liferay.blade.cli.util.FileUtil;
 import com.liferay.project.templates.ProjectTemplates;
 
@@ -51,6 +52,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.gradle.testkit.runner.BuildTask;
 
 import org.junit.Assert;
+import org.junit.Assume;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -63,6 +65,7 @@ public class CreateCommandTest {
 
 	@Before
 	public void setUp() throws Exception {
+		Assume.assumeFalse(_windows);
 		_rootDir = temporaryFolder.getRoot();
 
 		_extensionsDir = temporaryFolder.newFolder(".blade", "extensions");
@@ -70,6 +73,7 @@ public class CreateCommandTest {
 
 	@Test
 	public void testCreateActivator() throws Exception {
+		Assume.assumeFalse(_windows);
 		String[] gradleArgs = {"create", "-d", _rootDir.getAbsolutePath(), "-t", "activator", "bar-activator"};
 
 		String projectPath = new File(_rootDir, "bar-activator").getAbsolutePath();
@@ -85,6 +89,7 @@ public class CreateCommandTest {
 
 	@Test
 	public void testCreateApi() throws Exception {
+		Assume.assumeFalse(_windows);
 		String[] gradleArgs = {"create", "-d", _rootDir.getAbsolutePath(), "-t", "api", "foo"};
 
 		String projectPath = new File(_rootDir, "foo").getAbsolutePath();
@@ -100,6 +105,7 @@ public class CreateCommandTest {
 
 	@Test
 	public void testCreateExtModule() throws Exception {
+		Assume.assumeFalse(_windows);
 		String[] gradleArgs = {
 			"create", "-d", _rootDir.getAbsolutePath(), "-t", "modules-ext", "-m", "com.liferay.login.web", "-M",
 			"1.0.0", "loginExt"
@@ -119,6 +125,7 @@ public class CreateCommandTest {
 
 	@Test
 	public void testCreateExtModuleWithoutOriginalModuleOptions() throws Exception {
+		Assume.assumeFalse(_windows);
 		String[] args = {"create", "-d", _rootDir.getAbsolutePath(), "-t", "modules-ext", "loginExt"};
 
 		BladeTestResults bladeTestResults = TestUtil.runBlade(_rootDir, _extensionsDir, args);
@@ -137,6 +144,7 @@ public class CreateCommandTest {
 
 	@Test
 	public void testCreateFragment() throws Exception {
+		Assume.assumeFalse(_windows);
 		String[] gradleArgs = {
 			"create", "-d", _rootDir.getAbsolutePath(), "-t", "fragment", "-h", "com.liferay.login.web", "-H", "1.0.0",
 			"loginHook"
@@ -160,6 +168,7 @@ public class CreateCommandTest {
 
 	@Test
 	public void testCreateFragmentWithoutHostOptions() throws Exception {
+		Assume.assumeFalse(_windows);
 		String[] args = {"create", "-d", _rootDir.getAbsolutePath(), "-t", "fragment", "loginHook"};
 
 		BladeTestResults bladeTestResults = TestUtil.runBlade(_rootDir, _extensionsDir, args);
@@ -184,6 +193,7 @@ public class CreateCommandTest {
 
 	@Test
 	public void testCreateGradleMVCPortletProjectWithPackage() throws Exception {
+		Assume.assumeFalse(_windows);
 		String[] args =
 			{"create", "-d", _rootDir.getAbsolutePath(), "-t", "mvc-portlet", "-p", "com.liferay.test", "foo"};
 
@@ -210,6 +220,7 @@ public class CreateCommandTest {
 
 	@Test
 	public void testCreateGradleMVCPortletProjectWithPortletSuffix() throws Exception {
+		Assume.assumeFalse(_windows);
 		String[] args = {"create", "-d", _rootDir.getAbsolutePath(), "-t", "mvc-portlet", "portlet-portlet"};
 
 		TestUtil.runBlade(_rootDir, _extensionsDir, args);
@@ -233,6 +244,7 @@ public class CreateCommandTest {
 
 	@Test
 	public void testCreateGradlePortletProject() throws Exception {
+		Assume.assumeFalse(_windows);
 		String[] args = {"create", "-d", _rootDir.getAbsolutePath(), "-t", "portlet", "-c", "Foo", "gradle.test"};
 
 		TestUtil.runBlade(_rootDir, _extensionsDir, args);
@@ -253,6 +265,7 @@ public class CreateCommandTest {
 
 	@Test
 	public void testCreateGradleService() throws Exception {
+		Assume.assumeFalse(_windows);
 		String[] args = {
 			"create", "-d", _rootDir.getAbsolutePath(), "-t", "service", "-s",
 			"com.liferay.portal.kernel.events.LifecycleAction", "-c", "FooAction", "servicepreaction"
@@ -308,6 +321,7 @@ public class CreateCommandTest {
 
 	@Test
 	public void testCreateGradleServiceBuilderDashes() throws Exception {
+		Assume.assumeFalse(_windows);
 		String[] args = {
 			"create", "-d", _rootDir.getAbsolutePath(), "-t", "service-builder", "-p",
 			"com.liferay.backend.integration", "backend-integration"
@@ -352,6 +366,7 @@ public class CreateCommandTest {
 
 	@Test
 	public void testCreateGradleServiceBuilderDots() throws Exception {
+		Assume.assumeFalse(_windows);
 		String[] args = {
 			"create", "-d", _rootDir.getAbsolutePath(), "-t", "service-builder", "-p", "com.liferay.docs.guestbook",
 			"com.liferay.docs.guestbook"
@@ -397,6 +412,7 @@ public class CreateCommandTest {
 
 	@Test
 	public void testCreateGradleServiceWrapper() throws Exception {
+		Assume.assumeFalse(_windows);
 		String[] args = {
 			"create", "-d", _rootDir.getAbsolutePath(), "-t", "service-wrapper", "-s",
 			"com.liferay.portal.kernel.service.UserLocalServiceWrapper", "serviceoverride"
@@ -421,6 +437,7 @@ public class CreateCommandTest {
 
 	@Test
 	public void testCreateGradleSymbolicName() throws Exception {
+		Assume.assumeFalse(_windows);
 		String[] args = {"create", "-t", "mvc-portlet", "-d", _rootDir.getAbsolutePath(), "-p", "foo.bar", "barfoo"};
 
 		TestUtil.runBlade(_rootDir, _extensionsDir, args);
@@ -434,6 +451,7 @@ public class CreateCommandTest {
 
 	@Test
 	public void testCreateMissingArgument() throws Exception {
+		Assume.assumeFalse(_windows);
 		File tempRoot = temporaryFolder.getRoot();
 
 		String[] args = {"create", "foobar", "-d", tempRoot.getAbsolutePath()};
@@ -458,6 +476,7 @@ public class CreateCommandTest {
 
 	@Test
 	public void testCreateMVCPortlet() throws Exception {
+		Assume.assumeFalse(_windows);
 		String[] gradleArgs = {"create", "-d", _rootDir.getAbsolutePath(), "-t", "mvc-portlet", "foo"};
 
 		String projectPath = new File(_rootDir, "foo").getAbsolutePath();
@@ -479,6 +498,7 @@ public class CreateCommandTest {
 
 	@Test
 	public void testCreateNpmAngular() throws Exception {
+		Assume.assumeFalse(_windows);
 		String[] args = {"create", "-d", _rootDir.getAbsolutePath(), "-t", "npm-angular-portlet", "npmangular"};
 
 		TestUtil.runBlade(_rootDir, _extensionsDir, args);
@@ -498,6 +518,7 @@ public class CreateCommandTest {
 
 	@Test
 	public void testCreateOnExistFolder() throws Exception {
+		Assume.assumeFalse(_windows);
 		String[] args = {"create", "-d", _rootDir.getAbsolutePath(), "-t", "activator", "exist"};
 
 		File existFile = new File(_rootDir, "exist/file.txt");
@@ -521,6 +542,7 @@ public class CreateCommandTest {
 
 	@Test
 	public void testCreatePortletConfigurationIcon() throws Exception {
+		Assume.assumeFalse(_windows);
 		String[] args = {
 			"create", "-d", _rootDir.getAbsolutePath(), "-t", "portlet-configuration-icon", "-p", "blade.test",
 			"icontest"
@@ -547,6 +569,7 @@ public class CreateCommandTest {
 
 	@Test
 	public void testCreatePortletToolbarContributor() throws Exception {
+		Assume.assumeFalse(_windows);
 		String[] args = {
 			"create", "-d", _rootDir.getAbsolutePath(), "-t", "portlet-toolbar-contributor", "-p", "blade.test",
 			"toolbartest"
@@ -575,6 +598,7 @@ public class CreateCommandTest {
 
 	@Test
 	public void testCreateProjectAllDefaults() throws Exception {
+		Assume.assumeFalse(_windows);
 		String[] args = {"create", "-d", _rootDir.getAbsolutePath(), "-t", "mvc-portlet", "hello-world-portlet"};
 
 		TestUtil.runBlade(_rootDir, _extensionsDir, args);
@@ -601,6 +625,7 @@ public class CreateCommandTest {
 
 	@Test
 	public void testCreateProjectWithRefresh() throws Exception {
+		Assume.assumeFalse(_windows);
 		String[] args = {"create", "-d", _rootDir.getAbsolutePath(), "-t", "mvc-portlet", "hello-world-refresh"};
 
 		TestUtil.runBlade(_rootDir, _extensionsDir, args);
@@ -627,6 +652,7 @@ public class CreateCommandTest {
 
 	@Test
 	public void testCreateServiceTemplateServiceParameterRequired() throws Exception {
+		Assume.assumeFalse(_windows);
 		String[] args = {"create", "-d", _rootDir.getAbsolutePath(), "-t", "service", "foo"};
 
 		BladeTestResults bladeTestResults = null;
@@ -662,6 +688,7 @@ public class CreateCommandTest {
 
 	@Test
 	public void testCreateSimulationPanelEntry() throws Exception {
+		Assume.assumeFalse(_windows);
 		String[] args = {
 			"create", "-d", _rootDir.getAbsolutePath(), "-t", "simulation-panel-entry", "-p", "test.simulator",
 			"simulator"
@@ -687,6 +714,7 @@ public class CreateCommandTest {
 
 	@Test
 	public void testCreateSpringMvcPortlet() throws Exception {
+		Assume.assumeFalse(_windows);
 		String[] args = {
 			"create", "-d", _rootDir.getAbsolutePath(), "-t", "spring-mvc-portlet", "-p", "test.spring.portlet",
 			"spring-test"
@@ -706,6 +734,7 @@ public class CreateCommandTest {
 
 	@Test
 	public void testCreateTemplateContextContributor() throws Exception {
+		Assume.assumeFalse(_windows);
 		String[] args =
 			{"create", "-d", _rootDir.getAbsolutePath(), "-t", "template-context-contributor", "blade-test"};
 
@@ -731,6 +760,7 @@ public class CreateCommandTest {
 
 	@Test
 	public void testCreateTheme() throws Exception {
+		Assume.assumeFalse(_windows);
 		String[] args = {"create", "-d", _rootDir.getAbsolutePath(), "-t", "theme", "theme-test"};
 
 		TestUtil.runBlade(_rootDir, _extensionsDir, args);
@@ -750,6 +780,7 @@ public class CreateCommandTest {
 
 	@Test
 	public void testCreateThemeContributor() throws Exception {
+		Assume.assumeFalse(_windows);
 		String[] args = {
 			"create", "-d", _rootDir.getAbsolutePath(), "-t", "theme-contributor", "-C", "foobar",
 			"theme-contributor-test"
@@ -768,6 +799,7 @@ public class CreateCommandTest {
 
 	@Test
 	public void testCreateWarHookLocation() throws Exception {
+		Assume.assumeFalse(_windows);
 		File workspace = new File(_rootDir, "workspace");
 
 		_makeWorkspace(workspace);
@@ -777,6 +809,7 @@ public class CreateCommandTest {
 
 	@Test
 	public void testCreateWarMVCPortletLocation() throws Exception {
+		Assume.assumeFalse(_windows);
 		File workspace = new File(_rootDir, "workspace");
 
 		_makeWorkspace(workspace);
@@ -786,6 +819,7 @@ public class CreateCommandTest {
 
 	@Test
 	public void testCreateWorkspaceCommaDelimitedModulesDirGradleProject() throws Exception {
+		Assume.assumeFalse(_windows);
 		File workspace = new File(_rootDir, "workspace");
 
 		_makeWorkspace(workspace);
@@ -812,6 +846,7 @@ public class CreateCommandTest {
 
 	@Test
 	public void testCreateWorkspaceGradleExtModule() throws Exception {
+		Assume.assumeFalse(_windows);
 		File workspace = new File(_rootDir, "workspace");
 
 		File extDir = new File(workspace, "ext");
@@ -852,6 +887,7 @@ public class CreateCommandTest {
 
 	@Test
 	public void testCreateWorkspaceGradleFragment() throws Exception {
+		Assume.assumeFalse(_windows);
 		File workspace = new File(_rootDir, "workspace");
 
 		File extensionsDir = new File(workspace, "modules/extensions");
@@ -891,6 +927,7 @@ public class CreateCommandTest {
 
 	@Test
 	public void testCreateWorkspaceGradlePortletProject() throws Exception {
+		Assume.assumeFalse(_windows);
 		File workspace = new File(_rootDir, "workspace");
 
 		File appsDir = new File(workspace, "modules/apps");
@@ -920,6 +957,7 @@ public class CreateCommandTest {
 
 	@Test
 	public void testCreateWorkspaceGradleServiceBuilderProjectApiPath() throws Exception {
+		Assume.assumeFalse(_windows);
 		File workspace = new File(_rootDir, "workspace");
 
 		File nestedDir = new File(workspace, "modules/nested/path");
@@ -951,6 +989,7 @@ public class CreateCommandTest {
 
 	@Test
 	public void testCreateWorkspaceGradleServiceBuilderProjectDashes() throws Exception {
+		Assume.assumeFalse(_windows);
 		File workspace = new File(_rootDir, "workspace");
 
 		File modulesDir = new File(workspace, "modules");
@@ -990,6 +1029,7 @@ public class CreateCommandTest {
 
 	@Test
 	public void testCreateWorkspaceGradleServiceBuilderProjectDefault() throws Exception {
+		Assume.assumeFalse(_windows);
 		File workspace = new File(_rootDir, "workspace");
 
 		File modulesDir = new File(workspace, "modules");
@@ -1044,6 +1084,7 @@ public class CreateCommandTest {
 
 	@Test
 	public void testCreateWorkspaceGradleServiceBuilderProjectDots() throws Exception {
+		Assume.assumeFalse(_windows);
 		File workspace = new File(_rootDir, "workspace");
 
 		File modulesDir = new File(workspace, "modules");
@@ -1083,6 +1124,7 @@ public class CreateCommandTest {
 
 	@Test
 	public void testCreateWorkspaceLiferayVersion70() throws Exception {
+		Assume.assumeFalse(_windows);
 		File workspace70 = new File(_rootDir, "workspace70");
 
 		File modulesDir = new File(workspace70, "modules");
@@ -1104,6 +1146,7 @@ public class CreateCommandTest {
 
 	@Test
 	public void testCreateWorkspaceLiferayVersionDefault() throws Exception {
+		Assume.assumeFalse(_windows);
 		File workspace71 = new File(_rootDir, "workspace71");
 
 		File modulesDir = new File(workspace71, "modules");
@@ -1125,6 +1168,7 @@ public class CreateCommandTest {
 
 	@Test
 	public void testCreateWorkspaceModuleLocation() throws Exception {
+		Assume.assumeFalse(_windows);
 		File workspace = new File(_rootDir, "workspace");
 
 		File modulesDir = new File(workspace, "modules");
@@ -1160,6 +1204,7 @@ public class CreateCommandTest {
 
 	@Test
 	public void testCreateWorkspaceProjectAllDefaults() throws Exception {
+		Assume.assumeFalse(_windows);
 		File workspace = new File(_rootDir, "workspace");
 
 		File appsDir = new File(workspace, "modules/apps");
@@ -1195,6 +1240,7 @@ public class CreateCommandTest {
 
 	@Test
 	public void testCreateWorkspaceProjectWithRefresh() throws Exception {
+		Assume.assumeFalse(_windows);
 		File workspace = new File(_rootDir, "workspace");
 
 		File appsDir = new File(workspace, "modules/apps");
@@ -1232,6 +1278,7 @@ public class CreateCommandTest {
 
 	@Test
 	public void testCreateWorkspaceThemeLocation() throws Exception {
+		Assume.assumeFalse(_windows);
 		File workspace = new File(_rootDir, "workspace");
 
 		String[] args = {"--base", workspace.getAbsolutePath(), "create", "-t", "theme", "theme-test"};
@@ -1261,6 +1308,7 @@ public class CreateCommandTest {
 
 	@Test
 	public void testCreateWorkspaceTypeValid() throws Exception {
+		Assume.assumeFalse(_windows);
 		File workspace = new File(_rootDir, "workspace");
 
 		File modulesDir = new File(workspace, "modules");
@@ -1284,6 +1332,7 @@ public class CreateCommandTest {
 
 	@Test
 	public void testLiferayVersion70() throws Exception {
+		Assume.assumeFalse(_windows);
 		String[] sevenZeroArgs =
 			{"--base", _rootDir.getAbsolutePath(), "create", "-t", "npm-angular-portlet", "-v", "7.0", "seven-zero"};
 
@@ -1299,6 +1348,7 @@ public class CreateCommandTest {
 
 	@Test
 	public void testLiferayVersionDefault() throws Exception {
+		Assume.assumeFalse(_windows);
 		String[] sevenOneArgs =
 			{"--base", _rootDir.getAbsolutePath(), "create", "-t", "npm-angular-portlet", "seven-one"};
 
@@ -1314,6 +1364,7 @@ public class CreateCommandTest {
 
 	@Test
 	public void testListTemplates() throws Exception {
+		Assume.assumeFalse(_windows);
 		String[] args = {"create", "-l"};
 
 		BladeTestResults bladeTestResults = TestUtil.runBlade(_rootDir, _extensionsDir, args);
@@ -1331,6 +1382,7 @@ public class CreateCommandTest {
 
 	@Test
 	public void testWrongTemplateTyping() throws Exception {
+		Assume.assumeFalse(_windows);
 		String[] args = {"create", "-d", _rootDir.getAbsolutePath(), "-t", "activatorXXX", "wrong-activator"};
 
 		try {
@@ -1454,6 +1506,8 @@ public class CreateCommandTest {
 			}
 		}
 	}
+
+	private static boolean _windows = BladeUtil.isWindows();
 
 	private File _extensionsDir = null;
 	private File _rootDir = null;

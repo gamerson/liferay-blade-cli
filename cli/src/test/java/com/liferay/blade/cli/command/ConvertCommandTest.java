@@ -17,6 +17,7 @@
 package com.liferay.blade.cli.command;
 
 import com.liferay.blade.cli.TestUtil;
+import com.liferay.blade.cli.util.BladeUtil;
 import com.liferay.blade.cli.util.FileUtil;
 
 import java.io.File;
@@ -24,6 +25,7 @@ import java.io.File;
 import java.util.regex.Pattern;
 
 import org.junit.Assert;
+import org.junit.Assume;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -36,6 +38,7 @@ public class ConvertCommandTest {
 
 	@Before
 	public void setUp() throws Exception {
+		Assume.assumeFalse(_windows);
 		_rootDir = temporaryFolder.getRoot();
 
 		_extensionsDir = temporaryFolder.newFolder(".blade", "extensions");
@@ -43,6 +46,7 @@ public class ConvertCommandTest {
 
 	@Test
 	public void testAll() throws Exception {
+		Assume.assumeFalse(_windows);
 		File testdir = new File(_rootDir, "build/testUpgradePluginsSDKTo70");
 
 		testdir.mkdirs();
@@ -79,6 +83,7 @@ public class ConvertCommandTest {
 
 	@Test
 	public void testMoveLayouttplToWars() throws Exception {
+		Assume.assumeFalse(_windows);
 		File testdir = new File("build/testMoveLayouttplToWars");
 
 		FileUtil.unzip(new File("test-resources/projects/plugins-sdk-with-git.zip"), testdir);
@@ -112,6 +117,7 @@ public class ConvertCommandTest {
 
 	@Test
 	public void testMovePluginsToWars() throws Exception {
+		Assume.assumeFalse(_windows);
 		File testdir = new File(temporaryFolder.getRoot(), "build/testMovePluginsToWars");
 
 		FileUtil.unzip(new File("test-resources/projects/plugins-sdk-with-git.zip"), testdir);
@@ -151,6 +157,7 @@ public class ConvertCommandTest {
 
 	@Test
 	public void testMoveThemesToWars() throws Exception {
+		Assume.assumeFalse(_windows);
 		File testdir = new File(temporaryFolder.getRoot(), "build/testMoveThemesToWar");
 
 		FileUtil.unzip(new File("test-resources/projects/plugins-sdk-with-git.zip"), testdir);
@@ -210,6 +217,7 @@ public class ConvertCommandTest {
 
 	@Test
 	public void testReadIvyXml() throws Exception {
+		Assume.assumeFalse(_windows);
 		File projectDir = _setupWorkspace("readIvyXml");
 
 		String[] args = {"--base", projectDir.getPath(), "convert", "sample-dao-portlet"};
@@ -238,6 +246,7 @@ public class ConvertCommandTest {
 
 	@Test
 	public void testThemeDocrootBackup() throws Exception {
+		Assume.assumeFalse(_windows);
 		File projectDir = _setupWorkspace("testThemeDocrootBackup");
 
 		String[] args = {"--base", projectDir.getPath(), "convert", "-t", "sample-html4-theme"};
@@ -285,6 +294,8 @@ public class ConvertCommandTest {
 
 		return projectDir;
 	}
+
+	private static boolean _windows = BladeUtil.isWindows();
 
 	private File _extensionsDir = null;
 	private File _rootDir = null;
