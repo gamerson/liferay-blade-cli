@@ -17,10 +17,12 @@
 package com.liferay.blade.extensions.maven.profile;
 
 import com.liferay.blade.cli.TestUtil;
+import com.liferay.blade.cli.util.BladeUtil;
 
 import java.io.File;
 
 import org.junit.Assert;
+import org.junit.Assume;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
@@ -36,6 +38,7 @@ public class ServerCommandsMavenTest {
 
 	@Test
 	public void testServerInit() throws Exception {
+		Assume.assumeFalse(_windows);
 		File extensionsDir = temporaryFolder.newFolder(".blade", "extensions");
 
 		File workspaceDir = temporaryFolder.newFolder("build", "test", "workspace");
@@ -99,5 +102,7 @@ public class ServerCommandsMavenTest {
 	}
 
 	private static final String _REPOSITORY_CDN_URL = "https://repository-cdn.liferay.com/nexus/content/groups/public";
+
+	private static boolean _windows = BladeUtil.isWindows();
 
 }

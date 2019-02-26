@@ -23,6 +23,7 @@ import aQute.bnd.osgi.Jar;
 import aQute.lib.io.IO;
 
 import com.liferay.blade.cli.TestUtil;
+import com.liferay.blade.cli.util.BladeUtil;
 import com.liferay.blade.extensions.maven.profile.internal.MavenUtil;
 
 import java.io.File;
@@ -32,6 +33,7 @@ import java.util.jar.Manifest;
 import java.util.regex.Pattern;
 
 import org.junit.Assert;
+import org.junit.Assume;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -44,6 +46,7 @@ public class CreateCommandMavenTest {
 
 	@Before
 	public void setUp() throws Exception {
+		Assume.assumeFalse(_windows);
 		_rootDir = temporaryFolder.getRoot();
 
 		_extensionsDir = temporaryFolder.newFolder(".blade", "extensions");
@@ -51,6 +54,7 @@ public class CreateCommandMavenTest {
 
 	@Test
 	public void testCreateActivator() throws Exception {
+		Assume.assumeFalse(_windows);
 		File tempRoot = temporaryFolder.getRoot();
 
 		String[] mavenArgs =
@@ -75,6 +79,7 @@ public class CreateCommandMavenTest {
 
 	@Test
 	public void testCreateApi() throws Exception {
+		Assume.assumeFalse(_windows);
 		File tempRoot = temporaryFolder.getRoot();
 
 		String[] mavenArgs = {"create", "-d", tempRoot.getAbsolutePath(), "-P", "maven", "-t", "api", "foo"};
@@ -106,6 +111,7 @@ public class CreateCommandMavenTest {
 
 	@Test
 	public void testCreateFragment() throws Exception {
+		Assume.assumeFalse(_windows);
 		File tempRoot = temporaryFolder.getRoot();
 
 		String[] mavenArgs = {
@@ -137,6 +143,7 @@ public class CreateCommandMavenTest {
 
 	@Test
 	public void testCreateMVCPortlet() throws Exception {
+		Assume.assumeFalse(_windows);
 		File tempRoot = temporaryFolder.getRoot();
 
 		String[] mavenArgs = {"create", "-d", tempRoot.getAbsolutePath(), "-P", "maven", "-t", "mvc-portlet", "foo"};
@@ -166,6 +173,7 @@ public class CreateCommandMavenTest {
 
 	@Test
 	public void testCreateMVCPortletLegacyFlag() throws Exception {
+		Assume.assumeFalse(_windows);
 		File tempRoot = temporaryFolder.getRoot();
 
 		String[] mavenArgs = {"create", "-d", tempRoot.getAbsolutePath(), "-b", "maven", "-t", "mvc-portlet", "foo"};
@@ -245,6 +253,8 @@ public class CreateCommandMavenTest {
 			}
 		}
 	}
+
+	private static boolean _windows = BladeUtil.isWindows();
 
 	private File _extensionsDir = null;
 	private File _rootDir = null;

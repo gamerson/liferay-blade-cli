@@ -19,6 +19,7 @@ package com.liferay.blade.extensions.maven.profile;
 import aQute.lib.io.IO;
 
 import com.liferay.blade.cli.TestUtil;
+import com.liferay.blade.cli.util.BladeUtil;
 import com.liferay.blade.extensions.maven.profile.internal.MavenUtil;
 
 import java.io.File;
@@ -29,6 +30,7 @@ import java.nio.file.Files;
 import java.util.Properties;
 
 import org.junit.Assert;
+import org.junit.Assume;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -41,6 +43,7 @@ public class InitCommandMavenTest {
 
 	@Before
 	public void setUp() throws Exception {
+		Assume.assumeFalse(_windows);
 		_workspaceDir = temporaryFolder.newFolder("build", "test", "workspace");
 
 		_extensionsDir = temporaryFolder.newFolder(".blade", "extensions");
@@ -48,6 +51,7 @@ public class InitCommandMavenTest {
 
 	@Test
 	public void testMavenInitProjectCorrectLocation() throws Exception {
+		Assume.assumeFalse(_windows);
 		String[] args = {"--base", _workspaceDir.getPath(), "init", "-P", "maven", "mavenworkspace"};
 
 		File mavenworkspace = new File(_workspaceDir, "mavenworkspace");
@@ -71,6 +75,7 @@ public class InitCommandMavenTest {
 
 	@Test
 	public void testMavenInitWithNameWorkspaceDirectoryEmpty() throws Exception {
+		Assume.assumeFalse(_windows);
 		String[] args = {"--base", _workspaceDir.getPath(), "init", "-P", "maven", "newproject"};
 
 		File newproject = new File(_workspaceDir, "newproject");
@@ -104,6 +109,7 @@ public class InitCommandMavenTest {
 
 	@Test
 	public void testMavenInitWithNameWorkspaceDirectoryHasFiles() throws Exception {
+		Assume.assumeFalse(_windows);
 		String[] args = {"--base", _workspaceDir.getPath(), "init", "-P", "maven", "newproject"};
 
 		File projectDir = new File(_workspaceDir, "newproject");
@@ -119,6 +125,7 @@ public class InitCommandMavenTest {
 
 	@Test
 	public void testMavenInitWithNameWorkspaceNotExists() throws Exception {
+		Assume.assumeFalse(_windows);
 		String[] args = {"--base", _workspaceDir.getPath(), "init", "-P", "maven", "newproject"};
 
 		File projectDir = new File(_workspaceDir, "newproject");
@@ -132,6 +139,7 @@ public class InitCommandMavenTest {
 
 	@Test
 	public void testMavenInitWorkspaceDirectoryEmpty() throws Exception {
+		Assume.assumeFalse(_windows);
 		String[] args = {"--base", _workspaceDir.getPath(), "init", "-P", "maven"};
 
 		TestUtil.runBlade(_workspaceDir, _extensionsDir, args);
@@ -153,6 +161,7 @@ public class InitCommandMavenTest {
 
 	@Test
 	public void testMavenInitWorkspaceDirectoryHasFiles() throws Exception {
+		Assume.assumeFalse(_windows);
 		String[] args = {"--base", _workspaceDir.getPath(), "init", "-P", "maven"};
 
 		Assert.assertTrue(new File(_workspaceDir, "foo").createNewFile());
@@ -164,6 +173,7 @@ public class InitCommandMavenTest {
 
 	@Test
 	public void testMavenInitWorkspaceDirectoryHasFilesForce() throws Exception {
+		Assume.assumeFalse(_windows);
 		String[] args = {"--base", _workspaceDir.getPath(), "init", "-f", "-P", "maven"};
 
 		TestUtil.runBlade(_workspaceDir, _extensionsDir, args);
@@ -214,6 +224,8 @@ public class InitCommandMavenTest {
 
 		MavenTestUtil.verifyBuildOutput(projectPath, "foo-1.0.0.jar");
 	}
+
+	private static boolean _windows = BladeUtil.isWindows();
 
 	private File _extensionsDir = null;
 	private File _workspaceDir = null;

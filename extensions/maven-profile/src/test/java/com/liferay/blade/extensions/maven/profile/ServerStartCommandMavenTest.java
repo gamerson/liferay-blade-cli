@@ -41,6 +41,7 @@ import java.util.function.Predicate;
 import java.util.stream.Stream;
 
 import org.junit.Assert;
+import org.junit.Assume;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -57,6 +58,7 @@ public class ServerStartCommandMavenTest {
 
 	@Before
 	public void setUp() throws Exception {
+		Assume.assumeFalse(_windows);
 		File testWorkspaceFile = temporaryFolder.newFolder("testWorkspaceDir");
 
 		_testWorkspaceDir = testWorkspaceFile.toPath();
@@ -68,6 +70,7 @@ public class ServerStartCommandMavenTest {
 
 	@Test
 	public void testServerRunCommandTomcat() throws Exception {
+		Assume.assumeFalse(_windows);
 		_initBladeWorkspace();
 
 		_verifyMavenFiles();
@@ -83,6 +86,7 @@ public class ServerStartCommandMavenTest {
 
 	@Test
 	public void testServerRunCommandTomcatDebug() throws Exception {
+		Assume.assumeFalse(_windows);
 		_initBladeWorkspace();
 
 		_verifyMavenFiles();
@@ -98,6 +102,7 @@ public class ServerStartCommandMavenTest {
 
 	@Test
 	public void testServerStartCommandTomcat() throws Exception {
+		Assume.assumeFalse(_windows);
 		_initBladeWorkspace();
 
 		_verifyMavenFiles();
@@ -113,6 +118,7 @@ public class ServerStartCommandMavenTest {
 
 	@Test
 	public void testServerStartCommandTomcatDebug() throws Exception {
+		Assume.assumeFalse(_windows);
 		_initBladeWorkspace();
 
 		_verifyMavenFiles();
@@ -323,6 +329,8 @@ public class ServerStartCommandMavenTest {
 
 		return displayName.contains("org.apache.catalina.startup.Bootstrap");
 	};
+
+	private static boolean _windows = BladeUtil.isWindows();
 
 	private Path _extensionsDir = null;
 	private Path _testWorkspaceDir = null;
