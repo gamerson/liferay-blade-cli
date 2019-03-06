@@ -77,6 +77,11 @@ public class InitCommand extends BaseCommand<InitArgs> {
 
 		destDir = correctPath.toFile();
 
+		execute(bladeCLI, args, initArgs, name, baseDir, destDir);
+	}
+
+	public void execute(BladeCLI bladeCLI, BaseArgs args, InitArgs initArgs, String name, File baseDir, File destDir) throws Exception {
+
 		File temp = null;
 
 		boolean pluginsSDK = _isPluginsSDK(destDir);
@@ -104,8 +109,8 @@ public class InitCommand extends BaseCommand<InitArgs> {
 						}
 
 						_trace(
-							"Found plugins-sdk 6.2, upgraded to 7.0, moving contents to new subdirectory and initing " +
-								"workspace.");
+								"Found plugins-sdk 6.2, upgraded to 7.0, moving contents to new subdirectory and " +
+										"initing workspace.");
 
 						for (String fileName : _SDK_6_GA5_FILES) {
 							File file = new File(destDir, fileName);
@@ -117,8 +122,8 @@ public class InitCommand extends BaseCommand<InitArgs> {
 					}
 					else {
 						_addError(
-							"Unable to run blade init in Plugins SDK 6.2, please add -u (--upgrade) if you want to " +
-								"upgrade to 7.0");
+								"Unable to run blade init in Plugins SDK 6.2, please add -u (--upgrade) if you want " +
+										"to upgrade to 7.0");
 
 						return;
 					}
@@ -141,9 +146,9 @@ public class InitCommand extends BaseCommand<InitArgs> {
 					}
 					else {
 						_addError(
-							destDir.getAbsolutePath() +
-								" contains files, please move them before continuing or use -f (--force) option to " +
-									"init workspace.");
+								destDir.getAbsolutePath() +
+										" contains files, please move them before continuing or use -f (--force) " +
+										"option to init workspace.");
 
 						return;
 					}

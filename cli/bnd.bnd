@@ -239,6 +239,7 @@ Private-Package:\
 	#org.eclipse.aether.version
 -includeresource:\
 	@com.liferay.project.templates-*.jar,\
+	@groovy-all-*.jar,\
 	@jansi-*.jar,\
 	${project.buildDir}/tooling.zip,\
 	${project.buildDir}/wrapper.zip,\
