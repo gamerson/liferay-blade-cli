@@ -255,6 +255,88 @@ public class ConvertServiceBuilderCommandTest {
 		Assert.assertTrue(sbApiDir.exists());
 	}
 
+	@Test
+	public void testConvertServiceBuilderWithRemoveOnly() throws Exception {
+		File testdir = new File(temporaryFolder.getRoot(), "build/testMigrateServiceBuilder");
+
+		FileUtil.unzip(new File("test-resources/projects/plugins-sdk-with-git.zip"), testdir);
+
+		Assert.assertTrue(testdir.exists());
+
+		File projectDir = new File(testdir, "plugins-sdk-with-git");
+
+		File pluginsSdkDir = new File(projectDir, "plugins-sdk");
+
+		FileUtil.deleteDirIfExists(pluginsSdkDir.toPath());
+
+		String[] args = {"--base", projectDir.getPath(), "init", "-u"};
+
+		TestUtil.runBlade(_rootDir, _extensionsDir, args);
+
+		args = new String[] {"--base", projectDir.getPath(), "convert", SB_PROJECT_NAME, "-r"};
+
+		TestUtil.runBlade(_rootDir, _extensionsDir, args);
+
+		File oldSbProject = new File(pluginsSdkDir, "portlets/sample-service-builder-portlet");
+
+		Assert.assertFalse(oldSbProject.exists());
+
+		File sbWar = new File(projectDir, "wars/sample-service-builder-portlet");
+
+		Assert.assertTrue(sbWar.exists());
+
+		File moduleDir = new File(projectDir, "modules");
+
+		File newSbDir = new File(moduleDir, "sample-service-builder");
+
+		File sbServiceDir = new File(newSbDir, "sample-service-builder-service");
+		File sbApiDir = new File(newSbDir, "sample-service-builder-api");
+
+		Assert.assertTrue(sbServiceDir.exists());
+		Assert.assertTrue(sbApiDir.exists());
+	}
+
+	@Test
+	public void testConvertServiceBuilderWithRemoveTrue() throws Exception {
+		File testdir = new File(temporaryFolder.getRoot(), "build/testMigrateServiceBuilder");
+
+		FileUtil.unzip(new File("test-resources/projects/plugins-sdk-with-git.zip"), testdir);
+
+		Assert.assertTrue(testdir.exists());
+
+		File projectDir = new File(testdir, "plugins-sdk-with-git");
+
+		File pluginsSdkDir = new File(projectDir, "plugins-sdk");
+
+		FileUtil.deleteDirIfExists(pluginsSdkDir.toPath());
+
+		String[] args = {"--base", projectDir.getPath(), "init", "-u"};
+
+		TestUtil.runBlade(_rootDir, _extensionsDir, args);
+
+		args = new String[] {"--base", projectDir.getPath(), "convert", SB_PROJECT_NAME, "-r", Boolean.TRUE.toString()};
+
+		TestUtil.runBlade(_rootDir, _extensionsDir, args);
+
+		File oldSbProject = new File(pluginsSdkDir, "portlets/sample-service-builder-portlet");
+
+		Assert.assertFalse(oldSbProject.exists());
+
+		File sbWar = new File(projectDir, "wars/sample-service-builder-portlet");
+
+		Assert.assertTrue(sbWar.exists());
+
+		File moduleDir = new File(projectDir, "modules");
+
+		File newSbDir = new File(moduleDir, "sample-service-builder");
+
+		File sbServiceDir = new File(newSbDir, "sample-service-builder-service");
+		File sbApiDir = new File(newSbDir, "sample-service-builder-api");
+
+		Assert.assertTrue(sbServiceDir.exists());
+		Assert.assertTrue(sbApiDir.exists());
+	}
+
 	@Rule
 	public final TemporaryFolder temporaryFolder = new TemporaryFolder();
 

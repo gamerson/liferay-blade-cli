@@ -82,7 +82,9 @@ public class ConvertArgs extends BaseArgs {
 	@Parameter(description = "name")
 	private List<String> _name = new ArrayList<>();
 
-	@Parameter(description = "Remove source plugin projects, default value is true", names = {"-r", "--remove"})
+	@Parameter(
+		arity = 1, description = "Remove source plugin projects, default value is true", names = {"-r", "--remove"}
+	)
 	private boolean _removeSource = true;
 
 	@Parameter(
