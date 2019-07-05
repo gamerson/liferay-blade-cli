@@ -23,13 +23,77 @@ Private-Package:\
 	com.liferay.gogo.shell.client,\
 	com.liferay.properties.locator,\
 	\
+	org.apache.commons.configuration,\
+	org.apache.commons.configuration.event,\
+	org.apache.commons.configuration.interpol,\
+	org.apache.commons.configuration.reloading,\
 	org.apache.commons.io,\
 	org.apache.commons.io.filefilter,\
 	org.apache.commons.io.input,\
 	org.apache.commons.io.output,\
+	org.apache.commons.lang.exception,\
+	org.apache.commons.lang.text,\
 	org.apache.commons.lang3,\
 	org.apache.commons.lang3.exception,\
 	org.apache.commons.lang3.text,\
+	org.apache.commons.logging,\
+	org.apache.commons.logging.impl,\
+	\
+	org.eclipse.lsp4j,\
+	org.eclipse.lsp4j.adapters,\
+	org.eclipse.lsp4j.launch,\
+	org.eclipse.lsp4j.services,\
+	org.eclipse.lsp4j.util,\
+	\
+	org.eclipse.lsp4j.jsonrpc,\
+	org.eclipse.lsp4j.jsonrpc.json,\
+	org.eclipse.lsp4j.jsonrpc.json.adapters,\
+	org.eclipse.lsp4j.jsonrpc.messages,\
+	org.eclipse.lsp4j.jsonrpc.services,\
+	org.eclipse.lsp4j.jsonrpc.validation,\
+	\
+	org.eclipse.lsp4j.generator,\
+	\
+	org.eclipse.xtend.lib,\
+	org.eclipse.xtend.lib.annotations,\
+	\
+	org.eclipse.xtend.lib.macro,\
+	org.eclipse.xtend.lib.macro.declaration,\
+	org.eclipse.xtend.lib.macro.expression,\
+	org.eclipse.xtend.lib.macro.file,\
+	org.eclipse.xtend.lib.macro.services,\
+	\
+	org.eclipse.xtend2.lib,\
+	org.eclipse.xtext.xbase.lib,\
+	org.eclipse.xtext.xbase.lib.internal,\
+	org.eclipse.xtext.xbase.lib.util,\
+	\
+	com.google.gson,\
+	com.google.gson.annotations,\
+	com.google.gson.internal,\
+	com.google.gson.internal.bind,\
+	com.google.gson.internal.bind.util,\
+	com.google.gson.reflect,\
+	com.google.gson.stream,\
+	\
+	com.google.common.annotations,\
+	com.google.common.base,\
+	com.google.common.base.internal,\
+	com.google.common.cache,\
+	com.google.common.collect,\
+	com.google.common.escape,\
+	com.google.common.eventbus,\
+	com.google.common.graph,\
+	com.google.common.hash,\
+	com.google.common.html,\
+	com.google.common.io,\
+	com.google.common.math,\
+	com.google.common.net,\
+	com.google.common.primitives,\
+	com.google.common.reflect,\
+	com.google.common.util.concurrent,\
+	com.google.common.xml,\
+	com.google.thirdparty.publicsuffix,\
 	\
 	org.gradle,\
 	org.gradle.api,\
