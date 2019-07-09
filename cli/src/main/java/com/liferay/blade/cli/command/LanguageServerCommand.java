@@ -18,7 +18,12 @@ package com.liferay.blade.cli.command;
 
 import com.liferay.blade.cli.languageserver.LiferayLanguageServer;
 
-import java.util.concurrent.Future;
+import java.io.InputStream;
+import java.io.OutputStream;
+
+import java.net.Socket;
+
+import java.util.Collections;
 
 import org.eclipse.lsp4j.jsonrpc.Launcher;
 import org.eclipse.lsp4j.launch.LSPLauncher;
@@ -34,21 +39,39 @@ public class LanguageServerCommand extends BaseCommand<LanguageServerArgs> {
 
 	@Override
 	public void execute() throws Exception {
-		LiferayLanguageServer liferayLanguageServer = new LiferayLanguageServer();
+		LanguageServerArgs languageServerArgs = getArgs();
 
-		Launcher<LanguageClient> launcher = LSPLauncher.createServerLauncher(
-			liferayLanguageServer, System.in, System.out);
+		int port = languageServerArgs.getPort();
 
-		Future<?> startListening = launcher.startListening();
+		if (port < 0) {
+			_addError("Port is invalid.");
 
-		liferayLanguageServer.setRemoteProxy(launcher.getRemoteProxy());
+			return;
+		}
 
-		startListening.get();
+		Socket socket = new Socket("localhost", port);
+
+		InputStream in = socket.getInputStream();
+		OutputStream out = socket.getOutputStream();
+
+		LiferayLanguageServer server = new LiferayLanguageServer();
+
+		Launcher<LanguageClient> launcher = LSPLauncher.createServerLauncher(server, in, out);
+
+		LanguageClient client = launcher.getRemoteProxy();
+
+		server.setRemoteProxy(client);
+
+		launcher.startListening();
 	}
 
 	@Override
 	public Class<LanguageServerArgs> getArgsClass() {
 		return LanguageServerArgs.class;
+	}
+
+	private void _addError(String msg) {
+		getBladeCLI().addErrors("languageServer", Collections.singleton(msg));
 	}
 
 }

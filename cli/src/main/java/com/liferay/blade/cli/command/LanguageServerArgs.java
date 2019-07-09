@@ -16,6 +16,7 @@
 
 package com.liferay.blade.cli.command;
 
+import com.beust.jcommander.Parameter;
 import com.beust.jcommander.Parameters;
 
 /**
@@ -23,4 +24,12 @@ import com.beust.jcommander.Parameters;
  */
 @Parameters(commandNames = "languageServer")
 public class LanguageServerArgs extends BaseArgs {
+
+	public int getPort() {
+		return _port;
+	}
+
+	@Parameter(description = "Port", names = {"-p", "--port"})
+	private int _port = -1;
+
 }
