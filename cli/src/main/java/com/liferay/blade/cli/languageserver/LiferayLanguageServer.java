@@ -21,7 +21,10 @@ import java.util.concurrent.CompletableFuture;
 import org.eclipse.lsp4j.CompletionOptions;
 import org.eclipse.lsp4j.InitializeParams;
 import org.eclipse.lsp4j.InitializeResult;
+import org.eclipse.lsp4j.SaveOptions;
 import org.eclipse.lsp4j.ServerCapabilities;
+import org.eclipse.lsp4j.TextDocumentSyncKind;
+import org.eclipse.lsp4j.TextDocumentSyncOptions;
 import org.eclipse.lsp4j.services.LanguageClient;
 import org.eclipse.lsp4j.services.LanguageServer;
 import org.eclipse.lsp4j.services.TextDocumentService;
@@ -49,7 +52,17 @@ public class LiferayLanguageServer implements LanguageServer {
 	}
 
 	public CompletableFuture<InitializeResult> initialize(InitializeParams params) {
-		InitializeResult initializeResult = new InitializeResult(new ServerCapabilities());
+		ServerCapabilities serverCapabilities = new ServerCapabilities();
+		TextDocumentSyncOptions textDocumentSyncOptions = new TextDocumentSyncOptions();
+		textDocumentSyncOptions.setChange(TextDocumentSyncKind.None);
+		textDocumentSyncOptions.setOpenClose(false);
+		textDocumentSyncOptions.setSave(new SaveOptions());
+		textDocumentSyncOptions.setWillSave(false);
+		textDocumentSyncOptions.setWillSaveWaitUntil(false);
+
+		serverCapabilities.setTextDocumentSync(textDocumentSyncOptions);
+
+		InitializeResult initializeResult = new InitializeResult(serverCapabilities);
 
 		ServerCapabilities capabilities = initializeResult.getCapabilities();
 

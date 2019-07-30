@@ -37,6 +37,7 @@ import org.apache.commons.configuration.ConfigurationException;
 import org.apache.commons.configuration.PropertiesConfigurationLayout;
 
 import org.eclipse.lsp4j.CompletionItem;
+import org.eclipse.lsp4j.CompletionItemKind;
 import org.eclipse.lsp4j.CompletionList;
 import org.eclipse.lsp4j.CompletionParams;
 import org.eclipse.lsp4j.DidChangeTextDocumentParams;
@@ -84,6 +85,8 @@ public class LiferayTextDocumentService implements TextDocumentService {
 						CompletionItem completionItem = new CompletionItem(key.getKey());
 
 						completionItem.setDetail(key.getComment());
+
+						completionItem.setKind(CompletionItemKind.Property);
 
 						completionItems.add(completionItem);
 					}
