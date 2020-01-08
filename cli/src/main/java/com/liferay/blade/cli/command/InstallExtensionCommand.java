@@ -112,7 +112,7 @@ public class InstallExtensionCommand extends BaseCommand<InstallExtensionArgs> {
 
 					bladeCLI.out("Downloading github repository " + githubRootUrl);
 
-					BladeUtil.downloadGithubProject(String.valueOf(githubRootUrl), zip);
+					BladeUtil.downloadGithubProject(String.valueOf(githubRootUrl), zip, bladeCLI);
 
 					bladeCLI.out("Unzipping github repository to " + projectPath);
 
@@ -167,7 +167,7 @@ public class InstallExtensionCommand extends BaseCommand<InstallExtensionArgs> {
 
 						bladeCLI.out("Downloading github repository " + pathArg);
 
-						BladeUtil.downloadGithubProject(pathArg, zip);
+						BladeUtil.downloadGithubProject(pathArg, zip, bladeCLI);
 
 						bladeCLI.out("Unzipping github repository to " + path);
 

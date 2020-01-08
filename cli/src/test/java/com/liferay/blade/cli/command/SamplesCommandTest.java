@@ -41,6 +41,7 @@ import org.junit.rules.TemporaryFolder;
 /**
  * @author David Truong
  * @author Gregory Amerson
+ * @author Terry Jia
  */
 public class SamplesCommandTest {
 
@@ -318,12 +319,30 @@ public class SamplesCommandTest {
 	}
 
 	@Test
+	public void testListCategory() throws Exception {
+		BladeTestResults bladeTestResults = TestUtil.runBlade(_rootDir, _extensionsDir, "samples", "-lc");
+
+		String output = bladeTestResults.getOutput();
+
+		Assert.assertTrue(output.contains("extensions"));
+	}
+
+	@Test
 	public void testListSamples() throws Exception {
 		BladeTestResults bladeTestResults = TestUtil.runBlade(_rootDir, _extensionsDir, "samples");
 
 		String output = bladeTestResults.getOutput();
 
 		Assert.assertTrue(output.contains("ds-portlet"));
+	}
+
+	@Test
+	public void testListSamplesWithCategory() throws Exception {
+		BladeTestResults bladeTestResults = TestUtil.runBlade(_rootDir, _extensionsDir, "samples", "-ca", "themes");
+
+		String output = bladeTestResults.getOutput();
+
+		Assert.assertTrue(output.contains("template-context-contributor"));
 	}
 
 	@Rule

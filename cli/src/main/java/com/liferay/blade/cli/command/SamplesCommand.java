@@ -41,6 +41,7 @@ import java.util.stream.Stream;
 
 /**
  * @author David Truong
+ * @author Terry Jia
  */
 public class SamplesCommand extends BaseCommand<SamplesArgs> {
 
@@ -64,12 +65,30 @@ public class SamplesCommand extends BaseCommand<SamplesArgs> {
 
 		final String sampleName = samplesArgs.getSampleName();
 
+		boolean cache = samplesArgs.isCache();
+
+		if (cache) {
+			if (_downloadBladeRepoIfNeeded(bladeRepoArchiveName, bladeRepoUrl)) {
+				_extractBladeRepo(bladeRepoArchiveName);
+			}
+
+			return;
+		}
+
+		boolean listCategories = samplesArgs.isListCategories();
+
+		if (listCategories) {
+			_listCategories(bladeRepoName);
+
+			return;
+		}
+
 		if (_downloadBladeRepoIfNeeded(bladeRepoArchiveName, bladeRepoUrl)) {
 			_extractBladeRepo(bladeRepoArchiveName);
 		}
 
 		if (sampleName == null) {
-			_listSamples(bladeRepoName);
+			_listSamples(bladeRepoName, samplesArgs.getCategory());
 		}
 		else {
 			_copySample(sampleName, bladeRepoName);
@@ -155,7 +174,7 @@ public class SamplesCommand extends BaseCommand<SamplesArgs> {
 		}
 
 		if (!bladeRepoArchive.exists()) {
-			BladeUtil.downloadLink(bladeRepoUrl, bladeRepoArchive.toPath());
+			BladeUtil.downloadLink(bladeRepoUrl, bladeRepoArchive.toPath(), getBladeCLI());
 
 			return true;
 		}
@@ -195,7 +214,30 @@ public class SamplesCommand extends BaseCommand<SamplesArgs> {
 		return samplesCachePath;
 	}
 
-	private void _listSamples(String bladeRepoName) throws IOException {
+	private void _listCategories(String bladeRepoName) throws IOException {
+		BladeCLI bladeCLI = getBladeCLI();
+		SamplesArgs samplesArgs = getArgs();
+
+		Path cachePath = _getSamplesCachePath();
+
+		File bladeRepo = new File(cachePath.toFile(), bladeRepoName);
+
+		String buildType = samplesArgs.getProfileName();
+
+		File samples = new File(bladeRepo, buildType);
+
+		bladeCLI.out("Currently available categories:");
+
+		for (File file : samples.listFiles()) {
+			String fileName = file.getName();
+
+			if (file.isDirectory() && _topLevelFolders.contains(fileName)) {
+				bladeCLI.out("\t " + fileName);
+			}
+		}
+	}
+
+	private void _listSamples(String bladeRepoName, String filterCategory) throws IOException {
 		BladeCLI bladeCLI = getBladeCLI();
 		SamplesArgs samplesArgs = getArgs();
 
@@ -238,20 +280,31 @@ public class SamplesCommand extends BaseCommand<SamplesArgs> {
 		bladeCLI.out("Please provide the sample project name to create, e.g. \"blade samples jsp-portlet\"\n");
 		bladeCLI.out("Currently available categories and samples:");
 
-		Set<String> keySet = samplesMap.keySet();
+		if (filterCategory == null) {
+			Set<String> keySet = samplesMap.keySet();
 
-		Stream<String> stream = keySet.stream();
+			Stream<String> stream = keySet.stream();
 
-		stream.sorted(
-		).peek(
-			category -> bladeCLI.out("\t " + category + ":")
-		).map(
-			samplesMap::get
-		).flatMap(
-			category -> category.stream()
-		).forEach(
-			sample -> bladeCLI.out("\t\t " + sample)
-		);
+			stream.sorted(
+			).peek(
+				category -> bladeCLI.out("\t " + category + ":")
+			).map(
+				samplesMap::get
+			).flatMap(
+				category -> category.stream()
+			).forEach(
+				sample -> bladeCLI.out("\t\t " + sample)
+			);
+		}
+		else {
+			List<Path> sampleList = samplesMap.get(filterCategory);
+
+			bladeCLI.out("\t " + filterCategory + ":");
+
+			for (Path sample : sampleList) {
+				bladeCLI.out("\t\t " + sample);
+			}
+		}
 	}
 
 	private String _parseGradleScript(String script, String section, boolean contentsOnly) {
@@ -362,6 +415,6 @@ public class SamplesCommand extends BaseCommand<SamplesArgs> {
 	private static final File _USER_HOME_DIR = new File(System.getProperty("user.home"));
 
 	private static final Collection<String> _topLevelFolders = Arrays.asList(
-		"apps", "extensions", "overrides", "themes");
+		"apps", "ext", "extensions", "overrides", "themes", "tests", "wars");
 
 }

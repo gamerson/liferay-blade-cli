@@ -42,7 +42,7 @@ public class DownloadFromGithubTest {
 
 		Path zip = testDirPath.resolve("master.zip");
 
-		BladeUtil.downloadGithubProject("https://github.com/liferay/liferay-blade-cli", zip);
+		BladeUtil.downloadGithubProject("https://github.com/liferay/liferay-blade-cli", zip, null);
 
 		Assert.assertTrue(Files.exists(zip));
 	}

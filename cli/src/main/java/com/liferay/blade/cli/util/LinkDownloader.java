@@ -16,6 +16,10 @@
 
 package com.liferay.blade.cli.util;
 
+import com.liferay.blade.cli.BladeCLI;
+
+import java.io.File;
+
 import java.net.HttpURLConnection;
 import java.net.URL;
 
@@ -29,12 +33,14 @@ import java.util.Map;
 
 /**
  * @author Christopher Bryan Boyd
+ * @author Terry Jia
  */
 public class LinkDownloader implements Runnable {
 
-	public LinkDownloader(String link, Path target) {
+	public LinkDownloader(String link, Path target, BladeCLI bladeCLI) {
 		_link = link;
 		_target = target;
+		_bladeCLI = bladeCLI;
 	}
 
 	@Override
@@ -60,6 +66,30 @@ public class LinkDownloader implements Runnable {
 				savePath = _target.resolve(_getFileName(httpURLConnection.getURL()));
 			}
 
+			long contentLength = httpURLConnection.getContentLengthLong();
+
+			if ((contentLength > 0) && (_bladeCLI != null)) {
+				File file = savePath.toFile();
+
+				Thread thread = new Thread(
+					() -> {
+						while (file.length() < contentLength) {
+							String s = file.length() + "/" + contentLength;
+
+							_bladeCLI.out(s);
+
+							try {
+								Thread.sleep(2000);
+							}
+							catch (InterruptedException ie) {
+								break;
+							}
+						}
+					});
+
+				thread.start();
+			}
+
 			Files.copy(httpURLConnection.getInputStream(), savePath, StandardCopyOption.REPLACE_EXISTING);
 		}
 		catch (Exception e) {
@@ -67,6 +97,7 @@ public class LinkDownloader implements Runnable {
 		}
 	}
 
+	private BladeCLI _bladeCLI;
 	private String _link;
 	private Path _target;
 

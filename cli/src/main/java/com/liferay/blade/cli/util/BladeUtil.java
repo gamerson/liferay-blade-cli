@@ -89,15 +89,15 @@ public class BladeUtil {
 		return _canConnect(localAddress, remoteAddress);
 	}
 
-	public static void downloadGithubProject(String url, Path target) throws IOException {
+	public static void downloadGithubProject(String url, Path target, BladeCLI bladeCLI) throws IOException {
 		String zipUrl = url + "/archive/master.zip";
 
-		downloadLink(zipUrl, target);
+		downloadLink(zipUrl, target, bladeCLI);
 	}
 
-	public static void downloadLink(String link, Path target) throws IOException {
+	public static void downloadLink(String link, Path target, BladeCLI bladeCLI) throws IOException {
 		if (_isURLAvailable(link)) {
-			LinkDownloader downloader = new LinkDownloader(link, target);
+			LinkDownloader downloader = new LinkDownloader(link, target, bladeCLI);
 
 			downloader.run();
 		}

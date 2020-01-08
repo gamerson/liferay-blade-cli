@@ -23,9 +23,14 @@ import java.io.File;
 
 /**
  * @author Gregory Amerson
+ * @author Terry Jia
  */
 @Parameters(commandDescription = "Generate a sample project", commandNames = "samples")
 public class SamplesArgs extends BaseArgs {
+
+	public String getCategory() {
+		return _category;
+	}
 
 	public File getDir() {
 		return _dir;
@@ -39,14 +44,34 @@ public class SamplesArgs extends BaseArgs {
 		return _sampleName;
 	}
 
+	public boolean isCache() {
+		return _cache;
+	}
+
+	public boolean isListCategories() {
+		return _listCategories;
+	}
+
+	@Parameter(description = "To cache the archive for the specified liferay version", names = {"-c", "--cache"})
+	private boolean _cache;
+
+	@Parameter(description = "category", names = {"-ca", "--category"})
+	private String _category;
+
 	@Parameter(description = "The directory where to create the new project.", names = {"-d", "--dir"})
 	private File _dir;
 
 	@Parameter(
-		description = "The version of Liferay to target when downloading the sample project. Available options are 7.0, 7.1. (default 7.1).",
+		description = "The version of Liferay to target when downloading the sample project. Available options are 7.0, 7.1, 7.2. (default 7.1).",
 		names = {"-v", "--liferay-version"}
 	)
 	private String _liferayVersion;
+
+	@Parameter(
+		description = "To list all of categories for the specified liferay version",
+		names = {"-lc", "--list-categories"}
+	)
+	private boolean _listCategories;
 
 	@Parameter(description = "name")
 	private String _sampleName;
