@@ -1,0 +1,20 @@
+{
+	"checkPossibleKeys": false,
+	"keys": [
+		{
+			"key": "liferay.version.default",
+			"validateValues": true,
+			"values": "7.0,7.1,7.2"
+		},
+		{
+			"key": "profile.name",
+			"validateValues": true,
+			"values": "maven,gradle"
+		},
+		{
+			"key": "profile.prompt.disabled",
+			"validateValues": true,
+			"values": "boolean"
+		}
+	]
+}
