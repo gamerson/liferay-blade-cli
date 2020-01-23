@@ -140,7 +140,7 @@ public class DeployCommandTest {
 		Files.write(
 			projectDirectoryPath.resolve("build.gradle"), lines, Charset.forName("UTF-8"), StandardOpenOption.APPEND);
 
-		args = new String[] {"--base", projectDirectoryPath.toString(), "deploy"};
+		args = new String[] {"--base", projectDirectoryPath.toString(), "deploy", "--trace"};
 
 		TestUtil.runBlade(_rootDir, _extensionsDir, args);
 
