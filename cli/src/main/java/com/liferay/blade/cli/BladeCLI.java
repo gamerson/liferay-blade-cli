@@ -33,7 +33,6 @@ import com.liferay.blade.cli.command.validator.ParametersValidator;
 import com.liferay.blade.cli.util.CombinedClassLoader;
 import com.liferay.blade.cli.util.Prompter;
 
-import java.io.Console;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
@@ -366,93 +365,89 @@ public class BladeCLI {
 
 						_validateParameters((BaseArgs)commandArgs);
 
-						Console console = System.console();
+						String parameterMessage = null;
 
-						if (console != null) {
-							String parameterMessage = null;
+						if (parameterException != null) {
+							parameterMessage = parameterException.getMessage();
 
-							if (parameterException != null) {
-								parameterMessage = parameterException.getMessage();
+							if (parameterMessage.contains("Main parameters are required") ||
+								parameterMessage.contains(_MESSAGE_OPTIONS_ARE_REQUIRED) ||
+								parameterMessage.contains(_MESSAGE_OPTION_IS_REQUIRED)) {
 
-								if (parameterMessage.contains("Main parameters are required") ||
-									parameterMessage.contains(_MESSAGE_OPTIONS_ARE_REQUIRED) ||
-									parameterMessage.contains(_MESSAGE_OPTION_IS_REQUIRED)) {
+								System.out.println(
+									"Error: The command " + command + " is missing required parameters.");
+							}
+							else {
+								throw parameterException;
+							}
+						}
 
-									System.out.println(
-										"Error: The command " + command + " is missing required parameters.");
+						while (parameterException != null) {
+							parameterMessage = parameterException.getMessage();
+
+							List<String> fixedArgs = new ArrayList<>(Arrays.asList(args));
+
+							if (parameterMessage.contains(_MESSAGE_OPTIONS_ARE_REQUIRED) ||
+								parameterMessage.contains(_MESSAGE_OPTION_IS_REQUIRED)) {
+
+								parameterMessage = parameterMessage.replace(_MESSAGE_OPTIONS_ARE_REQUIRED, "");
+								parameterMessage = parameterMessage.replace(_MESSAGE_OPTION_IS_REQUIRED, "");
+
+								String[] missingParameters = parameterMessage.split(", ");
+
+								String value = null;
+
+								for (String missingParameter : missingParameters) {
+									missingParameter = _getMissingParameterUnformatted(missingParameter);
+
+									value = _promptForMissingParameter(commandArgs, Optional.of(missingParameter));
+
+									fixedArgs.add(1, missingParameter);
+
+									fixedArgs.add(2, value);
 								}
-								else {
-									throw parameterException;
-								}
+
+								args = fixedArgs.toArray(new String[0]);
+
+								args = Extensions.sortArgs(_commands, args);
+							}
+							else if (parameterMessage.contains("Main parameters are required")) {
+								String value = _promptForMissingParameter(commandArgs, Optional.empty());
+
+								fixedArgs.add(value);
+
+								args = fixedArgs.toArray(new String[0]);
+
+								args = Extensions.sortArgs(_commands, args);
+							}
+							else {
+								throw parameterException;
 							}
 
-							while (parameterException != null) {
-								parameterMessage = parameterException.getMessage();
+							try {
+								parameterException = null;
 
-								List<String> fixedArgs = new ArrayList<>(Arrays.asList(args));
+								_jCommander = _buildJCommanderWithCommandMap(_commands);
 
-								if (parameterMessage.contains(_MESSAGE_OPTIONS_ARE_REQUIRED) ||
-									parameterMessage.contains(_MESSAGE_OPTION_IS_REQUIRED)) {
-
-									parameterMessage = parameterMessage.replace(_MESSAGE_OPTIONS_ARE_REQUIRED, "");
-									parameterMessage = parameterMessage.replace(_MESSAGE_OPTION_IS_REQUIRED, "");
-
-									String[] missingParameters = parameterMessage.split(", ");
-
-									String value = null;
-
-									for (String missingParameter : missingParameters) {
-										missingParameter = _getMissingParameterUnformatted(missingParameter);
-
-										value = _promptForMissingParameter(commandArgs, Optional.of(missingParameter));
-
-										fixedArgs.add(1, missingParameter);
-
-										fixedArgs.add(2, value);
-									}
-
-									args = fixedArgs.toArray(new String[0]);
-
-									args = Extensions.sortArgs(_commands, args);
-								}
-								else if (parameterMessage.contains("Main parameters are required")) {
-									String value = _promptForMissingParameter(commandArgs, Optional.empty());
-
-									fixedArgs.add(value);
-
-									args = fixedArgs.toArray(new String[0]);
-
-									args = Extensions.sortArgs(_commands, args);
-								}
-								else {
-									throw parameterException;
-								}
-
-								try {
-									parameterException = null;
-
-									_jCommander = _buildJCommanderWithCommandMap(_commands);
-
-									_jCommander.parse(args);
-								}
-								catch (ParameterException pe) {
-									parameterException = pe;
-								}
-
-								jCommands = _jCommander.getCommands();
-
-								jCommander = jCommands.get(command);
-
-								if (jCommander == null) {
-									printUsage();
-
-									break;
-								}
-
-								objects = jCommander.getObjects();
-
-								commandArgs = objects.get(0);
+								_jCommander.parse(args);
 							}
+							catch (ParameterException pe) {
+								parameterException = pe;
+							}
+
+							jCommands = _jCommander.getCommands();
+
+							jCommander = jCommands.get(command);
+
+							if (jCommander == null) {
+								printUsage();
+
+								break;
+							}
+
+							objects = jCommander.getObjects();
+
+							commandArgs = objects.get(0);
 						}
 
 						if (parameterException == null) {
@@ -1090,7 +1085,8 @@ public class BladeCLI {
 
 						String message = sb.toString();
 
-						value = _promptForValueWithOptions(missingParametersFormatted, optionsMap, message);
+						value = _promptForValueWithOptions(
+							missingParametersFormatted, optionsMap, message, in(), out());
 
 						break;
 					}
@@ -1102,16 +1098,16 @@ public class BladeCLI {
 	}
 
 	private String _promptForValueWithOptions(
-		String missingParametersFormatted, Map<String, String> optionsMap, String message) {
+		String missingParametersFormatted, Map<String, String> optionsMap, String message, InputStream inputStream,
+		PrintStream printStream) {
 
-		String value;
-		value = Prompter.promptString(message);
+		String value = Prompter.promptString(message, inputStream, printStream);
 
 		if ((optionsMap != null) && !optionsMap.isEmpty()) {
 			while (!optionsMap.containsKey(value) && !optionsMap.containsValue(value)) {
 				System.out.println("Please enter a valid value for " + missingParametersFormatted);
 
-				value = Prompter.promptString("");
+				value = Prompter.promptString("", inputStream, printStream);
 			}
 
 			if (optionsMap.containsKey(value)) {

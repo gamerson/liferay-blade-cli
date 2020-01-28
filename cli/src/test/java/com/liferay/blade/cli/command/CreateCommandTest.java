@@ -27,6 +27,7 @@ import com.liferay.blade.cli.util.FileUtil;
 import com.liferay.project.templates.ProjectTemplates;
 
 import java.io.BufferedReader;
+import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileReader;
@@ -473,22 +474,27 @@ public class CreateCommandTest {
 
 		String[] args = {"create", "foobar", "-d", tempRoot.getAbsolutePath()};
 
-		String output = null;
+		InputStream nullInputStream = new InputStream() {
+
+			@Override
+			public int read() throws IOException {
+				return -1;
+			}
+
+		};
+
+		String message = null;
 
 		try {
-			BladeTestResults bladeTestResults = TestUtil.runBlade(_rootDir, _extensionsDir, args);
-
-			output = bladeTestResults.getOutput();
+			TestUtil.runBlade(_rootDir, _extensionsDir, nullInputStream, true, args);
 		}
 		catch (Throwable t) {
-			output = t.getMessage();
+			message = t.getMessage();
 		}
 
-		Assert.assertNotNull(output);
+		Assert.assertNotNull(message);
 
-		boolean containsError = output.contains("The following option is required");
-
-		Assert.assertTrue(containsError);
+		Assert.assertTrue(message, message.contains("Unable to acquire an answer"));
 	}
 
 	@Test
@@ -512,6 +518,19 @@ public class CreateCommandTest {
 		_checkFileExists(projectPath + "/src/main/resources/META-INF/resources/view.jsp");
 
 		_checkFileExists(projectPath + "/src/main/resources/META-INF/resources/init.jsp");
+	}
+
+	@Test
+	public void testCreateMVCPortletInteractive() throws Exception {
+		String[] gradleArgs = {"create", "-d", _rootDir.getAbsolutePath(), "-t", "mvc-portlet"};
+
+		ByteArrayInputStream byteArrayInputStream = new ByteArrayInputStream("foo\n".getBytes());
+
+		TestUtil.runBlade(_rootDir, _extensionsDir, byteArrayInputStream, true, gradleArgs);
+
+		File project = new File(_rootDir, "foo");
+
+		_checkGradleBuildFiles(project.getAbsolutePath());
 	}
 
 	@Test
@@ -758,6 +777,19 @@ public class CreateCommandTest {
 		_checkFileExists(projectPath + "/src/main/java/com/test/controller/UserController.java");
 
 		_checkFileExists(projectPath + "/build.gradle");
+	}
+
+	@Test
+	public void testCreateSpringMVCPortletInteractive() throws Exception {
+		String[] gradleArgs = {"create", "-d", _rootDir.getAbsolutePath(), "-t", "spring-mvc-portlet"};
+
+		ByteArrayInputStream byteArrayInputStream = new ByteArrayInputStream("foo\n".getBytes());
+
+		TestUtil.runBlade(_rootDir, _extensionsDir, byteArrayInputStream, true, gradleArgs);
+
+		File project = new File(_rootDir, "foo");
+
+		_checkGradleBuildFiles(project.getAbsolutePath());
 	}
 
 	@Test
