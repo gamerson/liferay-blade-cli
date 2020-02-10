@@ -391,7 +391,7 @@ public class ServerStartCommandTest {
 
 		contents = bundleUrl + contents;
 
-		Files.write(gradlePropertiesPath, bundleUrl.getBytes(), StandardOpenOption.TRUNCATE_EXISTING);
+		Files.write(gradlePropertiesPath, contents.getBytes(), StandardOpenOption.TRUNCATE_EXISTING);
 	}
 
 	private void _addTomcatBundleToGradle() throws Exception {
