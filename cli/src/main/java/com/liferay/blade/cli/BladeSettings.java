@@ -16,15 +16,11 @@
 
 package com.liferay.blade.cli;
 
-import com.liferay.blade.cli.util.Prompter;
-
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 
-import java.util.Objects;
-import java.util.Optional;
 import java.util.Properties;
 
 /**
@@ -63,43 +59,7 @@ public class BladeSettings {
 		WorkspaceProvider workspaceProvider = bladeCLI.getWorkspaceProvider(_settingsFile);
 
 		if ((workspaceProvider != null) && workspaceProvider.isWorkspace(bladeCLI)) {
-			File workspaceDirectory = workspaceProvider.getWorkspaceDir(_settingsFile);
-
-			File pomFile = new File(workspaceDirectory, "pom.xml");
-
-			boolean shouldPrompt = false;
-
-			if (pomFile.exists()) {
-				if (!_settingsFile.exists()) {
-					shouldPrompt = true;
-				}
-				else {
-					String profilePromptDisabled = _properties.getProperty("profile.prompt.disabled", "false");
-
-					if (!Objects.equals("true", profilePromptDisabled) && !Objects.equals("maven", getProfileName())) {
-						shouldPrompt = true;
-					}
-				}
-			}
-
-			if (shouldPrompt) {
-				String question =
-					"WARNING: blade commands will not function properly in a Maven workspace unless the blade " +
-						"profile is set to \"maven\". Should the settings for this workspace be updated?";
-
-				if (Prompter.confirm(question, bladeCLI.in(), bladeCLI.out(), Optional.of(true))) {
-					setProfileName("maven");
-					save();
-				}
-				else {
-					question = "Should blade remember this setting for this workspace?";
-
-					if (Prompter.confirm(question, bladeCLI.in(), bladeCLI.out(), Optional.of(true))) {
-						_properties.setProperty("profile.prompt.disabled", "true");
-						save();
-					}
-				}
-			}
+			workspaceProvider.resetWorkspaceBladeProperties(_settingsFile);
 		}
 	}
 

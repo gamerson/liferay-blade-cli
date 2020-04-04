@@ -288,6 +288,39 @@ public class InitCommandTest {
 	}
 
 	@Test
+	public void testGradleWorkspaceResetBladeProperties() throws Exception {
+		String[] args = {"--base", _workspaceDir.getPath(), "init", "-P", "gradle", "gradleworkspace", "-v", "7.3"};
+
+		File gradleworkspace = new File(_workspaceDir, "gradleworkspace");
+
+		TestUtil.runBlade(gradleworkspace, _extensionsDir, args);
+
+		Assert.assertTrue(gradleworkspace.exists());
+
+		File bladeProperties = new File(gradleworkspace, ".blade.properties");
+
+		Assert.assertTrue(bladeProperties.exists());
+
+		bladeProperties.delete();
+
+		Assert.assertFalse(bladeProperties.exists());
+
+		args = new String[] {"--base", gradleworkspace.getPath(), "create", "-t", "portlet", "project1"};
+
+		TestUtil.runBlade(gradleworkspace, _extensionsDir, args);
+
+		Assert.assertTrue(bladeProperties.exists());
+
+		File projectDirectory = new File(gradleworkspace, "modules/project1");
+
+		Assert.assertTrue(projectDirectory.exists());
+
+		File projectBuildGradleFile = new File(projectDirectory, "build.gradle");
+
+		Assert.assertTrue(projectBuildGradleFile.exists());
+	}
+
+	@Test
 	public void testInitCommandGradleOption() throws Exception {
 		String[] args = {"--base", _workspaceDir.getPath(), "init", "-b", "gradle", "gradleworkspace", "-v", "7.3"};
 

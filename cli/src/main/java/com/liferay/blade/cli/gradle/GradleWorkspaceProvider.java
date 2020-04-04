@@ -19,6 +19,7 @@ package com.liferay.blade.cli.gradle;
 import aQute.bnd.version.Version;
 
 import com.liferay.blade.cli.BladeCLI;
+import com.liferay.blade.cli.BladeSettings;
 import com.liferay.blade.cli.WorkspaceProvider;
 import com.liferay.blade.cli.command.BaseArgs;
 import com.liferay.blade.cli.util.BladeUtil;
@@ -165,10 +166,38 @@ public class GradleWorkspaceProvider implements WorkspaceProvider {
 		}
 	}
 
+	@Override
+	public void resetWorkspaceBladeProperties(File settingsFile) {
+		try {
+			BladeSettings bladeSetting = new BladeSettings(settingsFile);
+
+			bladeSetting.setProfileName("gradle");
+
+			File gradlePropertiesFile = getGradlePropertiesFile(getWorkspaceDir(settingsFile));
+
+			Properties gradelProperties = BladeUtil.getProperties(gradlePropertiesFile);
+
+			String targetPlatformVersionValue = gradelProperties.getProperty(_TARGET_PLATFORM_VERSION_KEY);
+
+			if (!BladeUtil.isEmpty(targetPlatformVersionValue)) {
+				Version targetPlatformVersion = Version.parseVersion(targetPlatformVersionValue);
+
+				bladeSetting.setLiferayVersionDefault(
+					targetPlatformVersion.getMajor() + "." + targetPlatformVersion.getMinor());
+			}
+
+			bladeSetting.save();
+		}
+		catch (Exception e) {
+		}
+	}
+
 	private static final String _BUILD_GRADLE_FILE_NAME = "build.gradle";
 
 	private static final String _GRADLE_PROPERTIES_FILE_NAME = "gradle.properties";
 
 	private static final String _SETTINGS_GRADLE_FILE_NAME = "settings.gradle";
+
+	private static final String _TARGET_PLATFORM_VERSION_KEY = "liferay.workspace.target.platform.version";
 
 }

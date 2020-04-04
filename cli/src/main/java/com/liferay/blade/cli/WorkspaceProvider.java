@@ -52,4 +52,6 @@ public interface WorkspaceProvider {
 
 	public boolean isWorkspace(File dir);
 
+	public void resetWorkspaceBladeProperties(File settingsFile);
+
 }

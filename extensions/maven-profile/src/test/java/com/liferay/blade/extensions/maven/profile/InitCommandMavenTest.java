@@ -249,6 +249,39 @@ public class InitCommandMavenTest implements MavenExecutor {
 		_verifyMavenBuild();
 	}
 
+	@Test
+	public void testMavenWorkspaceResetBladeProperties() throws Exception {
+		String[] args = {"--base", _workspaceDir.getPath(), "init", "-P", "maven", "mavenworkspace", "-v", "7.3"};
+
+		File mavenworkspace = new File(_workspaceDir, "mavenworkspace");
+
+		TestUtil.runBlade(mavenworkspace, _extensionsDir, args);
+
+		Assert.assertTrue(mavenworkspace.exists());
+
+		File bladeProperties = new File(mavenworkspace, ".blade.properties");
+
+		Assert.assertTrue(bladeProperties.exists());
+
+		bladeProperties.delete();
+
+		Assert.assertFalse(bladeProperties.exists());
+
+		args = new String[] {"--base", mavenworkspace.getPath(), "create", "-t", "portlet", "project1"};
+
+		TestUtil.runBlade(mavenworkspace, _extensionsDir, args);
+
+		Assert.assertTrue(bladeProperties.exists());
+
+		File projectDirectory = new File(mavenworkspace, "modules/project1");
+
+		Assert.assertTrue(projectDirectory.exists());
+
+		File projectPomFile = new File(projectDirectory, "pom.xml");
+
+		Assert.assertTrue(projectPomFile.exists());
+	}
+
 	@Rule
 	public final TemporaryFolder temporaryFolder = new TemporaryFolder();
 

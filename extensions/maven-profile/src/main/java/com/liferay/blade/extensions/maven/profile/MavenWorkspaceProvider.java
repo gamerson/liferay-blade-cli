@@ -16,6 +16,7 @@
 
 package com.liferay.blade.extensions.maven.profile;
 
+import com.liferay.blade.cli.BladeSettings;
 import com.liferay.blade.cli.WorkspaceProvider;
 import com.liferay.blade.extensions.maven.profile.internal.MavenUtil;
 
@@ -34,6 +35,19 @@ public class MavenWorkspaceProvider implements WorkspaceProvider {
 	@Override
 	public boolean isWorkspace(File dir) {
 		return MavenUtil.isWorkspace(dir);
+	}
+
+	@Override
+	public void resetWorkspaceBladeProperties(File settingsFile) {
+		try {
+			BladeSettings bladeSetting = new BladeSettings(settingsFile);
+
+			bladeSetting.setProfileName("maven");
+
+			bladeSetting.save();
+		}
+		catch (Exception e) {
+		}
 	}
 
 }
