@@ -5,6 +5,10 @@ on:
     branches:
       - master
       - 'release'
+    paths-ignore:
+      - '*.commits'
+      - '*.markdown'
+      - '**/*.markdown'
 
 env:
   LC_ALL: en_US.UTF-8
