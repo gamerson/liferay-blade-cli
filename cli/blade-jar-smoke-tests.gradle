@@ -36,10 +36,10 @@ testBladeCreateCommandFormField {
 	workingDir = testDir
 
 	doLast {
-		File projectDir = new File(testDir, "test-form-field")
-
-		assert projectDir.exists()
 		assert !errorStream.toString().toLowerCase().contains("error")
+
+		File projectDir = new File(testDir, "test-form-field")
+		assert projectDir.exists()
 
 		errorStream.reset()
 		standardStream.reset()
