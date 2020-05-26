@@ -28,7 +28,10 @@ public class MavenTestUtil {
 	public static void makeMavenWorkspace(File extensionsDir, File workspace) throws Exception {
 		File parentFile = workspace.getParentFile();
 
-		String[] args = {"--base", parentFile.getPath(), "init", "-P", "maven", workspace.getName(), "-v", "7.3"};
+		String[] args = {
+			"--base", parentFile.getPath(), "init", "-P", "maven", workspace.getName(), "-v",
+			BladeTest.PRODUCT_VERSION_PORTAL_73
+		};
 
 		TestUtil.runBlade(workspace, extensionsDir, args);
 	}
