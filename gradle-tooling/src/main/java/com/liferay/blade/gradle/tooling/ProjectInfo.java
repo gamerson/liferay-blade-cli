@@ -27,6 +27,10 @@ import java.util.Set;
  */
 public interface ProjectInfo {
 
+	public String getAppServerTomcatVersion();
+
+	public String getBundleUrl();
+
 	public String getDeployDir();
 
 	public String getDockerContainerId();
@@ -40,6 +44,8 @@ public interface ProjectInfo {
 	public Set<String> getPluginClassNames();
 
 	public Map<String, Set<File>> getProjectOutputFiles();
+
+	public String getTargetPlatformVersion();
 
 	public boolean isLiferayProject();
 

@@ -114,6 +114,12 @@ public class ProjectInfoPlugin implements Plugin<Project> {
 
 			String dockerContainerId = _getDockerContainerId(project);
 
+			String appServerTomcatVersion = _getAppServerTomcatVersion(project);
+
+			String bundleUrl = _getBundleUrl(project);
+
+			String targetPlatformVersion = _getTargetPlatformVersion(project);
+
 			try {
 				Configuration archivesConfiguration = configurations.getByName(Dependency.ARCHIVES_CONFIGURATION);
 
@@ -132,12 +138,25 @@ public class ProjectInfoPlugin implements Plugin<Project> {
 
 			return new DefaultModel(
 				pluginClassNames, projectOutputFiles, deployDir, liferayHome, dockerImageLiferay, dockerImageId,
-				dockerContainerId);
+				dockerContainerId, appServerTomcatVersion, bundleUrl, targetPlatformVersion);
 		}
 
 		@Override
 		public boolean canBuild(String modelName) {
 			return modelName.equals(ProjectInfo.class.getName());
+		}
+
+		private String _getAppServerTomcatVersion(Project project) {
+			Project rootProject = project.getRootProject();
+
+			return _getExtensionProperty(
+				(ExtensionAware)rootProject.getGradle(), "liferayWorkspace", "appServerTomcatVersion");
+		}
+
+		private String _getBundleUrl(Project project) {
+			Project rootProject = project.getRootProject();
+
+			return _getExtensionProperty((ExtensionAware)rootProject.getGradle(), "liferayWorkspace", "bundleUrl");
 		}
 
 		private String _getDeployDir(Project project) {
@@ -198,6 +217,13 @@ public class ProjectInfoPlugin implements Plugin<Project> {
 
 		private String _getLiferayHome(Project project) {
 			return _getExtensionProperty(project, "liferay", "liferayHome");
+		}
+
+		private String _getTargetPlatformVersion(Project project) {
+			Project rootProject = project.getRootProject();
+
+			return _getExtensionProperty(
+				(ExtensionAware)rootProject.getGradle(), "liferayWorkspace", "targetPlatformVersion");
 		}
 
 	}

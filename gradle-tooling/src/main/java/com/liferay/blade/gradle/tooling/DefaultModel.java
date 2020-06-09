@@ -31,7 +31,8 @@ public class DefaultModel implements ProjectInfo, Serializable {
 
 	public DefaultModel(
 		Set<String> pluginClassNames, Map<String, Set<File>> projectOutputFiles, String deployDir, String liferayHome,
-		String dockerImageLiferay, String dockerImageId, String dockerContainerId) {
+		String dockerImageLiferay, String dockerImageId, String dockerContainerId, String appServerTomcatVersion,
+		String bundleUrl, String targetPlatformVersion) {
 
 		_pluginClassNames = pluginClassNames;
 		_projectOutputFiles = projectOutputFiles;
@@ -40,6 +41,19 @@ public class DefaultModel implements ProjectInfo, Serializable {
 		_dockerImageLiferay = dockerImageLiferay;
 		_dockerImageId = dockerImageId;
 		_dockerContainerId = dockerContainerId;
+		_appServerTomcatVersion = appServerTomcatVersion;
+		_bundleUrl = bundleUrl;
+		_targetPlatformVersion = targetPlatformVersion;
+	}
+
+	@Override
+	public String getAppServerTomcatVersion() {
+		return _appServerTomcatVersion;
+	}
+
+	@Override
+	public String getBundleUrl() {
+		return _bundleUrl;
 	}
 
 	@Override
@@ -78,6 +92,11 @@ public class DefaultModel implements ProjectInfo, Serializable {
 	}
 
 	@Override
+	public String getTargetPlatformVersion() {
+		return _targetPlatformVersion;
+	}
+
+	@Override
 	public boolean isLiferayProject() {
 		if (_hasPlugin("aQute.bnd.gradle.BndBuilderPlugin") || _hasPlugin("com.liferay.gradle.plugins.LiferayPlugin") ||
 			_hasPlugin("com.liferay.gradle.plugins.LiferayOSGiPlugin") ||
@@ -93,6 +112,8 @@ public class DefaultModel implements ProjectInfo, Serializable {
 		return _pluginClassNames.contains(pluginClassName);
 	}
 
+	private final String _appServerTomcatVersion;
+	private final String _bundleUrl;
 	private final String _deployDir;
 	private final String _dockerContainerId;
 	private final String _dockerImageId;
@@ -100,5 +121,6 @@ public class DefaultModel implements ProjectInfo, Serializable {
 	private final String _liferayHome;
 	private final Set<String> _pluginClassNames;
 	private final Map<String, Set<File>> _projectOutputFiles;
+	private final String _targetPlatformVersion;
 
 }
