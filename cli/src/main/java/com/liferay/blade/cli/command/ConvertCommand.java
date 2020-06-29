@@ -62,6 +62,8 @@ import java.util.stream.Stream;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 
+import org.apache.commons.io.FilenameUtils;
+import org.apache.commons.lang.StringUtils;
 import org.apache.tools.ant.Project;
 import org.apache.tools.ant.taskdefs.LoadProperties;
 
@@ -713,6 +715,8 @@ public class ConvertCommand extends BaseCommand<ConvertArgs> implements FilesSup
 			convertedDependencies.add(new GradleDependency(sb.toString()));
 		}
 
+		_convertWebInfLibNames(warDir, convertedDependencies);
+
 		Path buildGradlePath = warPath.resolve("build.gradle");
 
 		String existingContent = new String(Files.readAllBytes(buildGradlePath));
@@ -872,6 +876,44 @@ public class ConvertCommand extends BaseCommand<ConvertArgs> implements FilesSup
 		}
 
 		return convertedDependencies;
+	}
+
+	private void _convertWebInfLibNames(File warDir, List<GradleDependency> convertDependencies) {
+		File webInfLibDir = new File(warDir, "src/main/webapp/WEB-INF/lib");
+
+		FilenameFilter fileNameFilter = new FilenameFilter() {
+
+			public boolean accept(File dir, String name) {
+				if (name.endsWith(".jar")) {
+					return true;
+				}
+
+				return false;
+			}
+
+		};
+
+		if (webInfLibDir.exists()) {
+			for (File libFile : webInfLibDir.listFiles(fileNameFilter)) {
+				String noExtensionName = FilenameUtils.removeExtension(libFile.getName());
+
+				boolean foundedDependency = convertDependencies.stream(
+				).filter(
+					dependency -> StringUtils.contains(dependency.getSingleLine(), noExtensionName)
+				).findAny(
+				).isPresent();
+
+				if (!foundedDependency) {
+					StringBuilder sb = new StringBuilder("compileInclude files(\"lib/");
+
+					sb.append(libFile.getName());
+					sb.append("\")");
+					sb.append(System.lineSeparator());
+
+					convertDependencies.add(new GradleDependency(sb.toString()));
+				}
+			}
+		}
 	}
 
 	private void _deleteServiceBuilderFiles(Path warPath) throws IOException {
@@ -1067,11 +1109,11 @@ public class ConvertCommand extends BaseCommand<ConvertArgs> implements FilesSup
 
 		public String toCompileDependency() {
 			if (isUnknown()) {
-				return MessageFormat.format("// Unknown dependency: {0}", getJarName());
+				return MessageFormat.format("// Unknown dependency: {0}" + System.lineSeparator(), getJarName());
 			}
 
 			return MessageFormat.format(
-				"compile group: \"{0}\", name: \"{1}\", version: \"{2}\"", _getGroupId(), _getArtifactId(),
+				"compile group: \"{0}\", name: \"{1}\", version: \"{2}\"" + System.lineSeparator(), _getGroupId(), _getArtifactId(),
 				_getVersion());
 		}
 
