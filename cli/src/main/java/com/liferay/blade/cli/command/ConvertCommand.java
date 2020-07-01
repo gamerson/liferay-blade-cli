@@ -62,6 +62,7 @@ import java.util.stream.Stream;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 
+import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.tools.ant.Project;
@@ -815,29 +816,7 @@ public class ConvertCommand extends BaseCommand<ConvertArgs> implements FilesSup
 						).filter(
 							File::exists
 						).map(
-							portalJar -> {
-								try (JarFile jarFile = new JarFile(portalJar)) {
-									Enumeration<JarEntry> jarEntries = jarFile.entries();
-
-									while (jarEntries.hasMoreElements()) {
-										JarEntry jarEntry = jarEntries.nextElement();
-
-										String name = jarEntry.getName();
-
-										if (name.startsWith("META-INF/maven") && name.endsWith("pom.properties")) {
-											Properties properties = _loadProperties(jarFile.getInputStream(jarEntry));
-
-											return new GAV(
-												properties.get("groupId"), properties.get("artifactId"),
-												properties.get("version"));
-										}
-									}
-								}
-								catch (IOException e) {
-								}
-
-								return new GAV(portalJar.getName());
-							}
+							portalJar -> _getConvertDepdency(portalJar)
 						).forEach(
 							gav -> {
 								if (gav.isUnknown()) {
@@ -893,24 +872,46 @@ public class ConvertCommand extends BaseCommand<ConvertArgs> implements FilesSup
 
 		};
 
+		BladeCLI bladeCLI = getBladeCLI();
+
+		BaseArgs baseArgs = bladeCLI.getArgs();
+
+		File workspaceProjectLibDir = new File(baseArgs.getBase(), "libs");
+
 		if (webInfLibDir.exists()) {
 			for (File libFile : webInfLibDir.listFiles(fileNameFilter)) {
-				String noExtensionName = FilenameUtils.removeExtension(libFile.getName());
+				try {
+					GAV webInfLibGav = _getConvertDepdency(libFile);
 
-				boolean foundedDependency = convertDependencies.stream(
-				).filter(
-					dependency -> StringUtils.contains(dependency.getSingleLine(), noExtensionName)
-				).findAny(
-				).isPresent();
+					if (webInfLibGav.isUnknown()) {
+						String noExtensionName = FilenameUtils.removeExtension(libFile.getName());
 
-				if (!foundedDependency) {
-					StringBuilder sb = new StringBuilder("compileInclude files(\"lib/");
+						boolean foundedDependency = convertDependencies.stream(
+						).filter(
+							dependency -> StringUtils.contains(dependency.getSingleLine(), noExtensionName)
+						).findAny(
+						).isPresent();
 
-					sb.append(libFile.getName());
-					sb.append("\")");
-					sb.append(System.lineSeparator());
+						if (!foundedDependency) {
+							StringBuilder sb = new StringBuilder("compile files(\"libs/");
 
-					convertDependencies.add(new GradleDependency(sb.toString()));
+							sb.append(libFile.getName());
+							sb.append("\")");
+							sb.append(System.lineSeparator());
+
+							convertDependencies.add(new GradleDependency(sb.toString()));
+						}
+
+						FileUtils.moveFileToDirectory(libFile, workspaceProjectLibDir, true);
+					}
+					else {
+						convertDependencies.add(new GradleDependency(webInfLibGav.toCompileDependency()));
+
+						FileUtils.deleteQuietly(libFile);
+					}
+				}
+				catch (Exception exception) {
+					exception.printStackTrace();
 				}
 			}
 		}
@@ -967,6 +968,28 @@ public class ConvertCommand extends BaseCommand<ConvertArgs> implements FilesSup
 			});
 
 		return pluginDir[0];
+	}
+
+	private GAV _getConvertDepdency(File dependencyJarFile) {
+		try (JarFile jarFile = new JarFile(dependencyJarFile)) {
+			Enumeration<JarEntry> jarEntries = jarFile.entries();
+
+			while (jarEntries.hasMoreElements()) {
+				JarEntry jarEntry = jarEntries.nextElement();
+
+				String name = jarEntry.getName();
+
+				if (name.startsWith("META-INF/maven") && name.endsWith("pom.properties")) {
+					Properties properties = _loadProperties(jarFile.getInputStream(jarEntry));
+
+					return new GAV(properties.get("groupId"), properties.get("artifactId"), properties.get("version"));
+				}
+			}
+		}
+		catch (IOException e) {
+		}
+
+		return new GAV(dependencyJarFile.getName());
 	}
 
 	private File _getPluginsSdkDir(ConvertArgs convertArgs, File projectDir, Properties gradleProperties) {
@@ -1113,8 +1136,8 @@ public class ConvertCommand extends BaseCommand<ConvertArgs> implements FilesSup
 			}
 
 			return MessageFormat.format(
-				"compile group: \"{0}\", name: \"{1}\", version: \"{2}\"" + System.lineSeparator(), _getGroupId(), _getArtifactId(),
-				_getVersion());
+				"compile group: \"{0}\", name: \"{1}\", version: \"{2}\"" + System.lineSeparator(), _getGroupId(),
+				_getArtifactId(), _getVersion());
 		}
 
 		private String _getArtifactId() {
