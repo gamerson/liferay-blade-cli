@@ -18,11 +18,12 @@ package com.liferay.blade.cli.command;
 
 import com.liferay.blade.cli.BladeCLI;
 import com.liferay.blade.cli.WorkspaceConstants;
+import com.liferay.blade.cli.gradle.GradleDependency;
 import com.liferay.blade.cli.gradle.GradleWorkspaceProvider;
 import com.liferay.blade.cli.util.CopyDirVisitor;
 import com.liferay.blade.cli.util.FileUtil;
 import com.liferay.blade.cli.util.ListUtil;
-import com.liferay.ide.gradle.core.model.GradleDependency;
+import com.liferay.blade.cli.util.StringUtil;
 import com.liferay.project.templates.extensions.ProjectTemplatesArgs;
 
 import java.io.File;
@@ -52,6 +53,7 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Properties;
+import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 import java.util.regex.Matcher;
@@ -689,6 +691,8 @@ public class ConvertCommand extends BaseCommand<ConvertArgs> implements FilesSup
 
 		List<GAV> warDependencies = _convertWarDependencies(pluginsSdkDir, warDir);
 
+		_removeIgnorePoratlDependencies(warDependencies);
+
 		warDependencies.stream(
 		).map(
 			gav -> {
@@ -744,7 +748,7 @@ public class ConvertCommand extends BaseCommand<ConvertArgs> implements FilesSup
 	private List<GAV> _convertWarDependencies(File pluginsSdkDir, File warDir)
 		throws FileNotFoundException, IOException {
 
-		List<GAV> convertedDependencies = new ArrayList<>();
+		List<GAV> convertedDependencies = new CopyOnWriteArrayList<>();
 
 		List<String> portalDependencyJars = new ArrayList<>(Arrays.asList(_PORTLET_PLUGIN_API_DEPENDENCIES));
 
@@ -1022,6 +1026,41 @@ public class ConvertCommand extends BaseCommand<ConvertArgs> implements FilesSup
 		inputStream.close();
 
 		return properties;
+	}
+
+	private void _removeIgnorePoratlDependencies(List<GAV> convertedDependencies) {
+		try (InputStream inputStream = ConvertCommand.class.getResourceAsStream(
+				"/ignore-portal-dependencies.properties")) {
+
+			Properties properties = _loadProperties(inputStream);
+
+			convertedDependencies.stream(
+			).forEach(
+				gav -> {
+					for (Map.Entry<Object, Object> ignoreDependencies : properties.entrySet()) {
+						if (gav.isUnknown() &&
+							StringUtil.equals(String.valueOf(ignoreDependencies.getKey()), gav.getJarName())) {
+
+							convertedDependencies.remove(gav);
+						}
+						else {
+							String[] gavString = StringUtil.split(String.valueOf(ignoreDependencies.getValue()), ":");
+
+							if (gavString.length >= 2) {
+								GAV ignoedGav = new GAV(gavString[0], gavString[1], null);
+
+								if (StringUtil.equals(ignoedGav._getArtifactId(), gav._getArtifactId())) {
+									convertedDependencies.remove(gav);
+								}
+							}
+						}
+					}
+				}
+			);
+		}
+		catch (Exception exception) {
+			getBladeCLI().error("Error remove unused dependency.\n");
+		}
 	}
 
 	private void _warn(String message) {

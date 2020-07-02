@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.liferay.ide.gradle.core.model;
+package com.liferay.blade.cli.gradle;
 
 import java.text.MessageFormat;
 
