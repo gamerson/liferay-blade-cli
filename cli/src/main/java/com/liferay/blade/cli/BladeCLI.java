@@ -45,6 +45,8 @@ import java.io.PrintStream;
 
 import java.lang.reflect.Field;
 
+import java.net.InetAddress;
+
 import java.nio.file.Files;
 import java.nio.file.Path;
 
@@ -495,6 +497,8 @@ public class BladeCLI {
 
 							_args.setBase(baseDir);
 
+							_args.setOffline(_checkOfflineStatus());
+
 							try {
 								runCommand();
 
@@ -874,6 +878,23 @@ public class BladeCLI {
 		catch (Exception e) {
 			throw new RuntimeException(e);
 		}
+	}
+
+	private boolean _checkOfflineStatus() {
+		final String prodductJsonHost = "releases.liferay.com";
+
+		try {
+			InetAddress inetAddress = InetAddress.getByName(prodductJsonHost);
+
+			if (inetAddress.isReachable(1000)) {
+				return true;
+			}
+		}
+		catch (Exception e) {
+			return true;
+		}
+
+		return false;
 	}
 
 	private String _extractProfileName(String[] args) {

@@ -188,41 +188,26 @@ public class InitCommand extends BaseCommand<InitArgs> {
 
 		projectTemplatesArgs.setGradle(!mavenBuild);
 
-		switch (initArgs.getLiferayVersion()) {
-			case "7.0":
-				initArgs.setLiferayVersion("portal-7.0-ga7");
+		boolean offline = initArgs.isOffline();
 
-				break;
-			case "7.1":
-				initArgs.setLiferayVersion("portal-7.1-ga4");
+		if (!offline && !mavenBuild) {
+			String workspaceProductKey = initArgs.getLiferayVersion();
 
-				break;
-			case "7.2":
-				initArgs.setLiferayVersion("portal-7.2-ga2");
+			Map<String, ProductInfo> productInfos = BladeUtil.getProductInfos();
 
-				break;
-			case "7.3":
-				initArgs.setLiferayVersion("portal-7.3-ga2");
+			ProductInfo productInfo = productInfos.get(workspaceProductKey);
 
-				break;
+			if (productInfo == null) {
+				_addError("Unable to get product info for selected version " + workspaceProductKey);
+
+				return;
+			}
+
+			Version targetPlatformVersion = new Version(productInfo.getTargetPlatformVersion());
+
+			initArgs.setLiferayVersion(
+				new String(targetPlatformVersion.getMajor() + "." + targetPlatformVersion.getMinor()));
 		}
-
-		String workspaceProductKey = initArgs.getLiferayVersion();
-
-		Map<String, ProductInfo> productInfos = BladeUtil.getProductInfos();
-
-		ProductInfo productInfo = productInfos.get(workspaceProductKey);
-
-		if (productInfo == null) {
-			_addError("Unable to get product info for selected version " + workspaceProductKey);
-
-			return;
-		}
-
-		Version targetPlatformVersion = new Version(productInfo.getTargetPlatformVersion());
-
-		initArgs.setLiferayVersion(
-			new String(targetPlatformVersion.getMajor() + "." + targetPlatformVersion.getMinor()));
 
 		projectTemplatesArgs.setLiferayVersion(initArgs.getLiferayVersion());
 
@@ -249,7 +234,9 @@ public class InitCommand extends BaseCommand<InitArgs> {
 		if (mavenBuild) {
 			FileUtil.deleteFiles(destDir.toPath(), "gradle.properties", "gradle-local.properties");
 		}
-		else {
+		else if (!offline) {
+			String workspaceProductKey = initArgs.getLiferayVersion();
+
 			BladeUtil.writePropertyValue(
 				new File(destDir, "gradle.properties"), "liferay.workspace.product", workspaceProductKey);
 

@@ -43,6 +43,10 @@ public class BaseArgs {
 		return _help;
 	}
 
+	public boolean isOffline() {
+		return _offline;
+	}
+
 	public boolean isQuiet() {
 		return _quiet;
 	}
@@ -53,6 +57,10 @@ public class BaseArgs {
 
 	public void setBase(File baseDir) {
 		_base = baseDir.getAbsoluteFile();
+	}
+
+	public void setOffline(boolean offline) {
+		_offline = offline;
 	}
 
 	public void setProfileName(String profileName) {
@@ -70,6 +78,9 @@ public class BaseArgs {
 
 	@Parameter(description = "Get help on a specific command.", help = true, names = "--help")
 	private boolean _help;
+
+	@Parameter(description = "Enable command work under offline mode.", names = "--offline")
+	private boolean _offline;
 
 	@Parameter(
 		description = "Specify the profile to use when invoking the command.",
