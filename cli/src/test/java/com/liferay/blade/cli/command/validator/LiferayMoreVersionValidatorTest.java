@@ -16,9 +16,13 @@
 
 package com.liferay.blade.cli.command.validator;
 
+import aQute.libg.tuple.Pair;
+
 import com.liferay.blade.cli.util.FileUtil;
+import com.liferay.blade.cli.util.ProductInfo;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Scanner;
 import java.util.stream.Collectors;
@@ -73,8 +77,12 @@ public class LiferayMoreVersionValidatorTest {
 		}
 
 		List<String> sorted = randomLines.stream(
+		).map(
+			line -> new Pair<String, ProductInfo>(line, new ProductInfo(Collections.emptyMap()))
 		).sorted(
 			new WorkspaceProductComparator()
+		).map(
+			Pair::getFirst
 		).collect(
 			Collectors.toList()
 		);
