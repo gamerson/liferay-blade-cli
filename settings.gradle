@@ -1,3 +1,7 @@
+plugins {
+    id "com.gradle.enterprise" version "3.5"
+}
+
 include "cli"
 include "extensions:bad-command"
 include "extensions:maven-profile"
