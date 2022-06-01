@@ -124,7 +124,7 @@ public class LXCUtil {
 		return lxcDirPath.resolve("lxc");
 	}
 	
-	private static String _lxcVersion = "0.0.1";
+	private static String _lxcVersion = "0.0.3";
 	
 	private static String _getLxcURL() {
 		StringBuilder sb = new StringBuilder();
@@ -146,6 +146,7 @@ public class LXCUtil {
 		sb.append(os);
 		sb.append(".tgz");
 
+		System.out.println(sb.toString());
 		return sb.toString();
 	}
 	
